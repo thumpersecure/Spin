@@ -256,9 +256,51 @@ function applyPrivacySettings() {
     });
   }
 
-  // Block third-party cookies via session settings (more efficient)
+  // Block third-party cookies by filtering Set-Cookie headers from third-party domains
   if (privacy.blockThirdPartyCookies) {
-    ses.cookies.setDefaultService;
+    ses.webRequest.onHeadersReceived((details, callback) => {
+      if (!cachedPrivacySettings?.blockThirdPartyCookies) {
+        callback({ responseHeaders: details.responseHeaders });
+        return;
+      }
+
+      // Get the main frame's domain for first-party comparison
+      const requestUrl = new URL(details.url);
+      const requestDomain = requestUrl.hostname;
+
+      // Check if this is a third-party request by comparing with the initiator
+      let isThirdParty = false;
+      if (details.frame && details.frame.url) {
+        try {
+          const frameUrl = new URL(details.frame.url);
+          const frameDomain = frameUrl.hostname;
+          // Extract base domain (e.g., example.com from sub.example.com)
+          const getBaseDomain = (hostname) => {
+            const parts = hostname.split('.');
+            return parts.length > 2 ? parts.slice(-2).join('.') : hostname;
+          };
+          isThirdParty = getBaseDomain(requestDomain) !== getBaseDomain(frameDomain);
+        } catch (e) {
+          // If we can't parse URLs, be conservative and allow
+          isThirdParty = false;
+        }
+      }
+
+      if (isThirdParty && details.responseHeaders) {
+        // Filter out Set-Cookie headers from third-party responses
+        const filteredHeaders = {};
+        for (const [key, value] of Object.entries(details.responseHeaders)) {
+          if (key.toLowerCase() !== 'set-cookie') {
+            filteredHeaders[key] = value;
+          } else {
+            logToDevPortal('privacy', `Blocked third-party cookie from: ${requestDomain}`);
+          }
+        }
+        callback({ responseHeaders: filteredHeaders });
+      } else {
+        callback({ responseHeaders: details.responseHeaders });
+      }
+    });
   }
 
   // Set Do Not Track and privacy headers - combined for efficiency
@@ -278,7 +320,8 @@ function applyPrivacySettings() {
 
   // Configure Tor proxy
   if (privacy.torEnabled || privacy.extremePrivacyMode) {
-    ses.setProxy({ proxyRules: privacy.torProxy.replace('socks5://', 'socks5://') });
+    // Use socks5h:// to ensure DNS resolution also goes through Tor (prevents DNS leaks)
+    ses.setProxy({ proxyRules: privacy.torProxy.replace('socks5://', 'socks5h://') });
     logToDevPortal('privacy', 'Tor proxy enabled - Tracey is going dark');
   }
 }

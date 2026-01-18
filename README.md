@@ -1,14 +1,18 @@
-# SPIN Detective Browser - Tracey Edition
+# osint web browser
 
 ```
-    _____ ____  _____   __   ____  ________________ _____________    ________
-   / ___// __ \/  _/ | / /  / __ \/ ____/_  __/ __ / ____/_  __/   / ____/ /
-   \__ \/ /_/ // //  |/ /  / / / / __/   / / / /_/ / / __  / /     / __/ / /
-  ___/ / ____// // /|  /  / /_/ / /___  / / / __  / /_/ / / /     / /___/_/
- /____/_/   /___/_/ |_/  /_____/_____/ /_/ /_/ /_/\____/ /_/     /_____(_)
+  ████████╗██████╗  █████╗  ██████╗███████╗██╗   ██╗
+  ╚══██╔══╝██╔══██╗██╔══██╗██╔════╝██╔════╝╚██╗ ██╔╝
+     ██║   ██████╔╝███████║██║     █████╗   ╚████╔╝
+     ██║   ██╔══██╗██╔══██║██║     ██╔══╝    ╚██╔╝
+     ██║   ██║  ██║██║  ██║╚██████╗███████╗   ██║
+     ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝   ╚═╝
 
-              "The Wrist Radio of the Digital Age"
-                     ~ Tracey Edition v2.0 ~
+    ★ ═══════════════════════════════════════════ ★
+    ║         💫  spin web osint  💫             ║
+    ║      "The Wrist Radio of the Digital Age"   ║
+    ★ ═══════════════════════════════════════════ ★
+                  ~ Tracey Edition v2.0 ~
 ```
 
 > *"Calling all cars! Calling all cars!"* - This noir-style browser is your two-way wrist radio for Open Source Intelligence investigations. Built on Electron (Chromium-based) with integrated Tor support, anti-tracking protections, and comprehensive OSINT tooling.
@@ -190,8 +194,8 @@ version           - Show version info
 
 ```bash
 # Clone the repository (Open the case file)
-git clone https://github.com/yourusername/spin-osint-browser.git
-cd spin-osint-browser
+git clone https://github.com/thumpersecure/Spin.git
+cd Spin
 
 # Install dependencies (Get your equipment)
 npm install
