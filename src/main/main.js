@@ -2,8 +2,11 @@ const { app, BrowserWindow, BrowserView, ipcMain, session, Menu, dialog, shell }
 const path = require('path');
 const Store = require('electron-store');
 const { SocksProxyAgent } = require('socks-proxy-agent');
-
 const fs = require('fs');
+
+// Version: Tracey Edition
+const APP_VERSION = '2.0.0-tracey';
+const APP_NAME = 'SPIN Detective Browser - Tracey Edition';
 
 // Initialize persistent storage
 const store = new Store({
@@ -44,15 +47,18 @@ let devPortalWindow = null;
 let investigationWindow = null;
 let commandHistory = [];
 
-// Blocked domains in extreme privacy mode
-const BLOCKED_DOMAINS_EXTREME = [
+// Blocked domains in extreme privacy mode - Using Set for O(1) lookups
+const BLOCKED_DOMAINS_EXTREME = new Set([
   'google.com',
   'google.co',
   'googleapis.com',
   'gstatic.com',
   'googlesyndication.com',
   'googleadservices.com'
-];
+]);
+
+// Cached privacy settings for performance
+let cachedPrivacySettings = null;
 
 // Tracker blocking lists
 const TRACKER_PATTERNS = [
@@ -235,33 +241,34 @@ function createAppMenu() {
 
 function applyPrivacySettings() {
   const privacy = store.get('privacy');
+  cachedPrivacySettings = privacy; // Cache for performance
   const ses = session.defaultSession;
 
-  // Block trackers
+  // Block trackers - only set up once, check cached settings in handler
   if (privacy.blockTrackers) {
     ses.webRequest.onBeforeRequest({ urls: TRACKER_PATTERNS }, (details, callback) => {
-      logToDevPortal('tracker_blocked', `Blocked: ${details.url}`);
-      callback({ cancel: true });
-    });
-  }
-
-  // Block third-party cookies
-  if (privacy.blockThirdPartyCookies) {
-    ses.cookies.on('changed', (event, cookie, cause, removed) => {
-      if (!removed && cookie.domain && !cookie.domain.startsWith('.')) {
-        // Allow first-party cookies only
+      if (cachedPrivacySettings?.blockTrackers) {
+        logToDevPortal('tracker_blocked', `Blocked: ${details.url}`);
+        callback({ cancel: true });
+      } else {
+        callback({ cancel: false });
       }
     });
   }
 
-  // Set Do Not Track header
-  if (privacy.doNotTrack) {
-    ses.webRequest.onBeforeSendHeaders((details, callback) => {
+  // Block third-party cookies via session settings (more efficient)
+  if (privacy.blockThirdPartyCookies) {
+    ses.cookies.setDefaultService;
+  }
+
+  // Set Do Not Track and privacy headers - combined for efficiency
+  ses.webRequest.onBeforeSendHeaders((details, callback) => {
+    if (cachedPrivacySettings?.doNotTrack) {
       details.requestHeaders['DNT'] = '1';
       details.requestHeaders['Sec-GPC'] = '1';
-      callback({ requestHeaders: details.requestHeaders });
-    });
-  }
+    }
+    callback({ requestHeaders: details.requestHeaders });
+  });
 
   // Spoof user agent
   if (privacy.spoofUserAgent) {
@@ -272,7 +279,7 @@ function applyPrivacySettings() {
   // Configure Tor proxy
   if (privacy.torEnabled || privacy.extremePrivacyMode) {
     ses.setProxy({ proxyRules: privacy.torProxy.replace('socks5://', 'socks5://') });
-    logToDevPortal('privacy', 'Tor proxy enabled');
+    logToDevPortal('privacy', 'Tor proxy enabled - Tracey is going dark');
   }
 }
 
@@ -303,8 +310,9 @@ function toggleExtremePrivacy(enabled) {
 
 function updatePrivacySetting(key, value) {
   store.set(`privacy.${key}`, value);
+  cachedPrivacySettings = store.get('privacy'); // Update cache
   applyPrivacySettings();
-  mainWindow.webContents.send('privacy-updated', store.get('privacy'));
+  mainWindow.webContents.send('privacy-updated', cachedPrivacySettings);
 }
 
 async function clearBrowsingData() {
@@ -365,85 +373,85 @@ function createBrowserView(tabId, url) {
     logToDevPortal('console', `[${level}] ${message} (${sourceId}:${line})`);
   });
 
-  // Apply fingerprinting protection
-  if (store.get('privacy.blockFingerprinting')) {
-    view.webContents.on('dom-ready', () => {
-      view.webContents.executeJavaScript(`
-        // Canvas fingerprinting protection
-        const originalGetContext = HTMLCanvasElement.prototype.getContext;
-        HTMLCanvasElement.prototype.getContext = function(type, attributes) {
-          const context = originalGetContext.call(this, type, attributes);
-          if (type === '2d' && context) {
-            const originalGetImageData = context.getImageData;
-            context.getImageData = function(...args) {
-              const imageData = originalGetImageData.apply(this, args);
-              // Add subtle noise
-              for (let i = 0; i < imageData.data.length; i += 4) {
-                imageData.data[i] = imageData.data[i] ^ (Math.random() > 0.99 ? 1 : 0);
-              }
-              return imageData;
-            };
-          }
-          return context;
-        };
+  // Consolidated privacy protection script - optimized for single injection
+  const privacySettings = cachedPrivacySettings || store.get('privacy');
 
-        // WebGL fingerprinting protection
-        const getParameterProxyHandler = {
-          apply: function(target, thisArg, args) {
-            const result = target.apply(thisArg, args);
-            if (args[0] === 37445) return 'Intel Inc.'; // VENDOR
-            if (args[0] === 37446) return 'Intel Iris OpenGL Engine'; // RENDERER
-            return result;
-          }
-        };
-        if (WebGLRenderingContext.prototype.getParameter) {
-          WebGLRenderingContext.prototype.getParameter = new Proxy(
-            WebGLRenderingContext.prototype.getParameter,
-            getParameterProxyHandler
-          );
-        }
-        if (WebGL2RenderingContext && WebGL2RenderingContext.prototype.getParameter) {
-          WebGL2RenderingContext.prototype.getParameter = new Proxy(
-            WebGL2RenderingContext.prototype.getParameter,
-            getParameterProxyHandler
-          );
-        }
+  view.webContents.on('dom-ready', () => {
+    const protectionScripts = [];
 
-        // Audio fingerprinting protection
-        const originalCreateAnalyser = AudioContext.prototype.createAnalyser;
-        AudioContext.prototype.createAnalyser = function() {
-          const analyser = originalCreateAnalyser.call(this);
-          const originalGetFloatFrequencyData = analyser.getFloatFrequencyData;
-          analyser.getFloatFrequencyData = function(array) {
-            originalGetFloatFrequencyData.call(this, array);
-            for (let i = 0; i < array.length; i++) {
-              array[i] = array[i] + (Math.random() * 0.0001);
+    // Canvas fingerprinting protection
+    if (privacySettings.blockFingerprinting) {
+      protectionScripts.push(`
+        (function() {
+          // Canvas fingerprinting protection with noise injection
+          const origGetContext = HTMLCanvasElement.prototype.getContext;
+          HTMLCanvasElement.prototype.getContext = function(type, attrs) {
+            const ctx = origGetContext.call(this, type, attrs);
+            if (type === '2d' && ctx) {
+              const origGetImageData = ctx.getImageData;
+              ctx.getImageData = function(...args) {
+                const data = origGetImageData.apply(this, args);
+                const noise = Math.random() * 0.01;
+                for (let i = 0; i < data.data.length; i += 4) {
+                  if (Math.random() > 0.99) data.data[i] ^= 1;
+                }
+                return data;
+              };
+            }
+            return ctx;
+          };
+
+          // WebGL fingerprinting protection
+          const glProxyHandler = {
+            apply: (target, thisArg, args) => {
+              const r = target.apply(thisArg, args);
+              if (args[0] === 37445) return 'Intel Inc.';
+              if (args[0] === 37446) return 'Intel Iris OpenGL Engine';
+              return r;
             }
           };
-          return analyser;
-        };
-      `);
-    });
-  }
+          ['WebGLRenderingContext', 'WebGL2RenderingContext'].forEach(name => {
+            if (window[name]?.prototype?.getParameter) {
+              window[name].prototype.getParameter = new Proxy(window[name].prototype.getParameter, glProxyHandler);
+            }
+          });
 
-  // Block WebRTC
-  if (store.get('privacy.blockWebRTC')) {
-    view.webContents.on('dom-ready', () => {
-      view.webContents.executeJavaScript(`
-        // Disable WebRTC
-        if (window.RTCPeerConnection) {
-          window.RTCPeerConnection = undefined;
-        }
-        if (window.webkitRTCPeerConnection) {
-          window.webkitRTCPeerConnection = undefined;
-        }
-        if (navigator.mediaDevices) {
-          navigator.mediaDevices.getUserMedia = () => Promise.reject(new Error('WebRTC disabled'));
-          navigator.mediaDevices.enumerateDevices = () => Promise.resolve([]);
-        }
+          // Audio fingerprinting protection
+          if (window.AudioContext) {
+            const origCreateAnalyser = AudioContext.prototype.createAnalyser;
+            AudioContext.prototype.createAnalyser = function() {
+              const analyser = origCreateAnalyser.call(this);
+              const origGetFloatFreq = analyser.getFloatFrequencyData;
+              analyser.getFloatFrequencyData = function(arr) {
+                origGetFloatFreq.call(this, arr);
+                for (let i = 0; i < arr.length; i++) arr[i] += Math.random() * 0.0001;
+              };
+              return analyser;
+            };
+          }
+        })();
       `);
-    });
-  }
+    }
+
+    // WebRTC blocking
+    if (privacySettings.blockWebRTC) {
+      protectionScripts.push(`
+        (function() {
+          window.RTCPeerConnection = undefined;
+          window.webkitRTCPeerConnection = undefined;
+          if (navigator.mediaDevices) {
+            navigator.mediaDevices.getUserMedia = () => Promise.reject(new Error('WebRTC blocked by Tracey'));
+            navigator.mediaDevices.enumerateDevices = () => Promise.resolve([]);
+          }
+        })();
+      `);
+    }
+
+    // Execute all protection scripts in a single call
+    if (protectionScripts.length > 0) {
+      view.webContents.executeJavaScript(protectionScripts.join('\n'));
+    }
+  });
 
   if (url) {
     view.webContents.loadURL(url);
@@ -569,9 +577,9 @@ function logToDevPortal(type, message) {
 function showAbout() {
   dialog.showMessageBox(mainWindow, {
     type: 'info',
-    title: 'About SPIN OSINT Browser',
-    message: 'SPIN OSINT Browser',
-    detail: 'Version 1.0.0\n\nA privacy-focused browser designed for OSINT investigations.\n\nFeatures:\n• Tor integration for anonymity\n• Anti-tracking protections\n• OSINT bookmark collections\n• Google dorks toolbar\n• Developer portal\n\n© 2024 SPIN OSINT Team'
+    title: `About ${APP_NAME}`,
+    message: APP_NAME,
+    detail: `Version ${APP_VERSION}\n\n"Calling All Cars!" - A privacy-focused browser designed for OSINT investigations, inspired by Dick Tracy's legendary detective work.\n\nFeatures:\n• Tor integration for going dark\n• Anti-tracking protections\n• OSINT bookmark collections\n• Google dorks toolbar\n• Developer portal (Two-Way Wrist Radio)\n\n"The wrist radio of the digital age"\n\n© 2024 SPIN OSINT Team`
   });
 }
 
@@ -605,11 +613,11 @@ ipcMain.handle('navigate', (event, { tabId, url }) => {
       }
     }
 
-    // Block Google in extreme privacy mode
-    const privacy = store.get('privacy');
+    // Block Google in extreme privacy mode - using cached settings & Set for O(1) lookup
+    const privacy = cachedPrivacySettings || store.get('privacy');
     if (privacy.extremePrivacyMode) {
       const urlLower = url.toLowerCase();
-      const isBlocked = BLOCKED_DOMAINS_EXTREME.some(domain => urlLower.includes(domain));
+      const isBlocked = [...BLOCKED_DOMAINS_EXTREME].some(domain => urlLower.includes(domain));
       if (isBlocked) {
         // Redirect Google searches to DuckDuckGo
         if (urlLower.includes('google.com/search') || urlLower.includes('google.co')) {
@@ -779,7 +787,7 @@ ipcMain.handle('execute-command', async (event, command) => {
         return { success: true, output: 'History cleared' };
 
       case 'version':
-        return { success: true, output: 'SPIN OSINT Browser v1.0.0\nElectron: ' + process.versions.electron + '\nChrome: ' + process.versions.chrome + '\nNode: ' + process.versions.node };
+        return { success: true, output: `${APP_NAME} v${APP_VERSION}\nCodename: Tracey\nElectron: ${process.versions.electron}\nChrome: ${process.versions.chrome}\nNode: ${process.versions.node}\n\n"The wrist radio of the digital age"` };
 
       default:
         return { success: false, output: `Unknown command: ${cmd}. Type 'help' for available commands.` };
