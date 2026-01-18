@@ -95,6 +95,16 @@ contextBridge.exposeInMainWorld('sandiego', {
   },
 
   // ============================================
+  // Phone Intelligence
+  // ============================================
+  phoneIntel: {
+    getCountries: () => ipcRenderer.invoke('phone-intel-get-countries'),
+    generateFormats: (phoneNumber, countryCode) => ipcRenderer.invoke('phone-intel-generate-formats', phoneNumber, countryCode),
+    openSearch: (searchUrl) => ipcRenderer.invoke('phone-intel-open-search', searchUrl),
+    batchSearch: (phoneNumber, countryCode, searchEngine) => ipcRenderer.invoke('phone-intel-batch-search', phoneNumber, countryCode, searchEngine)
+  },
+
+  // ============================================
   // Cleanup
   // ============================================
   removeListener: (channel) => {
