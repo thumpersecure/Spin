@@ -1,28 +1,65 @@
-// SPIN OSINT Browser - Main Renderer
+// SPIN Detective Browser - Tracey Edition - Main Renderer
+// "The wrist radio of the digital age"
 
 // Tab Management
 let tabs = [];
 let activeTabId = null;
 let tabIdCounter = 0;
 
-// DOM Elements
-const tabsContainer = document.getElementById('tabsContainer');
-const urlInput = document.getElementById('urlInput');
-const startPage = document.getElementById('startPage');
-const sidebar = document.getElementById('sidebar');
-const dorksToolbar = document.getElementById('dorksToolbar');
-const privacyIndicator = document.getElementById('privacyIndicator');
+// DOM Element Cache - Optimized for performance
+const DOM = {
+  tabsContainer: null,
+  urlInput: null,
+  startPage: null,
+  sidebar: null,
+  dorksToolbar: null,
+  privacyIndicator: null,
+  bookmarksList: null,
+  privacySettings: null,
+  dorksOperators: null,
+  dorksPreview: null,
+  // Initialize all cached elements
+  init() {
+    this.tabsContainer = document.getElementById('tabsContainer');
+    this.urlInput = document.getElementById('urlInput');
+    this.startPage = document.getElementById('startPage');
+    this.sidebar = document.getElementById('sidebar');
+    this.dorksToolbar = document.getElementById('dorksToolbar');
+    this.privacyIndicator = document.getElementById('privacyIndicator');
+    this.bookmarksList = document.getElementById('bookmarksList');
+    this.privacySettings = document.getElementById('privacySettings');
+    this.dorksOperators = document.getElementById('dorksOperators');
+    this.dorksPreview = document.getElementById('dorksPreview');
+  }
+};
+
+// Legacy references for compatibility
+let tabsContainer, urlInput, startPage, sidebar, dorksToolbar, privacyIndicator;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize DOM cache first
+  DOM.init();
+
+  // Set legacy references for compatibility
+  tabsContainer = DOM.tabsContainer;
+  urlInput = DOM.urlInput;
+  startPage = DOM.startPage;
+  sidebar = DOM.sidebar;
+  dorksToolbar = DOM.dorksToolbar;
+  privacyIndicator = DOM.privacyIndicator;
+
   initializeEventListeners();
   initializeDorksToolbar();
   initializeBookmarks();
   initializePrivacySettings();
   loadPrivacyStatus();
 
-  // Create initial tab
+  // Create initial tab - Start the investigation
   createNewTab('https://duckduckgo.com');
+
+  console.log('🔍 SPIN Detective Browser - Tracey Edition loaded');
+  console.log('"The wrist radio of the digital age"');
 });
 
 function initializeEventListeners() {
