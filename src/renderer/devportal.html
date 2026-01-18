@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPIN Developer Portal</title>
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #21262d;
+      --text-primary: #c9d1d9;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --accent: #00ff88;
+      --danger: #f85149;
+      --warning: #d29922;
+      --info: #58a6ff;
+      --border: #30363d;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .header-btn {
+      padding: 6px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .header-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 10px 20px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--text-primary);
+      background: var(--bg-tertiary);
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .panel {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel.active {
+      display: flex;
+    }
+
+    /* Console Panel */
+    .console-output {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .log-entry {
+      display: flex;
+      gap: 10px;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--bg-tertiary);
+    }
+
+    .log-time {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .log-type {
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .log-type.info { background: var(--info); color: var(--bg-primary); }
+    .log-type.error { background: var(--danger); color: white; }
+    .log-type.warning { background: var(--warning); color: var(--bg-primary); }
+    .log-type.command { background: var(--accent); color: var(--bg-primary); }
+    .log-type.tracker_blocked { background: #8b5cf6; color: white; }
+    .log-type.privacy { background: #06b6d4; color: var(--bg-primary); }
+    .log-type.console { background: var(--text-muted); color: var(--bg-primary); }
+
+    .log-message {
+      flex: 1;
+      word-break: break-word;
+    }
+
+    .console-input-area {
+      display: flex;
+      padding: 10px;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+    }
+
+    .console-prompt {
+      color: var(--accent);
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .console-input {
+      flex: 1;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 12px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .console-input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Status Panel */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .status-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .status-card h3 {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--bg-tertiary);
+    }
+
+    .status-item:last-child {
+      border-bottom: none;
+    }
+
+    .status-label {
+      color: var(--text-secondary);
+    }
+
+    .status-value {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .status-value.enabled {
+      color: var(--accent);
+    }
+
+    .status-value.disabled {
+      color: var(--danger);
+    }
+
+    /* Code Panel */
+    .code-viewer {
+      flex: 1;
+      overflow: auto;
+      padding: 20px;
+    }
+
+    .code-section {
+      margin-bottom: 20px;
+    }
+
+    .code-section h3 {
+      font-size: 14px;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .code-block {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      overflow-x: auto;
+    }
+
+    .code-block pre {
+      margin: 0;
+      color: var(--text-primary);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* Network Panel */
+    .network-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .network-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      border-bottom: 1px solid var(--bg-tertiary);
+      gap: 15px;
+    }
+
+    .network-method {
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .network-method.GET { background: var(--info); color: white; }
+    .network-method.POST { background: var(--accent); color: var(--bg-primary); }
+    .network-method.BLOCKED { background: var(--danger); color: white; }
+
+    .network-url {
+      flex: 1;
+      color: var(--text-secondary);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .network-status {
+      font-size: 12px;
+    }
+
+    /* Help text */
+    .help-section {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .help-command {
+      display: flex;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--bg-tertiary);
+    }
+
+    .help-cmd {
+      width: 200px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .help-desc {
+      color: var(--text-secondary);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="16 18 22 12 16 6"></polyline>
+        <polyline points="8 6 2 12 8 18"></polyline>
+      </svg>
+      SPIN Developer Portal
+    </h1>
+    <div class="header-actions">
+      <button class="header-btn" id="clearBtn">Clear Console</button>
+      <button class="header-btn" id="exportBtn">Export Logs</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-panel="console">Console</button>
+    <button class="tab" data-panel="status">Status</button>
+    <button class="tab" data-panel="network">Network</button>
+    <button class="tab" data-panel="help">Help</button>
+  </div>
+
+  <div class="main-content">
+    <!-- Console Panel -->
+    <div class="panel active" id="consolePanel">
+      <div class="console-output" id="consoleOutput"></div>
+      <div class="console-input-area">
+        <span class="console-prompt">spin&gt;</span>
+        <input type="text" class="console-input" id="consoleInput" placeholder="Type a command... (try 'help')" autocomplete="off">
+      </div>
+    </div>
+
+    <!-- Status Panel -->
+    <div class="panel" id="statusPanel">
+      <div class="status-grid" id="statusGrid"></div>
+    </div>
+
+    <!-- Network Panel -->
+    <div class="panel" id="networkPanel">
+      <div class="network-list" id="networkList"></div>
+    </div>
+
+    <!-- Help Panel -->
+    <div class="panel" id="helpPanel">
+      <div class="help-section">
+        <h2 style="color: var(--accent); margin-bottom: 20px;">Available Commands</h2>
+        <div class="help-command"><span class="help-cmd">help</span><span class="help-desc">Show available commands</span></div>
+        <div class="help-command"><span class="help-cmd">privacy</span><span class="help-desc">Show current privacy settings</span></div>
+        <div class="help-command"><span class="help-cmd">privacy.set KEY VALUE</span><span class="help-desc">Update a privacy setting</span></div>
+        <div class="help-command"><span class="help-cmd">tor.status</span><span class="help-desc">Check Tor connection status</span></div>
+        <div class="help-command"><span class="help-cmd">tor.enable</span><span class="help-desc">Enable Tor proxy</span></div>
+        <div class="help-command"><span class="help-cmd">tor.disable</span><span class="help-desc">Disable Tor proxy</span></div>
+        <div class="help-command"><span class="help-cmd">navigate URL</span><span class="help-desc">Navigate active tab to URL</span></div>
+        <div class="help-command"><span class="help-cmd">search QUERY</span><span class="help-desc">Search with DuckDuckGo</span></div>
+        <div class="help-command"><span class="help-cmd">bookmark.add URL</span><span class="help-desc">Add a bookmark</span></div>
+        <div class="help-command"><span class="help-cmd">bookmark.list</span><span class="help-desc">List all bookmarks</span></div>
+        <div class="help-command"><span class="help-cmd">history</span><span class="help-desc">Show browsing history</span></div>
+        <div class="help-command"><span class="help-cmd">history.clear</span><span class="help-desc">Clear browsing history</span></div>
+        <div class="help-command"><span class="help-cmd">clear</span><span class="help-desc">Clear the console</span></div>
+        <div class="help-command"><span class="help-cmd">version</span><span class="help-desc">Show version information</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const consoleOutput = document.getElementById('consoleOutput');
+    const consoleInput = document.getElementById('consoleInput');
+    const statusGrid = document.getElementById('statusGrid');
+    const networkList = document.getElementById('networkList');
+    const logs = [];
+    const commandHistory = [];
+    let historyIndex = -1;
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`${tab.dataset.panel}Panel`).classList.add('active');
+
+        if (tab.dataset.panel === 'status') {
+          updateStatus();
+        }
+      });
+    });
+
+    // Console input
+    consoleInput.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter') {
+        const command = consoleInput.value.trim();
+        if (!command) return;
+
+        commandHistory.push(command);
+        historyIndex = commandHistory.length;
+        consoleInput.value = '';
+
+        if (command === 'clear') {
+          consoleOutput.innerHTML = '';
+          return;
+        }
+
+        addLog('command', `> ${command}`);
+        const result = await window.devAPI.executeCommand(command);
+        addLog(result.success ? 'info' : 'error', result.output);
+      } else if (e.key === 'ArrowUp') {
+        if (historyIndex > 0) {
+          historyIndex--;
+          consoleInput.value = commandHistory[historyIndex];
+        }
+      } else if (e.key === 'ArrowDown') {
+        if (historyIndex < commandHistory.length - 1) {
+          historyIndex++;
+          consoleInput.value = commandHistory[historyIndex];
+        } else {
+          historyIndex = commandHistory.length;
+          consoleInput.value = '';
+        }
+      }
+    });
+
+    // Add log entry
+    function addLog(type, message) {
+      const entry = {
+        type,
+        message,
+        timestamp: Date.now()
+      };
+      logs.push(entry);
+      renderLogEntry(entry);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+
+    function renderLogEntry(entry) {
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+
+      const time = new Date(entry.timestamp).toLocaleTimeString();
+      div.innerHTML = `
+        <span class="log-time">${time}</span>
+        <span class="log-type ${entry.type}">${entry.type}</span>
+        <span class="log-message">${escapeHtml(entry.message)}</span>
+      `;
+      consoleOutput.appendChild(div);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML.replace(/\\n/g, '<br>');
+    }
+
+    // Listen for logs from main process
+    window.devAPI.onLog((data) => {
+      addLog(data.type, data.message);
+    });
+
+    // Update status
+    async function updateStatus() {
+      const privacy = await window.devAPI.getPrivacySettings();
+      const bookmarks = await window.devAPI.getBookmarks();
+      const history = await window.devAPI.getHistory();
+
+      statusGrid.innerHTML = `
+        <div class="status-card">
+          <h3>Privacy Settings</h3>
+          <div class="status-item">
+            <span class="status-label">Tor Proxy</span>
+            <span class="status-value ${privacy.torEnabled ? 'enabled' : 'disabled'}">${privacy.torEnabled ? 'Enabled' : 'Disabled'}</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Block Trackers</span>
+            <span class="status-value ${privacy.blockTrackers ? 'enabled' : 'disabled'}">${privacy.blockTrackers ? 'Enabled' : 'Disabled'}</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Block Fingerprinting</span>
+            <span class="status-value ${privacy.blockFingerprinting ? 'enabled' : 'disabled'}">${privacy.blockFingerprinting ? 'Enabled' : 'Disabled'}</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Block WebRTC</span>
+            <span class="status-value ${privacy.blockWebRTC ? 'enabled' : 'disabled'}">${privacy.blockWebRTC ? 'Enabled' : 'Disabled'}</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Extreme Privacy Mode</span>
+            <span class="status-value ${privacy.extremePrivacyMode ? 'enabled' : 'disabled'}">${privacy.extremePrivacyMode ? 'Active' : 'Inactive'}</span>
+          </div>
+        </div>
+
+        <div class="status-card">
+          <h3>Browser Data</h3>
+          <div class="status-item">
+            <span class="status-label">Bookmarks</span>
+            <span class="status-value">${bookmarks ? bookmarks.length : 0}</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">History Entries</span>
+            <span class="status-value">${history ? history.length : 0}</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Clear on Exit</span>
+            <span class="status-value ${privacy.clearOnExit ? 'enabled' : 'disabled'}">${privacy.clearOnExit ? 'Yes' : 'No'}</span>
+          </div>
+        </div>
+
+        <div class="status-card">
+          <h3>Session Info</h3>
+          <div class="status-item">
+            <span class="status-label">Console Logs</span>
+            <span class="status-value">${logs.length}</span>
+          </div>
+          <div class="status-item">
+            <span class="status-label">Commands Executed</span>
+            <span class="status-value">${commandHistory.length}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // Clear console
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      consoleOutput.innerHTML = '';
+      logs.length = 0;
+    });
+
+    // Export logs
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const content = logs.map(l => `[${new Date(l.timestamp).toISOString()}] [${l.type}] ${l.message}`).join('\\n');
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `spin-logs-${Date.now()}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Initial welcome message
+    addLog('info', 'Welcome to SPIN Developer Portal');
+    addLog('info', 'Type "help" to see available commands');
+  </script>
+</body>
+</html>

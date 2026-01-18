@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investigation Log - SPIN OSINT Browser</title>
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #21262d;
+      --text-primary: #c9d1d9;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --accent: #00ff88;
+      --danger: #f85149;
+      --warning: #d29922;
+      --info: #58a6ff;
+      --border: #30363d;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-size: 18px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg-primary);
+    }
+
+    .btn-primary:hover {
+      background: #00cc6a;
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+    }
+
+    .filter-select {
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .log-entry {
+      display: flex;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 15px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .log-entry:hover {
+      border-color: var(--accent);
+    }
+
+    .log-screenshot {
+      width: 200px;
+      height: 150px;
+      object-fit: cover;
+      background: var(--bg-tertiary);
+      flex-shrink: 0;
+    }
+
+    .log-content {
+      flex: 1;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .log-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 15px;
+    }
+
+    .log-time {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .log-url {
+      color: var(--info);
+      font-size: 12px;
+      word-break: break-all;
+      margin-bottom: 10px;
+    }
+
+    .log-notes {
+      background: var(--bg-tertiary);
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .log-metadata {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .log-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .log-actions button {
+      padding: 4px 10px;
+      font-size: 11px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 30px;
+      padding: 15px 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.visible {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      width: 600px;
+      max-height: 80vh;
+      overflow: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 16px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 15px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14,2 14,8 20,8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10,9 9,9 8,9"/>
+      </svg>
+      Investigation Log
+    </h1>
+    <div class="header-actions">
+      <button class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+      <button class="btn btn-secondary" id="exportHtmlBtn">Export Report</button>
+      <button class="btn btn-danger" id="clearBtn">Clear All</button>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-value" id="totalEntries">0</span>
+      <span class="stat-label">Entries</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" id="totalScreenshots">0</span>
+      <span class="stat-label">Screenshots</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" id="totalDomains">0</span>
+      <span class="stat-label">Domains</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search entries...">
+    </div>
+    <div class="filters">
+      <select class="filter-select" id="sortSelect">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="domain">By Domain</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="content" id="logContent">
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14,2 14,8 20,8"/>
+      </svg>
+      <h3>No entries yet</h3>
+      <p>Entries will appear here as you browse and add notes.</p>
+    </div>
+  </div>
+
+  <!-- Add Note Modal -->
+  <div class="modal" id="noteModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Note</h2>
+        <button class="modal-close" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="noteText" placeholder="Enter your notes..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Tags (comma separated)</label>
+          <input type="text" id="noteTags" placeholder="e.g., suspect, evidence, lead">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelNote">Cancel</button>
+        <button class="btn btn-primary" id="saveNote">Save Note</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let entries = [];
+    let currentEntryId = null;
+
+    async function loadEntries() {
+      entries = await window.electronAPI.getInvestigationLog();
+      renderEntries();
+      updateStats();
+    }
+
+    function renderEntries() {
+      const container = document.getElementById('logContent');
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+      const sortBy = document.getElementById('sortSelect').value;
+
+      let filtered = entries.filter(entry =>
+        entry.title?.toLowerCase().includes(searchQuery) ||
+        entry.url?.toLowerCase().includes(searchQuery) ||
+        entry.notes?.toLowerCase().includes(searchQuery)
+      );
+
+      // Sort
+      if (sortBy === 'newest') {
+        filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      } else if (sortBy === 'oldest') {
+        filtered.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      } else if (sortBy === 'domain') {
+        filtered.sort((a, b) => {
+          const domainA = new URL(a.url).hostname;
+          const domainB = new URL(b.url).hostname;
+          return domainA.localeCompare(domainB);
+        });
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14,2 14,8 20,8"/>
+            </svg>
+            <h3>No entries found</h3>
+            <p>${searchQuery ? 'Try a different search term.' : 'Entries will appear here as you browse.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(entry => `
+        <div class="log-entry" data-id="${entry.id}">
+          ${entry.screenshot ?
+            `<img class="log-screenshot" src="${entry.screenshot}" alt="Screenshot">` :
+            '<div class="log-screenshot"></div>'
+          }
+          <div class="log-content">
+            <div class="log-header">
+              <span class="log-title">${entry.title || 'Untitled'}</span>
+              <span class="log-time">${new Date(entry.timestamp).toLocaleString()}</span>
+            </div>
+            <a class="log-url" href="#">${entry.url}</a>
+            ${entry.notes ? `<div class="log-notes">${entry.notes}</div>` : ''}
+            <div class="log-metadata">
+              ${entry.metadata ? `${Object.keys(entry.metadata.metaTags || {}).length} meta tags` : 'No metadata'}
+            </div>
+            <div class="log-actions">
+              <button class="btn btn-secondary add-note-btn" data-id="${entry.id}">Add Note</button>
+              <button class="btn btn-secondary view-meta-btn" data-id="${entry.id}">View Metadata</button>
+              <button class="btn btn-danger delete-btn" data-id="${entry.id}">Delete</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Add event listeners
+      container.querySelectorAll('.add-note-btn').forEach(btn => {
+        btn.addEventListener('click', () => openNoteModal(btn.dataset.id));
+      });
+
+      container.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteEntry(btn.dataset.id));
+      });
+    }
+
+    function updateStats() {
+      document.getElementById('totalEntries').textContent = entries.length;
+      document.getElementById('totalScreenshots').textContent = entries.filter(e => e.screenshot).length;
+      const domains = new Set(entries.map(e => {
+        try { return new URL(e.url).hostname; } catch { return 'unknown'; }
+      }));
+      document.getElementById('totalDomains').textContent = domains.size;
+    }
+
+    function openNoteModal(entryId) {
+      currentEntryId = entryId;
+      const entry = entries.find(e => e.id == entryId);
+      document.getElementById('noteText').value = entry?.notes || '';
+      document.getElementById('noteTags').value = entry?.tags?.join(', ') || '';
+      document.getElementById('noteModal').classList.add('visible');
+    }
+
+    function closeNoteModal() {
+      currentEntryId = null;
+      document.getElementById('noteModal').classList.remove('visible');
+    }
+
+    async function saveNote() {
+      if (!currentEntryId) return;
+
+      const notes = document.getElementById('noteText').value;
+      const tags = document.getElementById('noteTags').value.split(',').map(t => t.trim()).filter(Boolean);
+
+      // Update entry
+      const entry = entries.find(e => e.id == currentEntryId);
+      if (entry) {
+        entry.notes = notes;
+        entry.tags = tags;
+        // In real implementation, would save back to store
+      }
+
+      closeNoteModal();
+      renderEntries();
+    }
+
+    async function deleteEntry(entryId) {
+      if (confirm('Delete this entry?')) {
+        entries = entries.filter(e => e.id != entryId);
+        renderEntries();
+        updateStats();
+      }
+    }
+
+    // Event listeners
+    document.getElementById('searchInput').addEventListener('input', renderEntries);
+    document.getElementById('sortSelect').addEventListener('change', renderEntries);
+    document.getElementById('closeModal').addEventListener('click', closeNoteModal);
+    document.getElementById('cancelNote').addEventListener('click', closeNoteModal);
+    document.getElementById('saveNote').addEventListener('click', saveNote);
+
+    document.getElementById('exportJsonBtn').addEventListener('click', async () => {
+      await window.electronAPI.exportInvestigationLog('json');
+    });
+
+    document.getElementById('exportHtmlBtn').addEventListener('click', async () => {
+      await window.electronAPI.exportInvestigationLog('html');
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', async () => {
+      if (confirm('Clear all investigation log entries?')) {
+        await window.electronAPI.clearInvestigationLog();
+        entries = [];
+        renderEntries();
+        updateStats();
+      }
+    });
+
+    // Initialize
+    loadEntries();
+  </script>
+</body>
+</html>
