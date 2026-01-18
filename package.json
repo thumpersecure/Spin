@@ -1,0 +1,62 @@
+{
+  "name": "spin-osint-browser",
+  "version": "1.0.0",
+  "description": "OSINT-focused web browser with Tor integration, privacy controls, and investigative tools",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "pack": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": [
+    "osint",
+    "browser",
+    "tor",
+    "privacy",
+    "investigation",
+    "security",
+    "electron",
+    "chromium"
+  ],
+  "author": "SPIN OSINT Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "socks-proxy-agent": "^8.0.2",
+    "tor-control": "^0.0.3"
+  },
+  "build": {
+    "appId": "com.spin.osint-browser",
+    "productName": "SPIN OSINT Browser",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Network"
+    }
+  }
+}

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+  <title>SPIN Detective Browser - Dick Tracy Edition</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Title Bar - The Detective's Badge -->
+  <div class="title-bar" id="titleBar">
+    <div class="title-bar-drag">
+      <div class="logo">
+        <span>SPIN DETECTIVE</span>
+      </div>
+      <div class="privacy-indicator" id="privacyIndicator" title="Privacy Status">
+        <span class="indicator-dot"></span>
+        <span class="indicator-text">On The Case</span>
+      </div>
+    </div>
+    <div class="window-controls">
+      <button class="window-btn minimize" id="minimizeBtn" title="Minimize">─</button>
+      <button class="window-btn maximize" id="maximizeBtn" title="Maximize">□</button>
+      <button class="window-btn close" id="closeBtn" title="Close">✕</button>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar" id="tabBar">
+    <div class="tabs-container" id="tabsContainer">
+      <!-- Tabs will be added here dynamically -->
+    </div>
+    <button class="new-tab-btn" id="newTabBtn" title="New Tab (Ctrl+T)">+</button>
+  </div>
+
+  <!-- Navigation Bar -->
+  <div class="nav-bar" id="navBar">
+    <div class="nav-buttons">
+      <button class="nav-btn" id="backBtn" title="Go Back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <button class="nav-btn" id="forwardBtn" title="Go Forward">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <button class="nav-btn" id="reloadBtn" title="Reload">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 4v6h6M23 20v-6h-6"/>
+          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+        </svg>
+      </button>
+      <button class="nav-btn" id="homeBtn" title="Home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9,22 9,12 15,12 15,22"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="url-container">
+      <div class="security-indicator" id="securityIndicator">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <input type="text" class="url-input" id="urlInput" placeholder="Search or enter URL..." autocomplete="off">
+      <button class="bookmark-btn" id="bookmarkBtn" title="Add Bookmark">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="nav-tools">
+      <button class="nav-btn tool-btn" id="dorksBtn" title="Google Dorks Toolbar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+      </button>
+      <button class="nav-btn tool-btn" id="bookmarksBtn" title="Bookmarks">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </button>
+      <button class="nav-btn tool-btn" id="privacyBtn" title="Privacy Settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </button>
+      <button class="nav-btn tool-btn" id="menuBtn" title="Menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Google Dorks Toolbar -->
+  <div class="dorks-toolbar" id="dorksToolbar">
+    <div class="dorks-search">
+      <input type="text" id="dorksSearchInput" placeholder="Enter search term...">
+      <select id="dorksEngineSelect">
+        <option value="google">Google</option>
+        <option value="duckduckgo">DuckDuckGo</option>
+        <option value="bing">Bing</option>
+        <option value="yandex">Yandex</option>
+      </select>
+    </div>
+    <div class="dorks-operators" id="dorksOperators">
+      <!-- Operators will be added dynamically -->
+    </div>
+    <div class="dorks-preview">
+      <span class="preview-label">Query:</span>
+      <code id="dorksPreview"></code>
+      <button class="execute-btn" id="executeSearch">Search</button>
+    </div>
+  </div>
+
+  <!-- Sidebar Panels -->
+  <div class="sidebar" id="sidebar">
+    <!-- Bookmarks Panel -->
+    <div class="sidebar-panel" id="bookmarksPanel">
+      <div class="panel-header">
+        <h3>OSINT Bookmarks</h3>
+        <button class="close-panel-btn" data-panel="bookmarks">✕</button>
+      </div>
+      <div class="panel-tabs">
+        <button class="panel-tab active" data-category="osint-framework">OSINT Framework</button>
+        <button class="panel-tab" data-category="awesome-osint">Awesome OSINT</button>
+        <button class="panel-tab" data-category="kali-tools">Kali Tools</button>
+        <button class="panel-tab" data-category="custom">My Bookmarks</button>
+      </div>
+      <div class="panel-search">
+        <input type="text" id="bookmarkSearch" placeholder="Search bookmarks...">
+      </div>
+      <div class="bookmarks-list" id="bookmarksList">
+        <!-- Bookmarks will be loaded here -->
+      </div>
+    </div>
+
+    <!-- Privacy Panel -->
+    <div class="sidebar-panel" id="privacyPanel">
+      <div class="panel-header">
+        <h3>Privacy Settings</h3>
+        <button class="close-panel-btn" data-panel="privacy">✕</button>
+      </div>
+      <div class="privacy-settings" id="privacySettings">
+        <!-- Privacy settings will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Area (BrowserViews render here) -->
+  <div class="content-area" id="contentArea">
+    <div class="start-page" id="startPage">
+      <div class="start-content">
+        <h1>🔍 SPIN DETECTIVE</h1>
+        <p class="tagline">"The wrist radio of the digital age"</p>
+        <p class="subtitle">Noir-style browser for OSINT investigations</p>
+
+        <div class="case-file-header">
+          <span>📁 CASE FILES - QUICK ACCESS</span>
+        </div>
+
+        <div class="quick-links">
+          <div class="quick-links-grid">
+            <a href="#" class="quick-link" data-url="https://osintframework.com">
+              <span class="ql-icon">🔍</span>
+              <span class="ql-title">OSINT Framework</span>
+            </a>
+            <a href="#" class="quick-link" data-url="https://inteltechniques.com/tools/">
+              <span class="ql-icon">🕵️</span>
+              <span class="ql-title">Intel Techniques</span>
+            </a>
+            <a href="#" class="quick-link" data-url="https://www.tracelabs.org/">
+              <span class="ql-icon">🎯</span>
+              <span class="ql-title">Trace Labs</span>
+            </a>
+            <a href="#" class="quick-link" data-url="https://shodan.io">
+              <span class="ql-icon">🌐</span>
+              <span class="ql-title">Shodan</span>
+            </a>
+            <a href="#" class="quick-link" data-url="https://haveibeenpwned.com">
+              <span class="ql-icon">🔐</span>
+              <span class="ql-title">Have I Been Pwned</span>
+            </a>
+            <a href="#" class="quick-link" data-url="https://pimeyes.com">
+              <span class="ql-icon">👁️</span>
+              <span class="ql-title">PimEyes</span>
+            </a>
+            <a href="#" class="quick-link" data-url="https://yandex.com/images/">
+              <span class="ql-icon">🖼️</span>
+              <span class="ql-title">Yandex Images</span>
+            </a>
+            <a href="#" class="quick-link" data-url="https://github.com/jivoi/awesome-osint">
+              <span class="ql-icon">📚</span>
+              <span class="ql-title">Awesome OSINT</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="start-search">
+          <input type="text" id="startSearchInput" placeholder="🔎 Begin your investigation...">
+        </div>
+
+        <div class="detective-footer">
+          <span>⚡ Powered by Chromium | 🛡️ Privacy First | 🌐 Tor Ready</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
