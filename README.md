@@ -9,7 +9,7 @@
      ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝   ╚═╝
 
     ★ ═══════════════════════════════════════════ ★
-    ║     💫   Spin Browser OSINT   💫     ║
+    ║         💫  spin web osint  💫             ║
     ║      "The Wrist Radio of the Digital Age"   ║
     ★ ═══════════════════════════════════════════ ★
                   ~ Tracey Edition v2.0 ~
