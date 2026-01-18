@@ -194,8 +194,8 @@ version           - Show version info
 
 ```bash
 # Clone the repository (Open the case file)
-git clone https://github.com/yourusername/spin-osint-browser.git
-cd spin-osint-browser
+git clone https://github.com/thumpersecure/Spin.git
+cd Spin
 
 # Install dependencies (Get your equipment)
 npm install
