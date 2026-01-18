@@ -1,1014 +1,876 @@
-// SPIN Detective Browser - Tracey Edition - Main Renderer
-// "The wrist radio of the digital age"
+/**
+ * SANDIEGO Browser - Renderer Process
+ * Version: 3.0.0-sandiego
+ * Clean state management and robust UI handling
+ */
 
-// Tab Management
-let tabs = [];
-let activeTabId = null;
-let tabIdCounter = 0;
+// ============================================
+// Application State
+// ============================================
 
-// DOM Element Cache - Optimized for performance
-const DOM = {
-  tabsContainer: null,
-  urlInput: null,
-  startPage: null,
-  sidebar: null,
-  dorksToolbar: null,
-  privacyIndicator: null,
-  bookmarksList: null,
-  privacySettings: null,
-  dorksOperators: null,
-  dorksPreview: null,
-  // Initialize all cached elements
-  init() {
-    this.tabsContainer = document.getElementById('tabsContainer');
-    this.urlInput = document.getElementById('urlInput');
-    this.startPage = document.getElementById('startPage');
-    this.sidebar = document.getElementById('sidebar');
-    this.dorksToolbar = document.getElementById('dorksToolbar');
-    this.privacyIndicator = document.getElementById('privacyIndicator');
-    this.bookmarksList = document.getElementById('bookmarksList');
-    this.privacySettings = document.getElementById('privacySettings');
-    this.dorksOperators = document.getElementById('dorksOperators');
-    this.dorksPreview = document.getElementById('dorksPreview');
-  }
+const AppState = {
+  tabs: new Map(),
+  activeTabId: null,
+  privacy: {},
+  panelOpen: false,
+  activePanel: null,
+  bookmarks: []
 };
 
-// Legacy references for compatibility
-let tabsContainer, urlInput, startPage, sidebar, dorksToolbar, privacyIndicator;
+// ============================================
+// DOM Elements Cache
+// ============================================
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize DOM cache first
-  DOM.init();
+const DOM = {};
 
-  // Set legacy references for compatibility
-  tabsContainer = DOM.tabsContainer;
-  urlInput = DOM.urlInput;
-  startPage = DOM.startPage;
-  sidebar = DOM.sidebar;
-  dorksToolbar = DOM.dorksToolbar;
-  privacyIndicator = DOM.privacyIndicator;
+function cacheDOMElements() {
+  DOM.tabsWrapper = document.getElementById('tabsWrapper');
+  DOM.newTabBtn = document.getElementById('newTabBtn');
+  DOM.urlInput = document.getElementById('urlInput');
+  DOM.backBtn = document.getElementById('backBtn');
+  DOM.forwardBtn = document.getElementById('forwardBtn');
+  DOM.reloadBtn = document.getElementById('reloadBtn');
+  DOM.homeBtn = document.getElementById('homeBtn');
+  DOM.securityBadge = document.getElementById('securityBadge');
+  DOM.bookmarkPageBtn = document.getElementById('bookmarkPageBtn');
+  DOM.extensionsBtn = document.getElementById('extensionsBtn');
+  DOM.privacyBtn = document.getElementById('privacyBtn');
+  DOM.menuBtn = document.getElementById('menuBtn');
+  DOM.extensionsPanel = document.getElementById('extensionsPanel');
+  DOM.panelContent = document.getElementById('panelContent');
+  DOM.startPage = document.getElementById('startPage');
+  DOM.startSearch = document.getElementById('startSearch');
+  DOM.startSearchBtn = document.getElementById('startSearchBtn');
+  DOM.quickGrid = document.getElementById('quickGrid');
+  DOM.statusIndicator = document.getElementById('statusIndicator');
+  DOM.statusText = DOM.statusIndicator?.querySelector('.status-text');
+  DOM.minimizeBtn = document.getElementById('minimizeBtn');
+  DOM.maximizeBtn = document.getElementById('maximizeBtn');
+  DOM.closeBtn = document.getElementById('closeBtn');
+  DOM.notificationContainer = document.getElementById('notificationContainer');
+}
 
-  initializeEventListeners();
-  initializeDorksToolbar();
-  initializeBookmarks();
-  initializePrivacySettings();
-  loadPrivacyStatus();
+// ============================================
+// Quick Links Data
+// ============================================
 
-  // Create initial tab - Start the investigation
-  createNewTab('https://duckduckgo.com');
+const QUICK_LINKS = [
+  { title: 'OSINT Framework', url: 'https://osintframework.com', icon: '&#128269;' },
+  { title: 'Shodan', url: 'https://www.shodan.io', icon: '&#127760;' },
+  { title: 'Have I Been Pwned', url: 'https://haveibeenpwned.com', icon: '&#128274;' },
+  { title: 'Wayback Machine', url: 'https://web.archive.org', icon: '&#128197;' },
+  { title: 'VirusTotal', url: 'https://www.virustotal.com', icon: '&#128737;' },
+  { title: 'PimEyes', url: 'https://pimeyes.com', icon: '&#128065;' },
+  { title: 'Hunter.io', url: 'https://hunter.io', icon: '&#128231;' },
+  { title: 'Intelligence X', url: 'https://intelx.io', icon: '&#128373;' }
+];
 
-  console.log('🔍 SPIN Detective Browser - Tracey Edition loaded');
-  console.log('"The wrist radio of the digital age"');
+// ============================================
+// OSINT Bookmarks Data
+// ============================================
+
+const OSINT_BOOKMARKS = {
+  'Username Search': [
+    { name: 'Namechk', url: 'https://namechk.com/' },
+    { name: 'WhatsMyName', url: 'https://whatsmyname.app/' },
+    { name: 'Sherlock', url: 'https://github.com/sherlock-project/sherlock' },
+    { name: 'UserSearch', url: 'https://usersearch.org/' }
+  ],
+  'Email Search': [
+    { name: 'Hunter.io', url: 'https://hunter.io/' },
+    { name: 'Have I Been Pwned', url: 'https://haveibeenpwned.com/' },
+    { name: 'Epieos', url: 'https://epieos.com/' },
+    { name: 'EmailRep', url: 'https://emailrep.io/' }
+  ],
+  'Domain & IP': [
+    { name: 'Shodan', url: 'https://www.shodan.io/' },
+    { name: 'Censys', url: 'https://censys.io/' },
+    { name: 'SecurityTrails', url: 'https://securitytrails.com/' },
+    { name: 'DNSDumpster', url: 'https://dnsdumpster.com/' },
+    { name: 'crt.sh', url: 'https://crt.sh/' },
+    { name: 'VirusTotal', url: 'https://www.virustotal.com/' }
+  ],
+  'Image Analysis': [
+    { name: 'TinEye', url: 'https://tineye.com/' },
+    { name: 'Yandex Images', url: 'https://yandex.com/images/' },
+    { name: 'PimEyes', url: 'https://pimeyes.com/' },
+    { name: 'FotoForensics', url: 'https://fotoforensics.com/' }
+  ],
+  'Social Media': [
+    { name: 'Social Searcher', url: 'https://www.social-searcher.com/' },
+    { name: 'Social Blade', url: 'https://socialblade.com/' }
+  ],
+  'Archives': [
+    { name: 'Wayback Machine', url: 'https://web.archive.org/' },
+    { name: 'Archive.org', url: 'https://archive.org/' },
+    { name: 'CachedView', url: 'https://cachedview.com/' }
+  ],
+  'People Search': [
+    { name: 'Pipl', url: 'https://pipl.com/' },
+    { name: 'ThatsThem', url: 'https://thatsthem.com/' },
+    { name: 'Whitepages', url: 'https://www.whitepages.com/' }
+  ],
+  'Threat Intel': [
+    { name: 'VirusTotal', url: 'https://www.virustotal.com/' },
+    { name: 'Hybrid Analysis', url: 'https://www.hybrid-analysis.com/' },
+    { name: 'Any.run', url: 'https://any.run/' },
+    { name: 'AbuseIPDB', url: 'https://www.abuseipdb.com/' }
+  ]
+};
+
+// ============================================
+// Initialization
+// ============================================
+
+document.addEventListener('DOMContentLoaded', async () => {
+  cacheDOMElements();
+  setupEventListeners();
+  renderQuickLinks();
+  await loadPrivacySettings();
+  await createInitialTab();
+
+  console.log('SANDIEGO Browser initialized - Where in the World?');
 });
 
-function initializeEventListeners() {
+async function createInitialTab() {
+  try {
+    const tabId = await window.sandiego.createTab(null);
+    addTabToUI(tabId, 'New Tab', null, '');
+    setActiveTab(tabId);
+    showStartPage(true);
+  } catch (err) {
+    console.error('Failed to create initial tab:', err);
+  }
+}
+
+// ============================================
+// Event Listeners Setup
+// ============================================
+
+function setupEventListeners() {
   // Window controls
-  document.getElementById('minimizeBtn').addEventListener('click', () => window.electronAPI.minimize());
-  document.getElementById('maximizeBtn').addEventListener('click', () => window.electronAPI.maximize());
-  document.getElementById('closeBtn').addEventListener('click', () => window.electronAPI.close());
+  DOM.minimizeBtn?.addEventListener('click', () => window.sandiego.minimize());
+  DOM.maximizeBtn?.addEventListener('click', () => window.sandiego.maximize());
+  DOM.closeBtn?.addEventListener('click', () => window.sandiego.close());
 
   // Tab controls
-  document.getElementById('newTabBtn').addEventListener('click', () => createNewTab());
+  DOM.newTabBtn?.addEventListener('click', handleNewTab);
 
-  // Navigation controls
-  document.getElementById('backBtn').addEventListener('click', () => goBack());
-  document.getElementById('forwardBtn').addEventListener('click', () => goForward());
-  document.getElementById('reloadBtn').addEventListener('click', () => reload());
-  document.getElementById('homeBtn').addEventListener('click', () => goHome());
+  // Navigation
+  DOM.backBtn?.addEventListener('click', () => handleNavigation('back'));
+  DOM.forwardBtn?.addEventListener('click', () => handleNavigation('forward'));
+  DOM.reloadBtn?.addEventListener('click', () => handleNavigation('reload'));
+  DOM.homeBtn?.addEventListener('click', handleGoHome);
 
   // URL input
-  urlInput.addEventListener('keydown', (e) => {
+  DOM.urlInput?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      navigate(urlInput.value);
+      navigateToUrl(DOM.urlInput.value);
     }
   });
 
-  urlInput.addEventListener('focus', () => {
-    urlInput.select();
+  DOM.urlInput?.addEventListener('focus', () => {
+    DOM.urlInput.select();
   });
 
-  // Tool buttons
-  document.getElementById('dorksBtn').addEventListener('click', toggleDorksToolbar);
-  document.getElementById('bookmarksBtn').addEventListener('click', () => toggleSidebar('bookmarks'));
-  document.getElementById('privacyBtn').addEventListener('click', () => toggleSidebar('privacy'));
-  document.getElementById('bookmarkBtn').addEventListener('click', addCurrentPageToBookmarks);
-
-  // Start page
-  document.getElementById('startSearchInput').addEventListener('keydown', (e) => {
+  // Start page search
+  DOM.startSearch?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-      navigate(`https://duckduckgo.com/?q=${encodeURIComponent(e.target.value)}`);
+      navigateToUrl(DOM.startSearch.value);
     }
   });
 
-  document.querySelectorAll('.quick-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      navigate(link.dataset.url);
-    });
+  DOM.startSearchBtn?.addEventListener('click', () => {
+    navigateToUrl(DOM.startSearch.value);
   });
 
-  // Close panel buttons
-  document.querySelectorAll('.close-panel-btn').forEach(btn => {
-    btn.addEventListener('click', () => closeSidebar());
-  });
+  // Bookmark button
+  DOM.bookmarkPageBtn?.addEventListener('click', handleBookmarkPage);
+
+  // Panel toggles
+  DOM.extensionsBtn?.addEventListener('click', () => togglePanel('extensions'));
+  DOM.privacyBtn?.addEventListener('click', () => togglePanel('privacy'));
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', handleKeyboardShortcuts);
 
   // IPC listeners
-  window.electronAPI.onTabLoading(({ tabId, loading }) => {
+  setupIPCListeners();
+}
+
+function setupIPCListeners() {
+  window.sandiego.onTabLoading(({ tabId, loading }) => {
     updateTabLoading(tabId, loading);
   });
 
-  window.electronAPI.onTabNavigated(({ tabId, url }) => {
-    if (tabId === activeTabId) {
-      urlInput.value = url;
-      updateSecurityIndicator(url);
+  window.sandiego.onTabNavigated(({ tabId, url, canGoBack, canGoForward }) => {
+    const tab = AppState.tabs.get(tabId);
+    if (tab) {
+      tab.url = url;
+      tab.canGoBack = canGoBack;
+      tab.canGoForward = canGoForward;
+    }
+
+    if (tabId === AppState.activeTabId) {
+      DOM.urlInput.value = url || '';
+      updateSecurityBadge(url);
+      updateNavButtons(canGoBack, canGoForward);
+      showStartPage(!url);
     }
   });
 
-  window.electronAPI.onTabTitleUpdated(({ tabId, title }) => {
+  window.sandiego.onTabTitleUpdated(({ tabId, title }) => {
     updateTabTitle(tabId, title);
   });
 
-  window.electronAPI.onTabFaviconUpdated(({ tabId, favicon }) => {
+  window.sandiego.onTabFaviconUpdated(({ tabId, favicon }) => {
     updateTabFavicon(tabId, favicon);
   });
 
-  window.electronAPI.onPrivacyUpdated((privacy) => {
-    updatePrivacyIndicator(privacy);
-    renderPrivacySettings(privacy);
-  });
-
-  window.electronAPI.onToggleBookmarks(() => toggleSidebar('bookmarks'));
-  window.electronAPI.onToggleDorks(() => toggleDorksToolbar());
-
-  window.electronAPI.onNewTab(() => createNewTab());
-  window.electronAPI.onCloseTab(() => closeActiveTab());
-
-  window.electronAPI.onOpenUrlInNewTab((url) => createNewTab(url));
-
-  // Keyboard shortcuts
-  document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey || e.metaKey) {
-      switch (e.key) {
-        case 't':
-          e.preventDefault();
-          createNewTab();
-          break;
-        case 'w':
-          e.preventDefault();
-          closeActiveTab();
-          break;
-        case 'l':
-          e.preventDefault();
-          urlInput.focus();
-          break;
-        case 'r':
-          e.preventDefault();
-          reload();
-          break;
-      }
+  window.sandiego.onTabActivated(({ tabId, url, title, canGoBack, canGoForward }) => {
+    if (AppState.activeTabId !== tabId) {
+      setActiveTab(tabId);
     }
+    DOM.urlInput.value = url || '';
+    updateSecurityBadge(url);
+    updateNavButtons(canGoBack, canGoForward);
+    showStartPage(!url);
+  });
+
+  window.sandiego.onTabCreated(({ tabId, url }) => {
+    addTabToUI(tabId, 'New Tab', null, url || '');
+  });
+
+  window.sandiego.onPrivacyUpdated((privacy) => {
+    AppState.privacy = privacy;
+    updateStatusIndicator(privacy);
+  });
+
+  window.sandiego.onNotification(({ type, message }) => {
+    showNotification(type, message);
   });
 }
 
-// Tab Functions
-function createNewTab(url = null) {
-  const tabId = `tab-${++tabIdCounter}`;
-  const tab = {
-    id: tabId,
-    title: 'New Tab',
-    url: url || '',
-    favicon: null,
-    loading: false
-  };
+// ============================================
+// Tab Management
+// ============================================
 
-  tabs.push(tab);
-  renderTab(tab);
-  activateTab(tabId);
-
-  if (url) {
-    window.electronAPI.createTab(tabId, url);
-    startPage.style.display = 'none';
-  } else {
-    startPage.style.display = 'flex';
+async function handleNewTab() {
+  try {
+    const tabId = await window.sandiego.createTab(null);
+    addTabToUI(tabId, 'New Tab', null, '');
+    setActiveTab(tabId);
+    showStartPage(true);
+    DOM.urlInput?.focus();
+  } catch (err) {
+    console.error('Failed to create new tab:', err);
   }
-
-  return tabId;
 }
 
-function renderTab(tab) {
+function addTabToUI(tabId, title, favicon, url) {
+  AppState.tabs.set(tabId, {
+    title: title || 'New Tab',
+    favicon: favicon,
+    url: url || '',
+    loading: false,
+    canGoBack: false,
+    canGoForward: false
+  });
+
   const tabEl = document.createElement('div');
   tabEl.className = 'tab';
-  tabEl.dataset.tabId = tab.id;
+  tabEl.dataset.tabId = tabId;
   tabEl.innerHTML = `
-    <img class="tab-favicon" src="${tab.favicon || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236e7681"><circle cx="12" cy="12" r="10"/></svg>'}" alt="">
-    <span class="tab-title">${tab.title}</span>
-    <button class="tab-close">✕</button>
+    ${favicon ? `<img class="tab-favicon" src="${favicon}" alt="">` : ''}
+    <span class="tab-title">${escapeHtml(title || 'New Tab')}</span>
+    <button class="tab-close" aria-label="Close tab">
+      <svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+    </button>
   `;
 
   tabEl.addEventListener('click', (e) => {
-    if (!e.target.classList.contains('tab-close')) {
-      activateTab(tab.id);
+    if (!e.target.closest('.tab-close')) {
+      setActiveTab(tabId);
+      window.sandiego.showTab(tabId);
     }
   });
 
   tabEl.querySelector('.tab-close').addEventListener('click', (e) => {
     e.stopPropagation();
-    closeTab(tab.id);
+    closeTab(tabId);
   });
 
-  tabsContainer.appendChild(tabEl);
+  DOM.tabsWrapper?.appendChild(tabEl);
 }
 
-function activateTab(tabId) {
-  activeTabId = tabId;
-  const tab = tabs.find(t => t.id === tabId);
+function setActiveTab(tabId) {
+  AppState.activeTabId = tabId;
 
-  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-  document.querySelector(`.tab[data-tab-id="${tabId}"]`)?.classList.add('active');
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.tabId === tabId);
+  });
 
+  const tab = AppState.tabs.get(tabId);
   if (tab) {
-    urlInput.value = tab.url;
-    updateSecurityIndicator(tab.url);
-
-    if (tab.url) {
-      startPage.style.display = 'none';
-      window.electronAPI.showTab(tabId);
-    } else {
-      startPage.style.display = 'flex';
-    }
+    DOM.urlInput.value = tab.url || '';
+    updateSecurityBadge(tab.url);
+    updateNavButtons(tab.canGoBack, tab.canGoForward);
+    showStartPage(!tab.url);
   }
 }
 
 function closeTab(tabId) {
-  const index = tabs.findIndex(t => t.id === tabId);
-  if (index === -1) return;
+  window.sandiego.closeTab(tabId);
 
-  tabs.splice(index, 1);
-  document.querySelector(`.tab[data-tab-id="${tabId}"]`)?.remove();
-  window.electronAPI.closeTab(tabId);
+  const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+  tabEl?.remove();
 
-  if (tabs.length === 0) {
-    createNewTab();
-  } else if (activeTabId === tabId) {
-    const newActiveIndex = Math.min(index, tabs.length - 1);
-    activateTab(tabs[newActiveIndex].id);
-  }
-}
+  AppState.tabs.delete(tabId);
 
-function closeActiveTab() {
-  if (activeTabId) {
-    closeTab(activeTabId);
+  // If no tabs left, create a new one
+  if (AppState.tabs.size === 0) {
+    handleNewTab();
+  } else if (AppState.activeTabId === tabId) {
+    // Activate the last tab
+    const remaining = Array.from(AppState.tabs.keys());
+    const newActiveId = remaining[remaining.length - 1];
+    setActiveTab(newActiveId);
+    window.sandiego.showTab(newActiveId);
   }
 }
 
 function updateTabTitle(tabId, title) {
-  const tab = tabs.find(t => t.id === tabId);
+  const tab = AppState.tabs.get(tabId);
   if (tab) {
     tab.title = title;
-    const titleEl = document.querySelector(`.tab[data-tab-id="${tabId}"] .tab-title`);
-    if (titleEl) titleEl.textContent = title;
+  }
+
+  const titleEl = document.querySelector(`.tab[data-tab-id="${tabId}"] .tab-title`);
+  if (titleEl) {
+    titleEl.textContent = title || 'Untitled';
   }
 }
 
 function updateTabFavicon(tabId, favicon) {
-  const tab = tabs.find(t => t.id === tabId);
+  const tab = AppState.tabs.get(tabId);
   if (tab) {
     tab.favicon = favicon;
-    const faviconEl = document.querySelector(`.tab[data-tab-id="${tabId}"] .tab-favicon`);
-    if (faviconEl) faviconEl.src = favicon;
+  }
+
+  const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+  if (!tabEl) return;
+
+  let faviconEl = tabEl.querySelector('.tab-favicon');
+  if (favicon) {
+    if (!faviconEl) {
+      faviconEl = document.createElement('img');
+      faviconEl.className = 'tab-favicon';
+      tabEl.prepend(faviconEl);
+    }
+    faviconEl.src = favicon;
+  } else if (faviconEl) {
+    faviconEl.remove();
   }
 }
 
 function updateTabLoading(tabId, loading) {
-  const tab = tabs.find(t => t.id === tabId);
+  const tab = AppState.tabs.get(tabId);
   if (tab) {
     tab.loading = loading;
-    const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
-    if (tabEl) {
-      const faviconEl = tabEl.querySelector('.tab-favicon');
-      if (loading) {
-        faviconEl.outerHTML = '<div class="tab-loading"></div>';
-      } else if (tab.favicon) {
-        const loadingEl = tabEl.querySelector('.tab-loading');
-        if (loadingEl) {
-          loadingEl.outerHTML = `<img class="tab-favicon" src="${tab.favicon}" alt="">`;
-        }
-      }
+  }
+
+  const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+  if (!tabEl) return;
+
+  const existing = tabEl.querySelector('.tab-loading, .tab-favicon');
+
+  if (loading) {
+    if (existing) {
+      const spinner = document.createElement('div');
+      spinner.className = 'tab-loading';
+      existing.replaceWith(spinner);
     }
-  }
-}
-
-// Navigation Functions
-function navigate(url) {
-  if (!url) return;
-
-  const tab = tabs.find(t => t.id === activeTabId);
-  if (!tab) {
-    createNewTab(url);
-    return;
-  }
-
-  // Check if it's a search or URL
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    if (url.includes('.') && !url.includes(' ')) {
-      url = 'https://' + url;
-    } else {
-      url = `https://duckduckgo.com/?q=${encodeURIComponent(url)}`;
-    }
-  }
-
-  tab.url = url;
-  urlInput.value = url;
-  startPage.style.display = 'none';
-
-  if (!tab.title || tab.title === 'New Tab') {
-    window.electronAPI.createTab(activeTabId, url);
   } else {
-    window.electronAPI.navigate(activeTabId, url);
+    const loadingEl = tabEl.querySelector('.tab-loading');
+    if (loadingEl && tab?.favicon) {
+      const img = document.createElement('img');
+      img.className = 'tab-favicon';
+      img.src = tab.favicon;
+      loadingEl.replaceWith(img);
+    } else if (loadingEl) {
+      loadingEl.remove();
+    }
   }
 }
 
-function goBack() {
-  if (activeTabId) {
-    window.electronAPI.goBack(activeTabId);
+// ============================================
+// Navigation
+// ============================================
+
+function navigateToUrl(input) {
+  if (!input || !input.trim()) return;
+
+  if (!AppState.activeTabId) return;
+
+  window.sandiego.navigate(AppState.activeTabId, input.trim());
+  showStartPage(false);
+}
+
+function handleNavigation(action) {
+  if (!AppState.activeTabId) return;
+
+  switch (action) {
+    case 'back':
+      window.sandiego.goBack(AppState.activeTabId);
+      break;
+    case 'forward':
+      window.sandiego.goForward(AppState.activeTabId);
+      break;
+    case 'reload':
+      window.sandiego.reload(AppState.activeTabId);
+      break;
   }
 }
 
-function goForward() {
-  if (activeTabId) {
-    window.electronAPI.goForward(activeTabId);
-  }
-}
-
-function reload() {
-  if (activeTabId) {
-    window.electronAPI.reload(activeTabId);
-  }
-}
-
-function goHome() {
-  const tab = tabs.find(t => t.id === activeTabId);
+function handleGoHome() {
+  const tab = AppState.tabs.get(AppState.activeTabId);
   if (tab) {
     tab.url = '';
     tab.title = 'New Tab';
-    urlInput.value = '';
-    startPage.style.display = 'flex';
+    DOM.urlInput.value = '';
+    showStartPage(true);
   }
 }
 
-function updateSecurityIndicator(url) {
-  const indicator = document.getElementById('securityIndicator');
+function updateNavButtons(canGoBack, canGoForward) {
+  if (DOM.backBtn) DOM.backBtn.disabled = !canGoBack;
+  if (DOM.forwardBtn) DOM.forwardBtn.disabled = !canGoForward;
+}
+
+function updateSecurityBadge(url) {
+  if (!DOM.securityBadge) return;
+
   if (url && url.startsWith('https://')) {
-    indicator.classList.add('secure');
+    DOM.securityBadge.classList.add('secure');
   } else {
-    indicator.classList.remove('secure');
+    DOM.securityBadge.classList.remove('secure');
   }
 }
 
-// Sidebar Functions
-function toggleSidebar(panel) {
-  const isCurrentPanelActive = sidebar.classList.contains('visible') &&
-    document.querySelector(`.sidebar-panel[id="${panel}Panel"]`)?.classList.contains('active');
-
-  if (isCurrentPanelActive) {
-    closeSidebar();
-  } else {
-    openSidebar(panel);
+function showStartPage(show) {
+  if (DOM.startPage) {
+    DOM.startPage.style.display = show ? 'flex' : 'none';
   }
 }
 
-function openSidebar(panel) {
-  sidebar.classList.add('visible');
-  document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(`${panel}Panel`)?.classList.add('active');
+// ============================================
+// Panel Management
+// ============================================
+
+function togglePanel(panelType) {
+  const isCurrentPanel = AppState.activePanel === panelType;
+
+  if (AppState.panelOpen && isCurrentPanel) {
+    closePanel();
+  } else {
+    openPanel(panelType);
+  }
+}
+
+function openPanel(panelType) {
+  AppState.panelOpen = true;
+  AppState.activePanel = panelType;
+
+  DOM.extensionsPanel?.classList.add('open');
 
   // Update button states
-  document.getElementById('bookmarksBtn').classList.toggle('active', panel === 'bookmarks');
-  document.getElementById('privacyBtn').classList.toggle('active', panel === 'privacy');
+  DOM.extensionsBtn?.classList.toggle('active', panelType === 'extensions');
+  DOM.privacyBtn?.classList.toggle('active', panelType === 'privacy');
+
+  // Render panel content
+  renderPanelContent(panelType);
+
+  // Notify main process
+  window.sandiego.panelToggle(true, 340);
 }
 
-function closeSidebar() {
-  sidebar.classList.remove('visible');
-  document.getElementById('bookmarksBtn').classList.remove('active');
-  document.getElementById('privacyBtn').classList.remove('active');
+function closePanel() {
+  AppState.panelOpen = false;
+  AppState.activePanel = null;
+
+  DOM.extensionsPanel?.classList.remove('open');
+  DOM.extensionsBtn?.classList.remove('active');
+  DOM.privacyBtn?.classList.remove('active');
+
+  window.sandiego.panelToggle(false, 0);
 }
 
-// Dorks Toolbar Functions
-function toggleDorksToolbar() {
-  dorksToolbar.classList.toggle('visible');
-  document.getElementById('dorksBtn').classList.toggle('active');
-}
+function renderPanelContent(panelType) {
+  if (!DOM.panelContent) return;
 
-// Google Dorks Data
-const GOOGLE_DORKS = [
-  { operator: 'site:', description: 'Search within a specific site', example: 'site:example.com' },
-  { operator: 'inurl:', description: 'Search for URL containing term', example: 'inurl:admin' },
-  { operator: 'intitle:', description: 'Search for title containing term', example: 'intitle:login' },
-  { operator: 'intext:', description: 'Search for body text containing term', example: 'intext:password' },
-  { operator: 'filetype:', description: 'Search for specific file type', example: 'filetype:pdf' },
-  { operator: 'ext:', description: 'Search for file extension', example: 'ext:sql' },
-  { operator: 'cache:', description: 'View cached version of site', example: 'cache:example.com' },
-  { operator: 'link:', description: 'Find pages linking to URL', example: 'link:example.com' },
-  { operator: 'related:', description: 'Find related sites', example: 'related:example.com' },
-  { operator: 'info:', description: 'Get info about a page', example: 'info:example.com' },
-  { operator: 'define:', description: 'Get definitions', example: 'define:osint' },
-  { operator: 'allinurl:', description: 'All terms in URL', example: 'allinurl:admin login' },
-  { operator: 'allintitle:', description: 'All terms in title', example: 'allintitle:index of' },
-  { operator: 'allintext:', description: 'All terms in text', example: 'allintext:username password' },
-  { operator: 'allinanchor:', description: 'All terms in anchor text', example: 'allinanchor:click here' },
-  { operator: '"..."', description: 'Exact phrase match', example: '"exact phrase"' },
-  { operator: '-', description: 'Exclude term', example: '-excluded' },
-  { operator: 'OR', description: 'Either term', example: 'term1 OR term2' },
-  { operator: '*', description: 'Wildcard', example: 'how to * a website' },
-  { operator: '..', description: 'Number range', example: '2020..2024' },
-  { operator: 'before:', description: 'Before date', example: 'before:2023-01-01' },
-  { operator: 'after:', description: 'After date', example: 'after:2022-01-01' },
-  { operator: 'AROUND(n)', description: 'Terms within n words', example: 'password AROUND(5) leaked' },
-  { operator: 'inanchor:', description: 'Search anchor text', example: 'inanchor:click here' },
-  { operator: 'numrange:', description: 'Number range search', example: 'numrange:1-100' }
-];
-
-// Common OSINT Dork Templates
-const OSINT_DORK_TEMPLATES = [
-  { name: 'Email Discovery', query: 'site:{domain} "@{domain}" OR "email" filetype:pdf OR filetype:doc' },
-  { name: 'Document Leaks', query: 'site:{domain} filetype:pdf OR filetype:doc OR filetype:xls "confidential" OR "internal"' },
-  { name: 'Login Pages', query: 'site:{domain} inurl:login OR inurl:admin OR inurl:signin' },
-  { name: 'Exposed Files', query: 'site:{domain} intitle:"index of" OR inurl:backup OR inurl:old' },
-  { name: 'Config Files', query: 'site:{domain} filetype:env OR filetype:cfg OR filetype:conf' },
-  { name: 'Database Files', query: 'site:{domain} filetype:sql OR filetype:db OR filetype:mdb' },
-  { name: 'API Keys', query: 'site:{domain} "api_key" OR "apikey" OR "api-key" filetype:json OR filetype:xml' },
-  { name: 'Password Files', query: 'site:{domain} filetype:txt "password" OR "passwd" OR "credentials"' },
-  { name: 'Subdomains', query: 'site:*.{domain} -www' },
-  { name: 'Error Pages', query: 'site:{domain} "error" OR "exception" OR "stack trace" OR "debug"' }
-];
-
-let selectedDorks = [];
-let searchTerm = '';
-
-function initializeDorksToolbar() {
-  const operatorsContainer = document.getElementById('dorksOperators');
-  const searchInput = document.getElementById('dorksSearchInput');
-  const previewEl = document.getElementById('dorksPreview');
-  const executeBtn = document.getElementById('executeSearch');
-
-  // Render operator buttons
-  GOOGLE_DORKS.forEach(dork => {
-    const btn = document.createElement('button');
-    btn.className = 'dork-operator';
-    btn.textContent = dork.operator;
-    btn.title = dork.description;
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('active');
-      if (btn.classList.contains('active')) {
-        selectedDorks.push(dork.operator);
-      } else {
-        selectedDorks = selectedDorks.filter(d => d !== dork.operator);
-      }
-      updateDorksPreview();
-    });
-    operatorsContainer.appendChild(btn);
-  });
-
-  // Search input
-  searchInput.addEventListener('input', (e) => {
-    searchTerm = e.target.value;
-    updateDorksPreview();
-  });
-
-  // Execute search
-  executeBtn.addEventListener('click', executeGoogleDork);
-
-  // Enter key in search input
-  searchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      executeGoogleDork();
-    }
-  });
-
-  function updateDorksPreview() {
-    let query = searchTerm;
-    if (selectedDorks.length > 0) {
-      query = selectedDorks.join(' ') + ' ' + searchTerm;
-    }
-    previewEl.textContent = query || 'Enter search term and select operators...';
-  }
-
-  function executeGoogleDork() {
-    const engine = document.getElementById('dorksEngineSelect').value;
-    let query = searchTerm;
-    if (selectedDorks.length > 0) {
-      query = selectedDorks.join(' ') + ' ' + searchTerm;
-    }
-
-    if (!query.trim()) return;
-
-    const searchUrls = {
-      google: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
-      duckduckgo: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
-      bing: `https://www.bing.com/search?q=${encodeURIComponent(query)}`,
-      yandex: `https://yandex.com/search/?text=${encodeURIComponent(query)}`
-    };
-
-    navigate(searchUrls[engine]);
+  if (panelType === 'extensions') {
+    renderExtensionsPanel();
+  } else if (panelType === 'privacy') {
+    renderPrivacyPanel();
   }
 }
 
-// Bookmarks Functions
-async function addCurrentPageToBookmarks() {
-  const tab = tabs.find(t => t.id === activeTabId);
-  if (tab && tab.url) {
-    await window.electronAPI.addBookmark({
-      title: tab.title,
-      url: tab.url,
-      category: 'custom'
-    });
-    document.getElementById('bookmarkBtn').classList.add('active');
-  }
-}
+function renderExtensionsPanel() {
+  DOM.panelContent.innerHTML = `
+    <div class="panel-header">
+      <span class="panel-title">OSINT Tools</span>
+      <button class="panel-close" aria-label="Close panel">
+        <svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+      </button>
+    </div>
+    <div class="panel-search">
+      <input type="text" class="panel-search-input" id="osintSearch" placeholder="Search tools...">
+    </div>
+    <div class="panel-body" id="osintList"></div>
+  `;
 
-async function initializeBookmarks() {
-  // Category tabs
-  document.querySelectorAll('.panel-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      renderBookmarksList(tab.dataset.category);
-    });
+  DOM.panelContent.querySelector('.panel-close')?.addEventListener('click', closePanel);
+
+  const searchInput = DOM.panelContent.querySelector('#osintSearch');
+  searchInput?.addEventListener('input', (e) => {
+    renderOSINTBookmarks(e.target.value);
   });
 
-  // Search
-  document.getElementById('bookmarkSearch').addEventListener('input', (e) => {
-    const activeCategory = document.querySelector('.panel-tab.active')?.dataset.category || 'osint-framework';
-    renderBookmarksList(activeCategory, e.target.value);
-  });
-
-  // Initial render
-  renderBookmarksList('osint-framework');
+  renderOSINTBookmarks('');
 }
 
-function renderBookmarksList(category, searchQuery = '') {
-  const container = document.getElementById('bookmarksList');
-  let bookmarks;
-
-  switch (category) {
-    case 'osint-framework':
-      bookmarks = OSINT_FRAMEWORK_BOOKMARKS;
-      break;
-    case 'awesome-osint':
-      bookmarks = AWESOME_OSINT_BOOKMARKS;
-      break;
-    case 'kali-tools':
-      bookmarks = KALI_OSINT_TOOLS;
-      break;
-    case 'custom':
-      window.electronAPI.getBookmarks().then(customBookmarks => {
-        renderCustomBookmarks(container, customBookmarks, searchQuery);
-      });
-      return;
-    default:
-      bookmarks = [];
-  }
+function renderOSINTBookmarks(filter = '') {
+  const container = document.getElementById('osintList');
+  if (!container) return;
 
   container.innerHTML = '';
+  const query = filter.toLowerCase();
 
-  const query = searchQuery.toLowerCase();
-
-  Object.entries(bookmarks).forEach(([categoryName, items]) => {
-    const filteredItems = items.filter(item =>
+  for (const [category, items] of Object.entries(OSINT_BOOKMARKS)) {
+    const filtered = items.filter(item =>
       item.name.toLowerCase().includes(query) ||
-      item.description?.toLowerCase().includes(query)
+      category.toLowerCase().includes(query)
     );
 
-    if (filteredItems.length === 0) return;
+    if (filtered.length === 0) continue;
 
-    const categoryEl = document.createElement('div');
-    categoryEl.className = 'bookmark-category';
-    categoryEl.innerHTML = `
-      <div class="bookmark-category-title">
-        <span class="arrow">▼</span>
-        <span>${categoryName}</span>
-        <span style="color: var(--text-muted); font-weight: normal; font-size: 11px;">(${filteredItems.length})</span>
+    const groupEl = document.createElement('div');
+    groupEl.className = 'panel-group';
+    groupEl.innerHTML = `
+      <div class="panel-group-title">
+        <svg class="arrow" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" fill="none"/></svg>
+        <span>${escapeHtml(category)}</span>
+        <span style="color: var(--text-tertiary); font-size: 11px; margin-left: auto;">${filtered.length}</span>
       </div>
-      <div class="bookmark-items"></div>
+      <div class="panel-group-items"></div>
     `;
 
-    const itemsContainer = categoryEl.querySelector('.bookmark-items');
+    const titleEl = groupEl.querySelector('.panel-group-title');
+    titleEl?.addEventListener('click', () => {
+      groupEl.classList.toggle('collapsed');
+    });
 
-    filteredItems.forEach(item => {
+    const itemsContainer = groupEl.querySelector('.panel-group-items');
+    filtered.forEach(item => {
       const itemEl = document.createElement('div');
-      itemEl.className = 'bookmark-item';
+      itemEl.className = 'panel-item';
       itemEl.innerHTML = `
-        <svg class="bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        <svg class="panel-item-icon" viewBox="0 0 16 16">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none"/>
         </svg>
-        <span class="bookmark-name" title="${item.description || item.name}">${item.name}</span>
+        <span class="panel-item-text">${escapeHtml(item.name)}</span>
       `;
-      itemEl.addEventListener('click', () => navigate(item.url));
-      itemsContainer.appendChild(itemEl);
+      itemEl.addEventListener('click', () => navigateToUrl(item.url));
+      itemsContainer?.appendChild(itemEl);
     });
 
-    categoryEl.querySelector('.bookmark-category-title').addEventListener('click', () => {
-      categoryEl.classList.toggle('collapsed');
-    });
+    container.appendChild(groupEl);
+  }
+}
 
-    container.appendChild(categoryEl);
+function renderPrivacyPanel() {
+  const privacy = AppState.privacy;
+
+  DOM.panelContent.innerHTML = `
+    <div class="panel-header">
+      <span class="panel-title">Privacy Shield</span>
+      <button class="panel-close" aria-label="Close panel">
+        <svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+      </button>
+    </div>
+    <div class="panel-body">
+      <div class="privacy-option">
+        <div class="privacy-info">
+          <div class="privacy-label">Tor Proxy</div>
+          <div class="privacy-desc">Route traffic through Tor (requires Tor on port 9050)</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" data-setting="torEnabled" ${privacy.torEnabled ? 'checked' : ''}>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="privacy-option">
+        <div class="privacy-info">
+          <div class="privacy-label">Block Trackers</div>
+          <div class="privacy-desc">Block known tracking domains</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" data-setting="blockTrackers" ${privacy.blockTrackers ? 'checked' : ''}>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="privacy-option">
+        <div class="privacy-info">
+          <div class="privacy-label">Block Fingerprinting</div>
+          <div class="privacy-desc">Randomize canvas, WebGL, and audio fingerprints</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" data-setting="blockFingerprinting" ${privacy.blockFingerprinting ? 'checked' : ''}>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="privacy-option">
+        <div class="privacy-info">
+          <div class="privacy-label">Block Third-Party Cookies</div>
+          <div class="privacy-desc">Prevent cross-site tracking cookies</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" data-setting="blockThirdPartyCookies" ${privacy.blockThirdPartyCookies ? 'checked' : ''}>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="privacy-option">
+        <div class="privacy-info">
+          <div class="privacy-label">Block WebRTC</div>
+          <div class="privacy-desc">Prevent IP leaks via WebRTC</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" data-setting="blockWebRTC" ${privacy.blockWebRTC ? 'checked' : ''}>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="privacy-option">
+        <div class="privacy-info">
+          <div class="privacy-label">Spoof User Agent</div>
+          <div class="privacy-desc">Use Firefox user agent to blend in</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" data-setting="spoofUserAgent" ${privacy.spoofUserAgent ? 'checked' : ''}>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="privacy-option">
+        <div class="privacy-info">
+          <div class="privacy-label">Do Not Track</div>
+          <div class="privacy-desc">Send DNT and GPC headers</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" data-setting="doNotTrack" ${privacy.doNotTrack ? 'checked' : ''}>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="privacy-option">
+        <div class="privacy-info">
+          <div class="privacy-label">HTTPS Upgrade</div>
+          <div class="privacy-desc">Automatically upgrade HTTP to HTTPS</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" data-setting="httpsUpgrade" ${privacy.httpsUpgrade ? 'checked' : ''}>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="privacy-option">
+        <div class="privacy-info">
+          <div class="privacy-label">Clear on Exit</div>
+          <div class="privacy-desc">Clear all browsing data when closing</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" data-setting="clearOnExit" ${privacy.clearOnExit ? 'checked' : ''}>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <button class="shield-btn" id="clearDataBtn">Clear Browsing Data Now</button>
+    </div>
+  `;
+
+  DOM.panelContent.querySelector('.panel-close')?.addEventListener('click', closePanel);
+
+  // Privacy toggle handlers
+  DOM.panelContent.querySelectorAll('input[data-setting]').forEach(input => {
+    input.addEventListener('change', async (e) => {
+      const key = e.target.dataset.setting;
+      const value = e.target.checked;
+      await window.sandiego.setPrivacySetting(key, value);
+    });
+  });
+
+  // Clear data button
+  DOM.panelContent.querySelector('#clearDataBtn')?.addEventListener('click', async () => {
+    await window.sandiego.clearBrowsingData();
+    showNotification('success', 'Browsing data cleared successfully');
   });
 }
 
-function renderCustomBookmarks(container, bookmarks, searchQuery) {
-  container.innerHTML = '';
+// ============================================
+// Privacy & Status
+// ============================================
 
-  const query = searchQuery.toLowerCase();
-  const filtered = bookmarks.filter(b =>
-    b.title.toLowerCase().includes(query) ||
-    b.url.toLowerCase().includes(query)
-  );
+async function loadPrivacySettings() {
+  try {
+    AppState.privacy = await window.sandiego.getPrivacySettings();
+    updateStatusIndicator(AppState.privacy);
+  } catch (err) {
+    console.error('Failed to load privacy settings:', err);
+  }
+}
 
-  if (filtered.length === 0) {
-    container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-muted);">No bookmarks yet. Click the star icon to add the current page.</div>';
-    return;
+function updateStatusIndicator(privacy) {
+  if (!DOM.statusIndicator || !DOM.statusText) return;
+
+  DOM.statusIndicator.classList.remove('tor', 'protected');
+
+  if (privacy.torEnabled) {
+    DOM.statusIndicator.classList.add('tor');
+    DOM.statusText.textContent = 'Tor Active';
+  } else if (privacy.blockTrackers || privacy.blockFingerprinting) {
+    DOM.statusIndicator.classList.add('protected');
+    DOM.statusText.textContent = 'Protected';
+  } else {
+    DOM.statusText.textContent = 'Ready';
+  }
+}
+
+// ============================================
+// Quick Links
+// ============================================
+
+function renderQuickLinks() {
+  if (!DOM.quickGrid) return;
+
+  DOM.quickGrid.innerHTML = '';
+
+  QUICK_LINKS.forEach(link => {
+    const linkEl = document.createElement('div');
+    linkEl.className = 'quick-link';
+    linkEl.innerHTML = `
+      <div class="quick-link-icon">${link.icon}</div>
+      <span class="quick-link-title">${escapeHtml(link.title)}</span>
+    `;
+    linkEl.addEventListener('click', () => navigateToUrl(link.url));
+    DOM.quickGrid.appendChild(linkEl);
+  });
+}
+
+// ============================================
+// Bookmarks
+// ============================================
+
+async function handleBookmarkPage() {
+  if (!AppState.activeTabId) return;
+
+  const tab = AppState.tabs.get(AppState.activeTabId);
+  if (!tab || !tab.url) return;
+
+  try {
+    await window.sandiego.addBookmark({
+      title: tab.title,
+      url: tab.url
+    });
+    DOM.bookmarkPageBtn?.classList.add('bookmarked');
+    showNotification('success', 'Page bookmarked');
+  } catch (err) {
+    showNotification('error', 'Failed to bookmark page');
+  }
+}
+
+// ============================================
+// Keyboard Shortcuts
+// ============================================
+
+function handleKeyboardShortcuts(e) {
+  const isModifier = e.ctrlKey || e.metaKey;
+
+  if (isModifier) {
+    switch (e.key.toLowerCase()) {
+      case 't':
+        e.preventDefault();
+        handleNewTab();
+        break;
+      case 'w':
+        e.preventDefault();
+        if (AppState.activeTabId) {
+          closeTab(AppState.activeTabId);
+        }
+        break;
+      case 'l':
+        e.preventDefault();
+        DOM.urlInput?.focus();
+        DOM.urlInput?.select();
+        break;
+      case 'r':
+        e.preventDefault();
+        handleNavigation('reload');
+        break;
+      case 'd':
+        e.preventDefault();
+        handleBookmarkPage();
+        break;
+    }
   }
 
-  filtered.forEach(bookmark => {
-    const itemEl = document.createElement('div');
-    itemEl.className = 'bookmark-item';
-    itemEl.innerHTML = `
-      <svg class="bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-      </svg>
-      <span class="bookmark-name" title="${bookmark.url}">${bookmark.title}</span>
-    `;
-    itemEl.addEventListener('click', () => navigate(bookmark.url));
-    container.appendChild(itemEl);
-  });
+  // Escape to close panel
+  if (e.key === 'Escape' && AppState.panelOpen) {
+    closePanel();
+  }
 }
 
-// Privacy Settings
-async function initializePrivacySettings() {
-  const settings = await window.electronAPI.getPrivacySettings();
-  renderPrivacySettings(settings);
-}
+// ============================================
+// Notifications
+// ============================================
 
-function renderPrivacySettings(settings) {
-  const container = document.getElementById('privacySettings');
-  container.innerHTML = `
-    <div class="privacy-group">
-      <div class="privacy-group-title">Anonymity</div>
-      <div class="privacy-option">
-        <div class="privacy-option-info">
-          <div class="privacy-option-label">Tor Proxy</div>
-          <div class="privacy-option-desc">Route traffic through Tor network (requires Tor running on port 9050)</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" data-setting="torEnabled" ${settings.torEnabled ? 'checked' : ''}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="privacy-option">
-        <div class="privacy-option-info">
-          <div class="privacy-option-label">Spoof User Agent</div>
-          <div class="privacy-option-desc">Use Firefox-like user agent to blend in</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" data-setting="spoofUserAgent" ${settings.spoofUserAgent ? 'checked' : ''}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
+function showNotification(type, message, duration = 3000) {
+  if (!DOM.notificationContainer) return;
 
-    <div class="privacy-group">
-      <div class="privacy-group-title">Tracking Protection</div>
-      <div class="privacy-option">
-        <div class="privacy-option-info">
-          <div class="privacy-option-label">Block Trackers</div>
-          <div class="privacy-option-desc">Block known tracking domains (Google Analytics, Facebook Pixel, etc.)</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" data-setting="blockTrackers" ${settings.blockTrackers ? 'checked' : ''}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="privacy-option">
-        <div class="privacy-option-info">
-          <div class="privacy-option-label">Block Third-Party Cookies</div>
-          <div class="privacy-option-desc">Prevent cross-site tracking cookies</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" data-setting="blockThirdPartyCookies" ${settings.blockThirdPartyCookies ? 'checked' : ''}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="privacy-option">
-        <div class="privacy-option-info">
-          <div class="privacy-option-label">Do Not Track</div>
-          <div class="privacy-option-desc">Send DNT and GPC headers (sites may ignore)</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" data-setting="doNotTrack" ${settings.doNotTrack ? 'checked' : ''}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
-
-    <div class="privacy-group">
-      <div class="privacy-group-title">Fingerprinting Protection</div>
-      <div class="privacy-option">
-        <div class="privacy-option-info">
-          <div class="privacy-option-label">Block Fingerprinting</div>
-          <div class="privacy-option-desc">Randomize canvas, WebGL, and audio fingerprints</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" data-setting="blockFingerprinting" ${settings.blockFingerprinting ? 'checked' : ''}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="privacy-option">
-        <div class="privacy-option-info">
-          <div class="privacy-option-label">Block WebRTC</div>
-          <div class="privacy-option-desc">Prevent IP leaks through WebRTC</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" data-setting="blockWebRTC" ${settings.blockWebRTC ? 'checked' : ''}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
-
-    <div class="privacy-group">
-      <div class="privacy-group-title">Data Handling</div>
-      <div class="privacy-option">
-        <div class="privacy-option-info">
-          <div class="privacy-option-label">Clear Data on Exit</div>
-          <div class="privacy-option-desc">Automatically clear all browsing data when closing</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" data-setting="clearOnExit" ${settings.clearOnExit ? 'checked' : ''}>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
-
-    <button class="extreme-privacy-btn ${settings.extremePrivacyMode ? 'active' : ''}" id="extremePrivacyBtn">
-      ${settings.extremePrivacyMode ? '🔒 Disable Extreme Privacy Mode' : '🛡️ Enable Extreme Privacy Mode'}
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.innerHTML = `
+    <svg class="notification-icon" viewBox="0 0 20 20">
+      ${type === 'success' ? '<path d="M16 5l-9 9-4-4" fill="none"/>' :
+        type === 'error' ? '<circle cx="10" cy="10" r="8" fill="none"/><line x1="6" y1="6" x2="14" y2="14"/><line x1="14" y1="6" x2="6" y2="14"/>' :
+        '<circle cx="10" cy="10" r="8" fill="none"/><line x1="10" y1="6" x2="10" y2="10"/><circle cx="10" cy="14" r="1"/>'}
+    </svg>
+    <span class="notification-text">${escapeHtml(message)}</span>
+    <button class="notification-close" aria-label="Close">
+      <svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
     </button>
   `;
 
-  // Add event listeners
-  container.querySelectorAll('input[data-setting]').forEach(input => {
-    input.addEventListener('change', (e) => {
-      window.electronAPI.setPrivacySetting(e.target.dataset.setting, e.target.checked);
-    });
+  notification.querySelector('.notification-close')?.addEventListener('click', () => {
+    notification.remove();
   });
 
-  document.getElementById('extremePrivacyBtn').addEventListener('click', async () => {
-    const newValue = !settings.extremePrivacyMode;
-    await window.electronAPI.setPrivacySetting('extremePrivacyMode', newValue);
-    if (newValue) {
-      await window.electronAPI.setPrivacySetting('torEnabled', true);
-      await window.electronAPI.setPrivacySetting('blockTrackers', true);
-      await window.electronAPI.setPrivacySetting('blockFingerprinting', true);
-      await window.electronAPI.setPrivacySetting('blockThirdPartyCookies', true);
-      await window.electronAPI.setPrivacySetting('blockWebRTC', true);
-      await window.electronAPI.setPrivacySetting('spoofUserAgent', true);
-    }
-  });
+  DOM.notificationContainer.appendChild(notification);
+
+  setTimeout(() => {
+    notification.remove();
+  }, duration);
 }
 
-async function loadPrivacyStatus() {
-  const settings = await window.electronAPI.getPrivacySettings();
-  updatePrivacyIndicator(settings);
+// ============================================
+// Utility Functions
+// ============================================
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
-
-function updatePrivacyIndicator(settings) {
-  const indicator = document.getElementById('privacyIndicator');
-  const text = indicator.querySelector('.indicator-text');
-
-  indicator.classList.remove('tor', 'extreme');
-
-  if (settings.extremePrivacyMode) {
-    indicator.classList.add('extreme');
-    text.textContent = 'Extreme Privacy';
-  } else if (settings.torEnabled) {
-    indicator.classList.add('tor');
-    text.textContent = 'Tor Active';
-  } else if (settings.blockTrackers) {
-    text.textContent = 'Protected';
-  } else {
-    text.textContent = 'Standard';
-  }
-}
-
-// Privacy state for navigation checks
-let currentPrivacySettings = { extremePrivacyMode: false };
-
-// Update the privacy settings cache
-window.electronAPI.onPrivacyUpdated((settings) => {
-  currentPrivacySettings = settings;
-});
-
-// Load initial privacy settings
-(async () => {
-  currentPrivacySettings = await window.electronAPI.getPrivacySettings();
-})();
-
-// ============================================
-// OSINT FRAMEWORK BOOKMARKS
-// ============================================
-const OSINT_FRAMEWORK_BOOKMARKS = {
-  'Username Search': [
-    { name: 'Namechk', url: 'https://namechk.com/', description: 'Check username availability across platforms' },
-    { name: 'KnowEm', url: 'https://knowem.com/', description: 'Username search across 500+ social networks' },
-    { name: 'WhatsMyName', url: 'https://whatsmyname.app/', description: 'Username enumeration' },
-    { name: 'Sherlock', url: 'https://github.com/sherlock-project/sherlock', description: 'Hunt down social media accounts' },
-    { name: 'Maigret', url: 'https://github.com/soxoj/maigret', description: 'Collect person info by username' },
-    { name: 'UserSearch.org', url: 'https://usersearch.org/', description: 'Find anyone online' },
-    { name: 'Instant Username', url: 'https://instantusername.com/', description: 'Check username availability instantly' }
-  ],
-  'Email Search': [
-    { name: 'Hunter.io', url: 'https://hunter.io/', description: 'Find email addresses' },
-    { name: 'Phonebook.cz', url: 'https://phonebook.cz/', description: 'Find emails and phone numbers' },
-    { name: 'Have I Been Pwned', url: 'https://haveibeenpwned.com/', description: 'Check if email was in a breach' },
-    { name: 'EmailRep', url: 'https://emailrep.io/', description: 'Email reputation lookup' },
-    { name: 'Epieos', url: 'https://epieos.com/', description: 'Google account email lookup' },
-    { name: 'Holehe', url: 'https://github.com/megadose/holehe', description: 'Check email registered accounts' },
-    { name: 'Snov.io', url: 'https://snov.io/', description: 'Email finder and verifier' }
-  ],
-  'Phone Number': [
-    { name: 'Truecaller', url: 'https://www.truecaller.com/', description: 'Phone number lookup' },
-    { name: 'PhoneInfoga', url: 'https://github.com/sundowndev/phoneinfoga', description: 'Phone number investigation' },
-    { name: 'Sync.me', url: 'https://sync.me/', description: 'Caller ID and spam blocker' },
-    { name: 'NumLooker', url: 'https://www.numlooker.com/', description: 'Reverse phone lookup' }
-  ],
-  'Social Media': [
-    { name: 'Social Searcher', url: 'https://www.social-searcher.com/', description: 'Free social media search' },
-    { name: 'Twint', url: 'https://github.com/twintproject/twint', description: 'Twitter scraping tool' },
-    { name: 'InstaLoader', url: 'https://github.com/instaloader/instaloader', description: 'Instagram downloader' },
-    { name: 'Osintgram', url: 'https://github.com/Datalux/Osintgram', description: 'Instagram OSINT tool' },
-    { name: 'Who Posted What', url: 'https://whopostedwhat.com/', description: 'Facebook keyword search' },
-    { name: 'Social Blade', url: 'https://socialblade.com/', description: 'Social media statistics' }
-  ],
-  'Domain & IP': [
-    { name: 'Whois Lookup', url: 'https://whois.domaintools.com/', description: 'Domain registration info' },
-    { name: 'SecurityTrails', url: 'https://securitytrails.com/', description: 'DNS and domain history' },
-    { name: 'DNSDumpster', url: 'https://dnsdumpster.com/', description: 'DNS reconnaissance' },
-    { name: 'Shodan', url: 'https://www.shodan.io/', description: 'Search engine for IoT devices' },
-    { name: 'Censys', url: 'https://censys.io/', description: 'Internet-wide scanning' },
-    { name: 'VirusTotal', url: 'https://www.virustotal.com/', description: 'Analyze files and URLs' },
-    { name: 'URLScan', url: 'https://urlscan.io/', description: 'Website scanner' },
-    { name: 'crt.sh', url: 'https://crt.sh/', description: 'Certificate Transparency logs' },
-    { name: 'Subfinder', url: 'https://github.com/projectdiscovery/subfinder', description: 'Subdomain discovery' }
-  ],
-  'Image Analysis': [
-    { name: 'TinEye', url: 'https://tineye.com/', description: 'Reverse image search' },
-    { name: 'Yandex Images', url: 'https://yandex.com/images/', description: 'Russian reverse image search' },
-    { name: 'PimEyes', url: 'https://pimeyes.com/', description: 'Face recognition search' },
-    { name: 'FaceCheck.ID', url: 'https://facecheck.id/', description: 'Face search engine' },
-    { name: 'FotoForensics', url: 'https://fotoforensics.com/', description: 'Image forensics' },
-    { name: 'Jeffrey EXIF Viewer', url: 'http://exif.regex.info/exif.cgi', description: 'EXIF metadata viewer' }
-  ],
-  'Geolocation': [
-    { name: 'Google Maps', url: 'https://www.google.com/maps', description: 'Mapping and street view' },
-    { name: 'Google Earth', url: 'https://earth.google.com/', description: 'Satellite imagery' },
-    { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org/', description: 'Open source maps' },
-    { name: 'Mapillary', url: 'https://www.mapillary.com/', description: 'Street-level imagery' },
-    { name: 'SunCalc', url: 'https://www.suncalc.org/', description: 'Sun position calculator' },
-    { name: 'FlightRadar24', url: 'https://www.flightradar24.com/', description: 'Live flight tracker' },
-    { name: 'MarineTraffic', url: 'https://www.marinetraffic.com/', description: 'Ship tracking' }
-  ],
-  'People Search': [
-    { name: 'Pipl', url: 'https://pipl.com/', description: 'People search engine' },
-    { name: 'ThatsThem', url: 'https://thatsthem.com/', description: 'Free people search' },
-    { name: 'Whitepages', url: 'https://www.whitepages.com/', description: 'People and phone lookup' },
-    { name: 'FastPeopleSearch', url: 'https://www.fastpeoplesearch.com/', description: 'Free people finder' },
-    { name: 'FamilyTreeNow', url: 'https://www.familytreenow.com/', description: 'Family tree and records' }
-  ],
-  'Archives & Cache': [
-    { name: 'Wayback Machine', url: 'https://web.archive.org/', description: 'Historical web pages' },
-    { name: 'Archive.org', url: 'https://archive.org/', description: 'Internet Archive' },
-    { name: 'CachedView', url: 'https://cachedview.com/', description: 'View cached pages' },
-    { name: 'Google Cache', url: 'https://webcache.googleusercontent.com/', description: 'Google cached pages' }
-  ],
-  'Business & Company': [
-    { name: 'OpenCorporates', url: 'https://opencorporates.com/', description: 'Company database' },
-    { name: 'Crunchbase', url: 'https://www.crunchbase.com/', description: 'Company information' },
-    { name: 'LinkedIn', url: 'https://www.linkedin.com/', description: 'Professional network' },
-    { name: 'SEC EDGAR', url: 'https://www.sec.gov/edgar/', description: 'SEC filings' },
-    { name: 'ICIJ Offshore Leaks', url: 'https://offshoreleaks.icij.org/', description: 'Offshore company data' }
-  ],
-  'Threat Intelligence': [
-    { name: 'VirusTotal', url: 'https://www.virustotal.com/', description: 'Malware analysis' },
-    { name: 'Hybrid Analysis', url: 'https://www.hybrid-analysis.com/', description: 'Malware sandbox' },
-    { name: 'Any.run', url: 'https://any.run/', description: 'Interactive malware sandbox' },
-    { name: 'AlienVault OTX', url: 'https://otx.alienvault.com/', description: 'Open threat exchange' },
-    { name: 'AbuseIPDB', url: 'https://www.abuseipdb.com/', description: 'IP abuse database' }
-  ],
-  'Breach Data': [
-    { name: 'Have I Been Pwned', url: 'https://haveibeenpwned.com/', description: 'Check breach status' },
-    { name: 'DeHashed', url: 'https://dehashed.com/', description: 'Breach search engine' },
-    { name: 'LeakCheck', url: 'https://leakcheck.io/', description: 'Data leak checker' },
-    { name: 'IntelX', url: 'https://intelx.io/', description: 'Intelligence search engine' }
-  ]
-};
-
-// ============================================
-// AWESOME OSINT BOOKMARKS
-// ============================================
-const AWESOME_OSINT_BOOKMARKS = {
-  'General Search': [
-    { name: 'DuckDuckGo', url: 'https://duckduckgo.com/', description: 'Privacy-focused search engine' },
-    { name: 'Startpage', url: 'https://www.startpage.com/', description: 'Private Google results' },
-    { name: 'Searx', url: 'https://searx.space/', description: 'Metasearch engine instances' },
-    { name: 'Brave Search', url: 'https://search.brave.com/', description: 'Independent search engine' },
-    { name: 'Mojeek', url: 'https://www.mojeek.com/', description: 'Independent search engine' }
-  ],
-  'Data Visualization': [
-    { name: 'Maltego', url: 'https://www.maltego.com/', description: 'Link analysis tool' },
-    { name: 'Gephi', url: 'https://gephi.org/', description: 'Graph visualization' },
-    { name: 'yEd', url: 'https://www.yworks.com/products/yed', description: 'Graph editor' }
-  ],
-  'Geospatial': [
-    { name: 'Sentinel Hub', url: 'https://www.sentinel-hub.com/', description: 'Satellite imagery' },
-    { name: 'Zoom Earth', url: 'https://zoom.earth/', description: 'Live weather satellite' },
-    { name: 'EOS Land Viewer', url: 'https://eos.com/landviewer/', description: 'Satellite imagery' }
-  ],
-  'Transportation': [
-    { name: 'FlightAware', url: 'https://flightaware.com/', description: 'Flight tracking' },
-    { name: 'ADS-B Exchange', url: 'https://www.adsbexchange.com/', description: 'Unfiltered flight data' },
-    { name: 'VesselFinder', url: 'https://www.vesselfinder.com/', description: 'Ship tracking' },
-    { name: 'Live ATC', url: 'https://www.liveatc.net/', description: 'ATC radio' }
-  ],
-  'Verification': [
-    { name: 'InVID', url: 'https://www.invid-project.eu/', description: 'Video verification' },
-    { name: 'Fake Image Detector', url: 'https://www.fakeimagedetector.com/', description: 'Image authenticity' },
-    { name: 'Google Fact Check', url: 'https://toolbox.google.com/factcheck/', description: 'Fact checking tools' }
-  ],
-  'Government & Legal': [
-    { name: 'PACER', url: 'https://pacer.uscourts.gov/', description: 'US court records' },
-    { name: 'CourtListener', url: 'https://www.courtlistener.com/', description: 'Free court opinions' },
-    { name: 'GovInfo', url: 'https://www.govinfo.gov/', description: 'US government publications' },
-    { name: 'FOIA.gov', url: 'https://www.foia.gov/', description: 'Freedom of Information' }
-  ],
-  'Academic': [
-    { name: 'Google Scholar', url: 'https://scholar.google.com/', description: 'Academic search' },
-    { name: 'Semantic Scholar', url: 'https://www.semanticscholar.org/', description: 'AI research search' },
-    { name: 'ResearchGate', url: 'https://www.researchgate.net/', description: 'Research network' },
-    { name: 'arXiv', url: 'https://arxiv.org/', description: 'Preprint server' }
-  ]
-};
-
-// ============================================
-// KALI OSINT TOOLS
-// ============================================
-const KALI_OSINT_TOOLS = {
-  'Reconnaissance': [
-    { name: 'theHarvester', url: 'https://github.com/laramies/theHarvester', description: 'Email, subdomain, and name harvester' },
-    { name: 'Recon-ng', url: 'https://github.com/lanmaster53/recon-ng', description: 'Web reconnaissance framework' },
-    { name: 'SpiderFoot', url: 'https://github.com/smicallef/spiderfoot', description: 'Automated OSINT tool' },
-    { name: 'Amass', url: 'https://github.com/owasp-amass/amass', description: 'Network mapping and attack surface' },
-    { name: 'Sublist3r', url: 'https://github.com/aboul3la/Sublist3r', description: 'Subdomain enumeration' },
-    { name: 'Photon', url: 'https://github.com/s0md3v/Photon', description: 'Fast crawler designed for OSINT' }
-  ],
-  'Username OSINT': [
-    { name: 'Sherlock', url: 'https://github.com/sherlock-project/sherlock', description: 'Username search' },
-    { name: 'Maigret', url: 'https://github.com/soxoj/maigret', description: 'Username lookup on many sites' },
-    { name: 'WhatsMyName', url: 'https://github.com/WebBreacher/WhatsMyName', description: 'Username enumeration' },
-    { name: 'social-analyzer', url: 'https://github.com/qeeqbox/social-analyzer', description: 'Analyze social media profiles' }
-  ],
-  'Email Analysis': [
-    { name: 'Infoga', url: 'https://github.com/m4ll0k/Infoga', description: 'Email information gathering' },
-    { name: 'holehe', url: 'https://github.com/megadose/holehe', description: 'Email registration checker' },
-    { name: 'h8mail', url: 'https://github.com/khast3x/h8mail', description: 'Email OSINT and breach hunting' }
-  ],
-  'Phone OSINT': [
-    { name: 'PhoneInfoga', url: 'https://github.com/sundowndev/phoneinfoga', description: 'Phone number information gathering' }
-  ],
-  'DNS & Domain': [
-    { name: 'DNSenum', url: 'https://github.com/fwaeytens/dnsenum', description: 'DNS enumeration' },
-    { name: 'DNSrecon', url: 'https://github.com/darkoperator/dnsrecon', description: 'DNS enumeration' },
-    { name: 'Subfinder', url: 'https://github.com/projectdiscovery/subfinder', description: 'Subdomain discovery' },
-    { name: 'Assetfinder', url: 'https://github.com/tomnomnom/assetfinder', description: 'Find domains and subdomains' },
-    { name: 'Findomain', url: 'https://github.com/Findomain/Findomain', description: 'Subdomain finder' }
-  ],
-  'Image OSINT': [
-    { name: 'Exiftool', url: 'https://github.com/exiftool/exiftool', description: 'Metadata reader/writer' },
-    { name: 'Metagoofil', url: 'https://github.com/laramies/metagoofil', description: 'Metadata harvester' }
-  ],
-  'GitHub & Code': [
-    { name: 'GitRob', url: 'https://github.com/michenriksen/gitrob', description: 'GitHub sensitive data finder' },
-    { name: 'GitLeaks', url: 'https://github.com/gitleaks/gitleaks', description: 'Secret scanning' },
-    { name: 'TruffleHog', url: 'https://github.com/trufflesecurity/trufflehog', description: 'Secret detection' },
-    { name: 'GitDorker', url: 'https://github.com/obheda12/GitDorker', description: 'GitHub dorking' }
-  ],
-  'Automation': [
-    { name: 'Osmedeus', url: 'https://github.com/j3ssie/osmedeus', description: 'Automated recon framework' },
-    { name: 'Sn1per', url: 'https://github.com/1N3/Sn1per', description: 'Automated pentest framework' },
-    { name: 'OWASP Maryam', url: 'https://github.com/saeeddhqan/Maryam', description: 'OSINT framework' }
-  ],
-  'Threat Intel': [
-    { name: 'MISP', url: 'https://github.com/MISP/MISP', description: 'Threat intelligence platform' },
-    { name: 'OpenCTI', url: 'https://github.com/OpenCTI-Platform/opencti', description: 'Cyber threat intelligence' },
-    { name: 'Yeti', url: 'https://github.com/yeti-platform/yeti', description: 'Threat intelligence repository' }
-  ]
-};
