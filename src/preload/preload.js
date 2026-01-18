@@ -1,74 +1,106 @@
+/**
+ * SANDIEGO Browser - Preload Script
+ * Version: 3.0.0-sandiego
+ * Secure bridge between renderer and main process
+ */
+
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Expose protected methods for the renderer process
-contextBridge.exposeInMainWorld('electronAPI', {
-  // Tab management
-  createTab: (tabId, url) => ipcRenderer.invoke('create-tab', { tabId, url }),
-  showTab: (tabId) => ipcRenderer.invoke('show-tab', tabId),
-  closeTab: (tabId) => ipcRenderer.invoke('close-tab', tabId),
-  navigate: (tabId, url) => ipcRenderer.invoke('navigate', { tabId, url }),
-  goBack: (tabId) => ipcRenderer.invoke('go-back', tabId),
-  goForward: (tabId) => ipcRenderer.invoke('go-forward', tabId),
-  reload: (tabId) => ipcRenderer.invoke('reload', tabId),
+// Expose secure API to renderer
+contextBridge.exposeInMainWorld('sandiego', {
+  // ============================================
+  // Window Controls
+  // ============================================
+  minimize: () => ipcRenderer.send('window-minimize'),
+  maximize: () => ipcRenderer.send('window-maximize'),
+  close: () => ipcRenderer.send('window-close'),
 
-  // Privacy settings
+  // ============================================
+  // Tab Management
+  // ============================================
+  createTab: (url) => ipcRenderer.invoke('create-tab', url),
+  showTab: (tabId) => ipcRenderer.send('show-tab', tabId),
+  closeTab: (tabId) => ipcRenderer.send('close-tab', tabId),
+  navigate: (tabId, url) => ipcRenderer.send('navigate', tabId, url),
+  goBack: (tabId) => ipcRenderer.send('go-back', tabId),
+  goForward: (tabId) => ipcRenderer.send('go-forward', tabId),
+  reload: (tabId) => ipcRenderer.send('reload', tabId),
+
+  // ============================================
+  // Panel Management
+  // ============================================
+  panelToggle: (open, width) => ipcRenderer.send('panel-toggle', open, width),
+
+  // ============================================
+  // Privacy Settings
+  // ============================================
   getPrivacySettings: () => ipcRenderer.invoke('get-privacy-settings'),
-  setPrivacySetting: (key, value) => ipcRenderer.invoke('set-privacy-setting', { key, value }),
+  setPrivacySetting: (key, value) => ipcRenderer.invoke('set-privacy-setting', key, value),
+  clearBrowsingData: () => ipcRenderer.invoke('clear-browsing-data'),
 
+  // ============================================
   // Bookmarks
+  // ============================================
   getBookmarks: () => ipcRenderer.invoke('get-bookmarks'),
   addBookmark: (bookmark) => ipcRenderer.invoke('add-bookmark', bookmark),
-  removeBookmark: (id) => ipcRenderer.invoke('remove-bookmark', id),
+  removeBookmark: (url) => ipcRenderer.invoke('remove-bookmark', url),
 
-  // History
-  getHistory: () => ipcRenderer.invoke('get-history'),
-  clearHistory: () => ipcRenderer.invoke('clear-history'),
+  // ============================================
+  // Tools
+  // ============================================
+  captureScreenshot: () => ipcRenderer.invoke('capture-screenshot'),
+  getPageInfo: () => ipcRenderer.invoke('get-page-info'),
 
-  // Window controls
-  minimize: () => ipcRenderer.invoke('window-minimize'),
-  maximize: () => ipcRenderer.invoke('window-maximize'),
-  close: () => ipcRenderer.invoke('window-close'),
-  resizeView: (bounds) => ipcRenderer.invoke('resize-view', bounds),
+  // ============================================
+  // Event Listeners
+  // ============================================
+  onTabLoading: (callback) => {
+    ipcRenderer.on('tab-loading', (event, data) => callback(data));
+  },
 
-  // Investigation Log
-  addInvestigationLog: (entry) => ipcRenderer.invoke('add-investigation-log', entry),
-  getInvestigationLog: () => ipcRenderer.invoke('get-investigation-log'),
-  clearInvestigationLog: () => ipcRenderer.invoke('clear-investigation-log'),
-  exportInvestigationLog: (format) => ipcRenderer.invoke('export-investigation-log', format),
-  openInvestigationLog: () => ipcRenderer.invoke('open-investigation-log'),
+  onTabNavigated: (callback) => {
+    ipcRenderer.on('tab-navigated', (event, data) => callback(data));
+  },
 
-  // Screenshots
-  takeScreenshot: (tabId) => ipcRenderer.invoke('take-screenshot', tabId),
-  getInvestigationSettings: () => ipcRenderer.invoke('get-investigation-settings'),
-  setInvestigationSetting: (key, value) => ipcRenderer.invoke('set-investigation-setting', { key, value }),
-  selectScreenshotFolder: () => ipcRenderer.invoke('select-screenshot-folder'),
+  onTabTitleUpdated: (callback) => {
+    ipcRenderer.on('tab-title-updated', (event, data) => callback(data));
+  },
 
-  // Metadata extraction
-  extractMetadata: (tabId) => ipcRenderer.invoke('extract-metadata', tabId),
+  onTabFaviconUpdated: (callback) => {
+    ipcRenderer.on('tab-favicon-updated', (event, data) => callback(data));
+  },
 
-  // Reverse image search
-  reverseImageSearch: (imageUrl, engine) => ipcRenderer.invoke('reverse-image-search', { imageUrl, engine }),
+  onTabActivated: (callback) => {
+    ipcRenderer.on('tab-activated', (event, data) => callback(data));
+  },
 
-  // Plugins
-  getPlugins: () => ipcRenderer.invoke('get-plugins'),
-  setPluginEnabled: (pluginId, enabled) => ipcRenderer.invoke('set-plugin-enabled', { pluginId, enabled }),
-  updatePluginSettings: (pluginId, settings) => ipcRenderer.invoke('update-plugin-settings', { pluginId, settings }),
-  executePluginAction: (pluginId, action, data) => ipcRenderer.invoke('execute-plugin-action', { pluginId, action, data }),
+  onTabCreated: (callback) => {
+    ipcRenderer.on('tab-created', (event, data) => callback(data));
+  },
 
-  // Event listeners
-  onNewTab: (callback) => ipcRenderer.on('new-tab', callback),
-  onCloseTab: (callback) => ipcRenderer.on('close-tab', callback),
-  onTabLoading: (callback) => ipcRenderer.on('tab-loading', (event, data) => callback(data)),
-  onTabNavigated: (callback) => ipcRenderer.on('tab-navigated', (event, data) => callback(data)),
-  onTabTitleUpdated: (callback) => ipcRenderer.on('tab-title-updated', (event, data) => callback(data)),
-  onTabFaviconUpdated: (callback) => ipcRenderer.on('tab-favicon-updated', (event, data) => callback(data)),
-  onPrivacyUpdated: (callback) => ipcRenderer.on('privacy-updated', (event, data) => callback(data)),
-  onToggleBookmarks: (callback) => ipcRenderer.on('toggle-bookmarks', callback),
-  onToggleDorks: (callback) => ipcRenderer.on('toggle-dorks', callback),
-  onOpenTool: (callback) => ipcRenderer.on('open-tool', (event, tool) => callback(tool)),
-  onOpenUrlInNewTab: (callback) => ipcRenderer.on('open-url-in-new-tab', (event, url) => callback(url)),
-  onPluginLog: (callback) => ipcRenderer.on('plugin-log', (event, data) => callback(data)),
+  onTabError: (callback) => {
+    ipcRenderer.on('tab-error', (event, data) => callback(data));
+  },
 
-  // Remove listeners
-  removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel)
+  onPrivacyUpdated: (callback) => {
+    ipcRenderer.on('privacy-updated', (event, data) => callback(data));
+  },
+
+  onNotification: (callback) => {
+    ipcRenderer.on('notification', (event, data) => callback(data));
+  },
+
+  onGoHome: (callback) => {
+    ipcRenderer.on('go-home', (event, data) => callback(data));
+  },
+
+  // ============================================
+  // Cleanup
+  // ============================================
+  removeListener: (channel) => {
+    ipcRenderer.removeAllListeners(channel);
+  }
 });
+
+// Log preload completion
+console.log('SANDIEGO preload script loaded');

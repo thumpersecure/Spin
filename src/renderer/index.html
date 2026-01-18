@@ -3,221 +3,160 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
-  <title>SPIN Detective Browser - Dick Tracy Edition</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
+  <title>SANDIEGO Browser - Where in the World?</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Title Bar - The Detective's Badge -->
-  <div class="title-bar" id="titleBar">
-    <div class="title-bar-drag">
+  <!-- Title Bar -->
+  <header class="title-bar" id="titleBar">
+    <div class="title-bar-left">
       <div class="logo">
-        <span>SPIN DETECTIVE</span>
+        <span class="logo-icon"></span>
+        <span class="logo-text">SANDIEGO</span>
       </div>
-      <div class="privacy-indicator" id="privacyIndicator" title="Privacy Status">
-        <span class="indicator-dot"></span>
-        <span class="indicator-text">On The Case</span>
+      <div class="status-indicator" id="statusIndicator">
+        <span class="status-dot"></span>
+        <span class="status-text">Ready</span>
       </div>
     </div>
     <div class="window-controls">
-      <button class="window-btn minimize" id="minimizeBtn" title="Minimize">─</button>
-      <button class="window-btn maximize" id="maximizeBtn" title="Maximize">□</button>
-      <button class="window-btn close" id="closeBtn" title="Close">✕</button>
+      <button class="win-btn" id="minimizeBtn" title="Minimize" aria-label="Minimize">
+        <svg viewBox="0 0 12 12"><line x1="2" y1="6" x2="10" y2="6"/></svg>
+      </button>
+      <button class="win-btn" id="maximizeBtn" title="Maximize" aria-label="Maximize">
+        <svg viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" fill="none"/></svg>
+      </button>
+      <button class="win-btn win-btn-close" id="closeBtn" title="Close" aria-label="Close">
+        <svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+      </button>
     </div>
-  </div>
+  </header>
 
   <!-- Tab Bar -->
-  <div class="tab-bar" id="tabBar">
-    <div class="tabs-container" id="tabsContainer">
-      <!-- Tabs will be added here dynamically -->
+  <nav class="tab-bar" id="tabBar">
+    <div class="tabs-wrapper" id="tabsWrapper">
+      <!-- Tabs rendered dynamically -->
     </div>
-    <button class="new-tab-btn" id="newTabBtn" title="New Tab (Ctrl+T)">+</button>
-  </div>
+    <button class="new-tab-btn" id="newTabBtn" title="New Tab (Ctrl+T)" aria-label="New Tab">
+      <svg viewBox="0 0 16 16"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
+    </button>
+  </nav>
 
   <!-- Navigation Bar -->
-  <div class="nav-bar" id="navBar">
-    <div class="nav-buttons">
-      <button class="nav-btn" id="backBtn" title="Go Back">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
+  <nav class="nav-bar" id="navBar">
+    <div class="nav-controls">
+      <button class="nav-btn" id="backBtn" title="Back (Alt+Left)" aria-label="Go Back" disabled>
+        <svg viewBox="0 0 20 20"><path d="M12 4l-6 6 6 6" fill="none"/></svg>
       </button>
-      <button class="nav-btn" id="forwardBtn" title="Go Forward">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12h14M12 5l7 7-7 7"/>
-        </svg>
+      <button class="nav-btn" id="forwardBtn" title="Forward (Alt+Right)" aria-label="Go Forward" disabled>
+        <svg viewBox="0 0 20 20"><path d="M8 4l6 6-6 6" fill="none"/></svg>
       </button>
-      <button class="nav-btn" id="reloadBtn" title="Reload">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M1 4v6h6M23 20v-6h-6"/>
-          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
-        </svg>
+      <button class="nav-btn" id="reloadBtn" title="Reload (Ctrl+R)" aria-label="Reload">
+        <svg viewBox="0 0 20 20"><path d="M3 10a7 7 0 1 1 1.5 4.3" fill="none"/><path d="M3 15V10h5" fill="none"/></svg>
       </button>
-      <button class="nav-btn" id="homeBtn" title="Home">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9,22 9,12 15,12 15,22"/>
-        </svg>
+      <button class="nav-btn" id="homeBtn" title="Home" aria-label="Home">
+        <svg viewBox="0 0 20 20"><path d="M3 10l7-7 7 7v8a1 1 0 0 1-1 1h-4v-5H8v5H4a1 1 0 0 1-1-1z" fill="none"/></svg>
       </button>
     </div>
 
-    <div class="url-container">
-      <div class="security-indicator" id="securityIndicator">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
+    <div class="url-bar" id="urlBar">
+      <div class="security-badge" id="securityBadge" title="Connection Security">
+        <svg viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1" fill="none"/><path d="M5 7V5a3 3 0 1 1 6 0v2" fill="none"/></svg>
       </div>
-      <input type="text" class="url-input" id="urlInput" placeholder="Search or enter URL..." autocomplete="off">
-      <button class="bookmark-btn" id="bookmarkBtn" title="Add Bookmark">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-        </svg>
+      <input
+        type="text"
+        class="url-input"
+        id="urlInput"
+        placeholder="Search the world or enter URL..."
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button class="url-btn" id="bookmarkPageBtn" title="Bookmark this page" aria-label="Bookmark">
+        <svg viewBox="0 0 16 16"><path d="M3 2h10a1 1 0 0 1 1 1v12l-6-3-6 3V3a1 1 0 0 1 1-1z" fill="none"/></svg>
       </button>
     </div>
 
     <div class="nav-tools">
-      <button class="nav-btn tool-btn" id="dorksBtn" title="Google Dorks Toolbar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/>
-          <path d="M21 21l-4.35-4.35"/>
-        </svg>
+      <button class="nav-btn tool-btn" id="extensionsBtn" title="Extensions" aria-label="Extensions">
+        <svg viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1" fill="none"/><rect x="11" y="3" width="6" height="6" rx="1" fill="none"/><rect x="3" y="11" width="6" height="6" rx="1" fill="none"/><rect x="11" y="11" width="6" height="6" rx="1" fill="none"/></svg>
       </button>
-      <button class="nav-btn tool-btn" id="bookmarksBtn" title="Bookmarks">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        </svg>
+      <button class="nav-btn tool-btn" id="privacyBtn" title="Privacy Shield" aria-label="Privacy Settings">
+        <svg viewBox="0 0 20 20"><path d="M10 2l7 3v5c0 4.5-3 8-7 9-4-1-7-4.5-7-9V5z" fill="none"/></svg>
       </button>
-      <button class="nav-btn tool-btn" id="privacyBtn" title="Privacy Settings">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-      </button>
-      <button class="nav-btn tool-btn" id="menuBtn" title="Menu">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
+      <button class="nav-btn tool-btn" id="menuBtn" title="Menu" aria-label="Menu">
+        <svg viewBox="0 0 20 20"><circle cx="10" cy="4" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="16" r="1.5"/></svg>
       </button>
     </div>
-  </div>
+  </nav>
 
-  <!-- Google Dorks Toolbar -->
-  <div class="dorks-toolbar" id="dorksToolbar">
-    <div class="dorks-search">
-      <input type="text" id="dorksSearchInput" placeholder="Enter search term...">
-      <select id="dorksEngineSelect">
-        <option value="google">Google</option>
-        <option value="duckduckgo">DuckDuckGo</option>
-        <option value="bing">Bing</option>
-        <option value="yandex">Yandex</option>
-      </select>
-    </div>
-    <div class="dorks-operators" id="dorksOperators">
-      <!-- Operators will be added dynamically -->
-    </div>
-    <div class="dorks-preview">
-      <span class="preview-label">Query:</span>
-      <code id="dorksPreview"></code>
-      <button class="execute-btn" id="executeSearch">Search</button>
-    </div>
-  </div>
+  <!-- Main Content Container -->
+  <main class="main-container" id="mainContainer">
+    <!-- Extensions Panel (Sidebar) -->
+    <aside class="extensions-panel" id="extensionsPanel">
+      <div class="panel-section" id="panelContent">
+        <!-- Panel content rendered dynamically -->
+      </div>
+    </aside>
 
-  <!-- Sidebar Panels -->
-  <div class="sidebar" id="sidebar">
-    <!-- Bookmarks Panel -->
-    <div class="sidebar-panel" id="bookmarksPanel">
-      <div class="panel-header">
-        <h3>OSINT Bookmarks</h3>
-        <button class="close-panel-btn" data-panel="bookmarks">✕</button>
-      </div>
-      <div class="panel-tabs">
-        <button class="panel-tab active" data-category="osint-framework">OSINT Framework</button>
-        <button class="panel-tab" data-category="awesome-osint">Awesome OSINT</button>
-        <button class="panel-tab" data-category="kali-tools">Kali Tools</button>
-        <button class="panel-tab" data-category="custom">My Bookmarks</button>
-      </div>
-      <div class="panel-search">
-        <input type="text" id="bookmarkSearch" placeholder="Search bookmarks...">
-      </div>
-      <div class="bookmarks-list" id="bookmarksList">
-        <!-- Bookmarks will be loaded here -->
-      </div>
-    </div>
-
-    <!-- Privacy Panel -->
-    <div class="sidebar-panel" id="privacyPanel">
-      <div class="panel-header">
-        <h3>Privacy Settings</h3>
-        <button class="close-panel-btn" data-panel="privacy">✕</button>
-      </div>
-      <div class="privacy-settings" id="privacySettings">
-        <!-- Privacy settings will be loaded here -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Content Area (BrowserViews render here) -->
-  <div class="content-area" id="contentArea">
-    <div class="start-page" id="startPage">
-      <div class="start-content">
-        <h1>🔍 SPIN DETECTIVE</h1>
-        <p class="tagline">"The wrist radio of the digital age"</p>
-        <p class="subtitle">Noir-style browser for OSINT investigations</p>
-
-        <div class="case-file-header">
-          <span>📁 CASE FILES - QUICK ACCESS</span>
+    <!-- Browser Content Area -->
+    <div class="browser-content" id="browserContent">
+      <!-- Start Page -->
+      <div class="start-page" id="startPage">
+        <div class="start-hero">
+          <div class="globe-container">
+            <div class="globe"></div>
+          </div>
+          <h1 class="start-title">SANDIEGO</h1>
+          <p class="start-tagline">Where in the World Will You Search?</p>
         </div>
 
-        <div class="quick-links">
-          <div class="quick-links-grid">
-            <a href="#" class="quick-link" data-url="https://osintframework.com">
-              <span class="ql-icon">🔍</span>
-              <span class="ql-title">OSINT Framework</span>
-            </a>
-            <a href="#" class="quick-link" data-url="https://inteltechniques.com/tools/">
-              <span class="ql-icon">🕵️</span>
-              <span class="ql-title">Intel Techniques</span>
-            </a>
-            <a href="#" class="quick-link" data-url="https://www.tracelabs.org/">
-              <span class="ql-icon">🎯</span>
-              <span class="ql-title">Trace Labs</span>
-            </a>
-            <a href="#" class="quick-link" data-url="https://shodan.io">
-              <span class="ql-icon">🌐</span>
-              <span class="ql-title">Shodan</span>
-            </a>
-            <a href="#" class="quick-link" data-url="https://haveibeenpwned.com">
-              <span class="ql-icon">🔐</span>
-              <span class="ql-title">Have I Been Pwned</span>
-            </a>
-            <a href="#" class="quick-link" data-url="https://pimeyes.com">
-              <span class="ql-icon">👁️</span>
-              <span class="ql-title">PimEyes</span>
-            </a>
-            <a href="#" class="quick-link" data-url="https://yandex.com/images/">
-              <span class="ql-icon">🖼️</span>
-              <span class="ql-title">Yandex Images</span>
-            </a>
-            <a href="#" class="quick-link" data-url="https://github.com/jivoi/awesome-osint">
-              <span class="ql-icon">📚</span>
-              <span class="ql-title">Awesome OSINT</span>
-            </a>
+        <div class="start-search-box">
+          <input
+            type="text"
+            class="start-search"
+            id="startSearch"
+            placeholder="Begin your investigation..."
+            autocomplete="off"
+          >
+          <button class="start-search-btn" id="startSearchBtn">
+            <svg viewBox="0 0 20 20"><circle cx="8" cy="8" r="6" fill="none"/><line x1="12.5" y1="12.5" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div class="quick-access">
+          <h3 class="quick-access-title">Quick Access - Intelligence Resources</h3>
+          <div class="quick-grid" id="quickGrid">
+            <!-- Quick links rendered dynamically -->
           </div>
         </div>
 
-        <div class="start-search">
-          <input type="text" id="startSearchInput" placeholder="🔎 Begin your investigation...">
-        </div>
-
-        <div class="detective-footer">
-          <span>⚡ Powered by Chromium | 🛡️ Privacy First | 🌐 Tor Ready</span>
+        <div class="start-footer">
+          <div class="footer-stats" id="footerStats">
+            <span class="stat"><span class="stat-icon">&#127760;</span> Chromium Powered</span>
+            <span class="stat"><span class="stat-icon">&#128274;</span> Privacy First</span>
+            <span class="stat"><span class="stat-icon">&#128640;</span> Tor Ready</span>
+          </div>
         </div>
       </div>
     </div>
+  </main>
+
+  <!-- Context Menu Template -->
+  <div class="context-menu" id="contextMenu" style="display: none;">
+    <div class="context-item" data-action="back">Back</div>
+    <div class="context-item" data-action="forward">Forward</div>
+    <div class="context-item" data-action="reload">Reload</div>
+    <div class="context-divider"></div>
+    <div class="context-item" data-action="copy">Copy</div>
+    <div class="context-item" data-action="paste">Paste</div>
+    <div class="context-divider"></div>
+    <div class="context-item" data-action="viewSource">View Source</div>
+    <div class="context-item" data-action="inspect">Inspect</div>
   </div>
+
+  <!-- Notification Container -->
+  <div class="notification-container" id="notificationContainer"></div>
 
   <script src="renderer.js"></script>
 </body>

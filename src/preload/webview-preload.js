@@ -1,8 +1,14 @@
-// Webview preload script - minimal exposure for security
+/**
+ * SANDIEGO Browser - Webview Preload Script
+ * Version: 3.0.0-sandiego
+ * Minimal exposure for security in browsed content
+ */
+
 const { contextBridge } = require('electron');
 
-// Only expose what's absolutely necessary
-contextBridge.exposeInMainWorld('spinBrowser', {
-  version: '1.0.0',
-  isOSINTBrowser: true
+// Only expose minimal, safe information
+contextBridge.exposeInMainWorld('sandiegoBrowser', {
+  version: '3.0.0-sandiego',
+  name: 'SANDIEGO Browser',
+  isPrivacyBrowser: true
 });
