@@ -1,4 +1,4 @@
-# SPIN Detective Browser - Tracey Edition
+# osint web browser
 
 ```
   ████████╗██████╗  █████╗  ██████╗███████╗██╗   ██╗
