@@ -9,6 +9,7 @@
 const { app, BrowserWindow, BrowserView, ipcMain, session, Menu } = require('electron');
 const path = require('path');
 const Store = require('electron-store');
+const { PhoneFormatGenerator, PhoneIntelReport, COUNTRY_CODES } = require('../extensions/phone-intel');
 
 // ============================================
 // Configuration & Constants
@@ -803,6 +804,56 @@ function setupIpcHandlers() {
         })()
       `);
     } catch (err) {
+      return null;
+    }
+  });
+
+  // ============================================
+  // Phone Intelligence IPC Handlers
+  // ============================================
+
+  ipcMain.handle('phone-intel-get-countries', () => {
+    return COUNTRY_CODES;
+  });
+
+  ipcMain.handle('phone-intel-generate-formats', (event, phoneNumber, countryCode) => {
+    try {
+      const generator = new PhoneFormatGenerator(phoneNumber, countryCode);
+      return {
+        formats: generator.generateFormats(),
+        searchQueries: generator.generateSearchQueries(generator.generateFormats()),
+        smartQuery: generator.generateSmartQuery()
+      };
+    } catch (err) {
+      console.error('Phone format generation error:', err);
+      return null;
+    }
+  });
+
+  ipcMain.handle('phone-intel-open-search', async (event, searchUrl) => {
+    // Create a new tab with the search URL
+    const tabId = state.generateTabId();
+    createTab(tabId, searchUrl);
+    notifyRenderer('tab-created', { tabId, url: searchUrl });
+    return tabId;
+  });
+
+  ipcMain.handle('phone-intel-batch-search', async (event, phoneNumber, countryCode, searchEngine) => {
+    try {
+      const generator = new PhoneFormatGenerator(phoneNumber, countryCode);
+      const smartQuery = generator.generateSmartQuery();
+
+      const searchUrl = searchEngine === 'duckduckgo'
+        ? smartQuery.duckDuckGoUrl
+        : smartQuery.googleUrl;
+
+      const tabId = state.generateTabId();
+      createTab(tabId, searchUrl);
+      notifyRenderer('tab-created', { tabId, url: searchUrl });
+
+      return { tabId, query: smartQuery.query };
+    } catch (err) {
+      console.error('Batch search error:', err);
       return null;
     }
   });

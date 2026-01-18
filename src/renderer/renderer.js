@@ -523,13 +523,38 @@ function renderExtensionsPanel() {
         <svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
       </button>
     </div>
-    <div class="panel-search">
-      <input type="text" class="panel-search-input" id="osintSearch" placeholder="Search tools...">
+    <div class="panel-tabs">
+      <button class="panel-tab active" data-tab="bookmarks">Bookmarks</button>
+      <button class="panel-tab" data-tab="phone-intel">Phone Intel</button>
     </div>
-    <div class="panel-body" id="osintList"></div>
+    <div class="panel-tab-content" id="bookmarksTab">
+      <div class="panel-search">
+        <input type="text" class="panel-search-input" id="osintSearch" placeholder="Search tools...">
+      </div>
+      <div class="panel-body" id="osintList"></div>
+    </div>
+    <div class="panel-tab-content" id="phoneIntelTab" style="display: none;">
+      <div class="phone-intel-container"></div>
+    </div>
   `;
 
   DOM.panelContent.querySelector('.panel-close')?.addEventListener('click', closePanel);
+
+  // Tab switching
+  DOM.panelContent.querySelectorAll('.panel-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      DOM.panelContent.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const tabName = tab.dataset.tab;
+      document.getElementById('bookmarksTab').style.display = tabName === 'bookmarks' ? 'flex' : 'none';
+      document.getElementById('phoneIntelTab').style.display = tabName === 'phone-intel' ? 'flex' : 'none';
+
+      if (tabName === 'phone-intel') {
+        renderPhoneIntelPanel();
+      }
+    });
+  });
 
   const searchInput = DOM.panelContent.querySelector('#osintSearch');
   searchInput?.addEventListener('input', (e) => {
@@ -537,6 +562,175 @@ function renderExtensionsPanel() {
   });
 
   renderOSINTBookmarks('');
+}
+
+// ============================================
+// Phone Intelligence Panel
+// ============================================
+
+async function renderPhoneIntelPanel() {
+  const container = DOM.panelContent.querySelector('.phone-intel-container');
+  if (!container) return;
+
+  let countries = {};
+  try {
+    countries = await window.sandiego.phoneIntel.getCountries();
+  } catch (err) {
+    console.error('Failed to load countries:', err);
+  }
+
+  container.innerHTML = `
+    <div class="phone-intel-header">
+      <div class="phone-intel-icon">&#128222;</div>
+      <div class="phone-intel-title">Phone Number Intelligence</div>
+      <div class="phone-intel-subtitle">xTELENUMSINT Technology</div>
+    </div>
+
+    <div class="phone-intel-form">
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" id="phoneNumber" class="form-input" placeholder="Enter phone number...">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Country</label>
+        <select id="countrySelect" class="form-select">
+          ${Object.entries(countries).map(([code, data]) =>
+            `<option value="${code}" ${code === 'US' ? 'selected' : ''}>${data.name} (${data.code})</option>`
+          ).join('')}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Search Engine</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="searchEngine" value="duckduckgo" checked>
+            <span class="radio-label">DuckDuckGo</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="searchEngine" value="google">
+            <span class="radio-label">Google</span>
+          </label>
+        </div>
+      </div>
+
+      <button class="phone-intel-btn primary" id="generateFormatsBtn">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"/></svg>
+        Generate Format Variations
+      </button>
+
+      <button class="phone-intel-btn accent" id="smartSearchBtn">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+        Smart OSINT Search
+      </button>
+    </div>
+
+    <div class="phone-intel-results" id="phoneIntelResults" style="display: none;">
+      <div class="results-header">Format Variations</div>
+      <div class="formats-list" id="formatsList"></div>
+    </div>
+  `;
+
+  // Event handlers
+  const generateBtn = container.querySelector('#generateFormatsBtn');
+  const smartSearchBtn = container.querySelector('#smartSearchBtn');
+  const phoneInput = container.querySelector('#phoneNumber');
+  const countrySelect = container.querySelector('#countrySelect');
+
+  generateBtn?.addEventListener('click', async () => {
+    const phone = phoneInput?.value.trim();
+    const country = countrySelect?.value || 'US';
+
+    if (!phone) {
+      showNotification('warning', 'Please enter a phone number');
+      return;
+    }
+
+    try {
+      const result = await window.sandiego.phoneIntel.generateFormats(phone, country);
+      if (result) {
+        displayFormatResults(result);
+      }
+    } catch (err) {
+      showNotification('error', 'Failed to generate formats');
+    }
+  });
+
+  smartSearchBtn?.addEventListener('click', async () => {
+    const phone = phoneInput?.value.trim();
+    const country = countrySelect?.value || 'US';
+    const searchEngine = container.querySelector('input[name="searchEngine"]:checked')?.value || 'duckduckgo';
+
+    if (!phone) {
+      showNotification('warning', 'Please enter a phone number');
+      return;
+    }
+
+    try {
+      const result = await window.sandiego.phoneIntel.batchSearch(phone, country, searchEngine);
+      if (result) {
+        showNotification('success', 'OSINT search opened in new tab');
+      }
+    } catch (err) {
+      showNotification('error', 'Failed to execute search');
+    }
+  });
+
+  // Enter key support
+  phoneInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      generateBtn?.click();
+    }
+  });
+}
+
+function displayFormatResults(result) {
+  const resultsContainer = document.getElementById('phoneIntelResults');
+  const formatsList = document.getElementById('formatsList');
+
+  if (!resultsContainer || !formatsList) return;
+
+  resultsContainer.style.display = 'block';
+  formatsList.innerHTML = '';
+
+  result.formats.forEach((format, index) => {
+    const formatEl = document.createElement('div');
+    formatEl.className = 'format-item';
+    formatEl.innerHTML = `
+      <div class="format-info">
+        <span class="format-name">${escapeHtml(format.name)}</span>
+        <span class="format-value">${escapeHtml(format.value)}</span>
+      </div>
+      <div class="format-actions">
+        <button class="format-btn copy" title="Copy to clipboard" data-value="${escapeHtml(format.value)}">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/></svg>
+        </button>
+        <button class="format-btn search" title="Search this format" data-url="${escapeHtml(result.searchQueries[index]?.duckDuckGoUrl || '')}">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+    `;
+
+    // Copy button handler
+    formatEl.querySelector('.copy')?.addEventListener('click', (e) => {
+      const value = e.currentTarget.dataset.value;
+      navigator.clipboard.writeText(value).then(() => {
+        showNotification('success', 'Copied to clipboard');
+      });
+    });
+
+    // Search button handler
+    formatEl.querySelector('.search')?.addEventListener('click', async (e) => {
+      const url = e.currentTarget.dataset.url;
+      if (url) {
+        await window.sandiego.phoneIntel.openSearch(url);
+        showNotification('success', 'Search opened in new tab');
+      }
+    });
+
+    formatsList.appendChild(formatEl);
+  });
 }
 
 function renderOSINTBookmarks(filter = '') {
