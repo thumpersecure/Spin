@@ -576,7 +576,7 @@ function setupApplicationMenu() {
     template.push({
       label: app.name,
       submenu: [
-        { label: 'About SANDIEGO', role: 'about' },
+        { label: 'About CONSTANTINE', role: 'about' },
         { type: 'separator' },
         { label: 'Check for Tor...', click: () => checkTorAndNotify() },
         { type: 'separator' },
@@ -709,7 +709,7 @@ function setupApplicationMenu() {
         }
       },
       { type: 'separator' },
-      { label: `SANDIEGO v${CONFIG.version}`, enabled: false },
+      { label: `CONSTANTINE v${CONFIG.version}`, enabled: false },
       { label: `Platform: ${Platform.info.platform} ${Platform.info.arch}`, enabled: false }
     ]
   });
@@ -1286,6 +1286,86 @@ function applyPrivacySettings() {
   state.privacyApplied = true;
 
   const ses = session.defaultSession;
+
+  // ============================================
+  // Permission Handlers (Security Best Practice)
+  // ============================================
+
+  // Handle permission requests - deny by default, whitelist safe permissions
+  ses.setPermissionRequestHandler((webContents, permission, callback, details) => {
+    const allowedPermissions = ['clipboard-read', 'clipboard-sanitized-write'];
+    const promptPermissions = ['fullscreen'];
+
+    // Always deny sensitive permissions for OSINT browser security
+    const deniedPermissions = [
+      'geolocation',
+      'media',           // Camera/microphone
+      'mediaKeySystem',  // DRM
+      'midi',
+      'midiSysex',
+      'pointerLock',
+      'openExternal',
+      'notifications',
+      'sensors',
+      'bluetooth',
+      'usb',
+      'serial',
+      'hid',
+      'idle-detection',
+      'window-management'
+    ];
+
+    if (deniedPermissions.includes(permission)) {
+      console.log(`[Security] Denied permission: ${permission} for ${webContents.getURL()}`);
+      callback(false);
+      return;
+    }
+
+    if (allowedPermissions.includes(permission)) {
+      callback(true);
+      return;
+    }
+
+    if (promptPermissions.includes(permission)) {
+      // Fullscreen is generally safe
+      callback(true);
+      return;
+    }
+
+    // Default: deny unknown permissions
+    console.log(`[Security] Denied unknown permission: ${permission}`);
+    callback(false);
+  });
+
+  // Check permissions - return denied for sensitive permissions
+  ses.setPermissionCheckHandler((webContents, permission, requestingOrigin) => {
+    const deniedPermissions = [
+      'geolocation',
+      'media',
+      'mediaKeySystem',
+      'midi',
+      'midiSysex',
+      'pointerLock',
+      'notifications',
+      'sensors',
+      'bluetooth',
+      'usb',
+      'serial',
+      'hid',
+      'idle-detection'
+    ];
+
+    if (deniedPermissions.includes(permission)) {
+      return false;
+    }
+
+    // Allow clipboard operations
+    if (permission === 'clipboard-read' || permission === 'clipboard-sanitized-write') {
+      return true;
+    }
+
+    return false;
+  });
 
   // Request interception for tracker blocking
   ses.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
@@ -1912,7 +1992,7 @@ function notifyRenderer(channel, data) {
 
 // Set app user model ID for Windows
 if (Platform.isWindows) {
-  app.setAppUserModelId('com.sandiego.browser');
+  app.setAppUserModelId('com.constantine.browser');
 }
 
 // Handle single instance
