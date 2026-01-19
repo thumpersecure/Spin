@@ -396,6 +396,7 @@ body {
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   flex-shrink: 0;
+  will-change: transform; /* GPU optimization for spinning */
 }
 
 @keyframes spin {
@@ -1250,6 +1251,7 @@ body {
     inset -10px -10px 20px rgba(0, 0, 0, 0.3),
     inset 5px 5px 15px rgba(255, 255, 255, 0.1);
   animation: globe-pulse 4s ease-in-out infinite;
+  will-change: box-shadow; /* GPU optimization hint */
 }
 
 .globe::before {
@@ -2002,6 +2004,24 @@ body.fullscreen .nav-bar {
 
   .browser-content {
     position: static;
+  }
+}
+
+/* Reduce motion for accessibility and performance */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .globe,
+  .tab-loading,
+  .notification,
+  .status-indicator.protected .status-dot {
+    animation: none !important;
   }
 }
 
