@@ -1,9 +1,11 @@
 /**
- * SANDIEGO Browser - Preload Script
- * Version: 3.2.0
+ * CONSTANTINE Browser - Preload Script
+ * Version: 4.1.1 - The Exorcist's Edge
  *
  * Secure bridge between renderer and main process.
  * Implements context isolation for maximum security.
+ *
+ * "Between Heaven and Hell, intelligence prevails."
  */
 
 const { contextBridge, ipcRenderer } = require('electron');
@@ -12,7 +14,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 // Secure API Exposure
 // ============================================
 
-contextBridge.exposeInMainWorld('sandiego', {
+// Expose as both 'constantine' (new) and 'sandiego' (legacy) for backwards compatibility
+const api = {
   // ============================================
   // Platform & System Information
   // ============================================
@@ -173,4 +176,10 @@ contextBridge.exposeInMainWorld('sandiego', {
     ];
     channels.forEach(channel => ipcRenderer.removeAllListeners(channel));
   }
-});
+};
+
+// Expose as primary 'constantine' API
+contextBridge.exposeInMainWorld('constantine', api);
+
+// Legacy 'sandiego' API for backwards compatibility
+contextBridge.exposeInMainWorld('sandiego', api);
