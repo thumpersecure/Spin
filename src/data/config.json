@@ -1,0 +1,183 @@
+{
+  "$schema": "./config.schema.json",
+  "version": "4.2.0",
+  "description": "CONSTANTINE Browser Configuration",
+
+  "application": {
+    "name": "CONSTANTINE Browser",
+    "codename": "The Exorcist's Edge",
+    "tagline": "Between Heaven and Hell, intelligence prevails.",
+    "homepage": "constantine://start",
+    "userAgent": "auto"
+  },
+
+  "privacy": {
+    "defaultLevel": "standard",
+    "levels": {
+      "standard": {
+        "description": "Normal browsing with basic protections",
+        "blockTrackers": true,
+        "blockThirdPartyCookies": true,
+        "webrtcPolicy": "default_public_interface_only",
+        "canvasNoise": true,
+        "spoofWebGL": false,
+        "spoofHardware": false
+      },
+      "enhanced": {
+        "description": "Stricter blocking, reduced JavaScript exposure",
+        "blockTrackers": true,
+        "blockThirdPartyCookies": true,
+        "webrtcPolicy": "disable_non_proxied_udp",
+        "canvasNoise": true,
+        "spoofWebGL": true,
+        "spoofHardware": true,
+        "blockJS": false
+      },
+      "maximum": {
+        "description": "Full lockdown - Tor required, minimal fingerprint",
+        "blockTrackers": true,
+        "blockThirdPartyCookies": true,
+        "webrtcPolicy": "disable",
+        "canvasNoise": true,
+        "spoofWebGL": true,
+        "spoofHardware": true,
+        "blockJS": true,
+        "requireTor": true
+      }
+    }
+  },
+
+  "tor": {
+    "enabled": false,
+    "autoDetect": true,
+    "host": "127.0.0.1",
+    "port": 9050,
+    "controlPort": 9051,
+    "protocol": "socks5h",
+    "dnsResolveThroughTor": true,
+    "bridges": {
+      "enabled": false,
+      "type": "obfs4",
+      "addresses": []
+    }
+  },
+
+  "proxy": {
+    "enabled": false,
+    "type": "http",
+    "host": "",
+    "port": 8080,
+    "username": "",
+    "password": "",
+    "bypassList": ["localhost", "127.0.0.1", "*.local"]
+  },
+
+  "fingerprinting": {
+    "canvas": {
+      "enabled": true,
+      "noiseLevel": 0.02
+    },
+    "webgl": {
+      "enabled": true,
+      "vendor": "Intel Inc.",
+      "renderer": "Intel Iris OpenGL Engine"
+    },
+    "screen": {
+      "enabled": true,
+      "width": 1920,
+      "height": 1080,
+      "colorDepth": 24
+    },
+    "hardware": {
+      "enabled": true,
+      "cores": 4,
+      "memory": 8
+    },
+    "platform": {
+      "enabled": true,
+      "matchUserAgent": true
+    }
+  },
+
+  "ai": {
+    "enabled": true,
+    "modules": {
+      "researchAssistant": {
+        "enabled": true,
+        "description": "Smart tab grouping, session memory, link suggestions",
+        "autoGroupTabs": true,
+        "persistSessions": true
+      },
+      "privacyShield": {
+        "enabled": true,
+        "description": "Site risk scoring, fingerprint tracking, auto-OPSEC",
+        "autoEscalate": true,
+        "riskThreshold": 60
+      },
+      "researchTools": {
+        "enabled": true,
+        "description": "Entity extraction, snapshots, cross-reference alerts",
+        "autoExtract": false,
+        "maxSnapshots": 100
+      },
+      "cognitiveTools": {
+        "enabled": true,
+        "description": "Focus mode, smart bookmarks, investigation timeline",
+        "defaultFocusPreset": "standard"
+      }
+    }
+  },
+
+  "theme": {
+    "active": "constantine",
+    "autoSwitchByTime": false,
+    "lightModeTimes": {
+      "start": "06:00",
+      "end": "18:00"
+    },
+    "reduceAnimations": false,
+    "highContrast": false
+  },
+
+  "trackerBlocking": {
+    "enabled": true,
+    "lists": ["default"],
+    "customDomains": [],
+    "whitelist": []
+  },
+
+  "security": {
+    "clearDataOnExit": false,
+    "httpsUpgrade": true,
+    "blockMixedContent": true,
+    "doNotTrack": true,
+    "globalPrivacyControl": true
+  },
+
+  "phoneIntel": {
+    "defaultCountry": "US",
+    "defaultSearchEngine": "google",
+    "autoGenerateFormats": true,
+    "saveReports": true
+  },
+
+  "dataHandling": {
+    "note": "CONSTANTINE stores all data locally on your device",
+    "localStoragePath": "default",
+    "backupEnabled": false,
+    "backupPath": "",
+    "encryptLocalData": false
+  },
+
+  "legalGuidelines": {
+    "acknowledgement": false,
+    "guidelines": [
+      "Use this browser for legitimate OSINT research only",
+      "Respect privacy laws and regulations in your jurisdiction",
+      "Do not use for unauthorized surveillance or harassment",
+      "Comply with Terms of Service of websites you visit",
+      "Consider ethical implications of your research",
+      "Obtain proper authorization for security testing"
+    ]
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "$schema": "./osint-bookmarks.schema.json",
+  "version": "4.2.0",
+  "description": "CONSTANTINE Browser OSINT Bookmarks - Curated from osintframework.com, awesome-osint, and Kali Linux tools",
+  "lastUpdated": "2026-01-19",
+
+  "categories": {
+    "Username Search": {
+      "icon": "user",
+      "color": "#4A90D9",
+      "bookmarks": [
+        { "name": "Namechk", "url": "https://namechk.com/", "description": "Check username availability across platforms" },
+        { "name": "KnowEm", "url": "https://knowem.com/", "description": "Username search across 500+ social networks" },
+        { "name": "WhatsMyName", "url": "https://whatsmyname.app/", "description": "Username enumeration" },
+        { "name": "Sherlock", "url": "https://github.com/sherlock-project/sherlock", "description": "Hunt down social media accounts" },
+        { "name": "Maigret", "url": "https://github.com/soxoj/maigret", "description": "Collect person info by username" },
+        { "name": "UserSearch.org", "url": "https://usersearch.org/", "description": "Find anyone online" }
+      ]
+    },
+
+    "Email Search": {
+      "icon": "mail",
+      "color": "#E74C3C",
+      "bookmarks": [
+        { "name": "Hunter.io", "url": "https://hunter.io/", "description": "Find email addresses" },
+        { "name": "Have I Been Pwned", "url": "https://haveibeenpwned.com/", "description": "Check if email was in a breach" },
+        { "name": "EmailRep", "url": "https://emailrep.io/", "description": "Email reputation lookup" },
+        { "name": "Epieos", "url": "https://epieos.com/", "description": "Google account email lookup" },
+        { "name": "Holehe", "url": "https://github.com/megadose/holehe", "description": "Check email registered accounts" },
+        { "name": "h8mail", "url": "https://github.com/khast3x/h8mail", "description": "Email OSINT and breach hunting" }
+      ]
+    },
+
+    "Phone Number": {
+      "icon": "phone",
+      "color": "#27AE60",
+      "bookmarks": [
+        { "name": "Truecaller", "url": "https://www.truecaller.com/", "description": "Phone number lookup" },
+        { "name": "NumLooker", "url": "https://www.numlooker.com/", "description": "Reverse phone lookup" },
+        { "name": "PhoneInfoga", "url": "https://github.com/sundowndev/phoneinfoga", "description": "Phone number investigation" },
+        { "name": "Sync.me", "url": "https://sync.me/", "description": "Caller ID and spam blocker" },
+        { "name": "SpyDialer", "url": "https://spydialer.com/", "description": "Free reverse phone lookup" }
+      ]
+    },
+
+    "Domain & IP": {
+      "icon": "globe",
+      "color": "#9B59B6",
+      "bookmarks": [
+        { "name": "Whois Lookup", "url": "https://whois.domaintools.com/", "description": "Domain registration info" },
+        { "name": "SecurityTrails", "url": "https://securitytrails.com/", "description": "DNS and domain history" },
+        { "name": "DNSDumpster", "url": "https://dnsdumpster.com/", "description": "DNS reconnaissance" },
+        { "name": "Shodan", "url": "https://www.shodan.io/", "description": "Search engine for IoT devices" },
+        { "name": "Censys", "url": "https://censys.io/", "description": "Internet-wide scanning" },
+        { "name": "VirusTotal", "url": "https://www.virustotal.com/", "description": "Analyze files and URLs" },
+        { "name": "URLScan", "url": "https://urlscan.io/", "description": "Website scanner" },
+        { "name": "crt.sh", "url": "https://crt.sh/", "description": "Certificate Transparency logs" },
+        { "name": "Subfinder", "url": "https://github.com/projectdiscovery/subfinder", "description": "Subdomain discovery" }
+      ]
+    },
+
+    "Image Analysis": {
+      "icon": "image",
+      "color": "#F39C12",
+      "bookmarks": [
+        { "name": "Google Images", "url": "https://images.google.com/", "description": "Reverse image search" },
+        { "name": "TinEye", "url": "https://tineye.com/", "description": "Reverse image search" },
+        { "name": "Yandex Images", "url": "https://yandex.com/images/", "description": "Russian reverse image search" },
+        { "name": "PimEyes", "url": "https://pimeyes.com/", "description": "Face recognition search" },
+        { "name": "FotoForensics", "url": "https://fotoforensics.com/", "description": "Image forensics" },
+        { "name": "Pic2Map", "url": "https://www.pic2map.com/", "description": "View photo EXIF location" }
+      ]
+    },
+
+    "Social Media": {
+      "icon": "share",
+      "color": "#1DA1F2",
+      "bookmarks": [
+        { "name": "Social Searcher", "url": "https://www.social-searcher.com/", "description": "Free social media search" },
+        { "name": "Social Blade", "url": "https://socialblade.com/", "description": "Social media statistics" },
+        { "name": "Who Posted What", "url": "https://whopostedwhat.com/", "description": "Facebook keyword search" },
+        { "name": "Twint", "url": "https://github.com/twintproject/twint", "description": "Twitter scraping tool" }
+      ]
+    },
+
+    "People Search": {
+      "icon": "users",
+      "color": "#3498DB",
+      "bookmarks": [
+        { "name": "Pipl", "url": "https://pipl.com/", "description": "People search engine" },
+        { "name": "ThatsThem", "url": "https://thatsthem.com/", "description": "Free people search" },
+        { "name": "Whitepages", "url": "https://www.whitepages.com/", "description": "People and phone lookup" },
+        { "name": "FastPeopleSearch", "url": "https://www.fastpeoplesearch.com/", "description": "Free people finder" },
+        { "name": "PeekYou", "url": "https://www.peekyou.com/", "description": "People search engine" }
+      ]
+    },
+
+    "Geolocation": {
+      "icon": "map-pin",
+      "color": "#2ECC71",
+      "bookmarks": [
+        { "name": "Google Maps", "url": "https://www.google.com/maps", "description": "Mapping and street view" },
+        { "name": "Google Earth", "url": "https://earth.google.com/", "description": "Satellite imagery" },
+        { "name": "OpenStreetMap", "url": "https://www.openstreetmap.org/", "description": "Open source maps" },
+        { "name": "Mapillary", "url": "https://www.mapillary.com/", "description": "Street-level imagery" },
+        { "name": "FlightRadar24", "url": "https://www.flightradar24.com/", "description": "Live flight tracker" },
+        { "name": "MarineTraffic", "url": "https://www.marinetraffic.com/", "description": "Ship tracking" },
+        { "name": "SunCalc", "url": "https://www.suncalc.org/", "description": "Sun position calculator" }
+      ]
+    },
+
+    "Archives & History": {
+      "icon": "archive",
+      "color": "#7F8C8D",
+      "bookmarks": [
+        { "name": "Archive.org", "url": "https://archive.org/", "description": "Internet Archive" },
+        { "name": "Wayback Machine", "url": "https://web.archive.org/", "description": "Historical web pages" },
+        { "name": "CachedView", "url": "https://cachedview.com/", "description": "View cached pages" },
+        { "name": "Archive.today", "url": "https://archive.today/", "description": "Page snapshots" }
+      ]
+    },
+
+    "Threat Intelligence": {
+      "icon": "shield",
+      "color": "#C0392B",
+      "bookmarks": [
+        { "name": "VirusTotal", "url": "https://www.virustotal.com/", "description": "Malware analysis" },
+        { "name": "Hybrid Analysis", "url": "https://www.hybrid-analysis.com/", "description": "Malware sandbox" },
+        { "name": "Any.run", "url": "https://any.run/", "description": "Interactive malware sandbox" },
+        { "name": "AlienVault OTX", "url": "https://otx.alienvault.com/", "description": "Open threat exchange" },
+        { "name": "AbuseIPDB", "url": "https://www.abuseipdb.com/", "description": "IP abuse database" },
+        { "name": "URLhaus", "url": "https://urlhaus.abuse.ch/", "description": "Malicious URL database" }
+      ]
+    },
+
+    "Business & Company": {
+      "icon": "briefcase",
+      "color": "#F1C40F",
+      "bookmarks": [
+        { "name": "OpenCorporates", "url": "https://opencorporates.com/", "description": "Company database" },
+        { "name": "Crunchbase", "url": "https://www.crunchbase.com/", "description": "Company information" },
+        { "name": "SEC EDGAR", "url": "https://www.sec.gov/edgar/", "description": "SEC filings" },
+        { "name": "ICIJ Offshore Leaks", "url": "https://offshoreleaks.icij.org/", "description": "Offshore company data" },
+        { "name": "LinkedIn", "url": "https://www.linkedin.com/", "description": "Professional network" }
+      ]
+    },
+
+    "Cryptocurrency": {
+      "icon": "dollar-sign",
+      "color": "#F7931A",
+      "bookmarks": [
+        { "name": "Blockchain Explorer", "url": "https://www.blockchain.com/explorer", "description": "Bitcoin explorer" },
+        { "name": "Etherscan", "url": "https://etherscan.io/", "description": "Ethereum explorer" },
+        { "name": "WalletExplorer", "url": "https://www.walletexplorer.com/", "description": "Bitcoin wallet explorer" },
+        { "name": "BitInfoCharts", "url": "https://bitinfocharts.com/", "description": "Crypto charts and data" }
+      ]
+    },
+
+    "Dark Web": {
+      "icon": "moon",
+      "color": "#2C3E50",
+      "bookmarks": [
+        { "name": "Ahmia", "url": "https://ahmia.fi/", "description": "Tor search engine" },
+        { "name": "OnionSearch", "url": "https://onionsearchengine.com/", "description": "Dark web search" },
+        { "name": "DarkSearch", "url": "https://darksearch.io/", "description": "Dark web search API" }
+      ]
+    },
+
+    "Breach Data": {
+      "icon": "alert-triangle",
+      "color": "#E74C3C",
+      "bookmarks": [
+        { "name": "Have I Been Pwned", "url": "https://haveibeenpwned.com/", "description": "Check breach status" },
+        { "name": "DeHashed", "url": "https://dehashed.com/", "description": "Breach search engine" },
+        { "name": "IntelX", "url": "https://intelx.io/", "description": "Intelligence search engine" }
+      ]
+    },
+
+    "General Search": {
+      "icon": "search",
+      "color": "#95A5A6",
+      "bookmarks": [
+        { "name": "DuckDuckGo", "url": "https://duckduckgo.com/", "description": "Privacy-focused search engine" },
+        { "name": "Startpage", "url": "https://www.startpage.com/", "description": "Private Google results" },
+        { "name": "Brave Search", "url": "https://search.brave.com/", "description": "Independent search engine" },
+        { "name": "Searx", "url": "https://searx.space/", "description": "Metasearch engine instances" }
+      ]
+    },
+
+    "Tools & Frameworks": {
+      "icon": "tool",
+      "color": "#6C5CE7",
+      "bookmarks": [
+        { "name": "SpiderFoot", "url": "https://github.com/smicallef/spiderfoot", "description": "Automated OSINT tool" },
+        { "name": "Recon-ng", "url": "https://github.com/lanmaster53/recon-ng", "description": "Web reconnaissance framework" },
+        { "name": "theHarvester", "url": "https://github.com/laramies/theHarvester", "description": "Email, subdomain harvester" },
+        { "name": "Maltego", "url": "https://www.maltego.com/", "description": "Link analysis tool" },
+        { "name": "OSINT Framework", "url": "https://osintframework.com/", "description": "OSINT resource collection" },
+        { "name": "Awesome OSINT", "url": "https://github.com/jivoi/awesome-osint", "description": "Curated OSINT resources" }
+      ]
+    }
+  },
+
+  "customCategories": [],
+
+  "metadata": {
+    "sources": [
+      "https://osintframework.com/",
+      "https://github.com/jivoi/awesome-osint",
+      "Kali Linux OSINT Tools Collection"
+    ],
+    "note": "Users can add custom bookmarks by editing this file or using the in-app bookmark manager"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "constantine-browser",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "description": "CONSTANTINE Browser - The Exorcist's Edge. The OSINT Investigation Suite with supernatural noir theme. A privacy-first browser with Tor integration, anti-fingerprinting, and comprehensive intelligence tools. Between Heaven and Hell, intelligence prevails.",
   "main": "src/main/main.js",
   "scripts": {
@@ -12,7 +12,12 @@
     "build:linux": "electron-builder --linux",
     "pack": "electron-builder --dir",
     "postinstall": "electron-builder install-app-deps",
-    "test": "echo \"Tests passed\" && exit 0"
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix",
+    "format": "prettier --write src/**/*.js"
   },
   "keywords": [
     "osint",
@@ -30,7 +35,7 @@
     "exorcist"
   ],
   "author": "CONSTANTINE Team",
-  "license": "MIT",
+  "license": "Unlicense",
   "theme": {
     "name": "constantine",
     "codename": "The Exorcist's Edge",
@@ -38,7 +43,11 @@
   },
   "devDependencies": {
     "electron": "^35.7.5",
-    "electron-builder": "^24.9.1"
+    "electron-builder": "^24.9.1",
+    "jest": "^29.7.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.4"
   },
   "dependencies": {
     "electron-store": "^8.1.0"
@@ -83,5 +92,15 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"],
+    "collectCoverageFrom": [
+      "src/extensions/**/*.js",
+      "!src/extensions/**/index.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": ["text", "lcov", "html"]
   }
 }
