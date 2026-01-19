@@ -1632,7 +1632,7 @@ function showCertificateDialog(tabId, url, error) {
 // ============================================
 
 function updateZoomIndicator(zoomLevel) {
-  const percent = Math.round((1 + zoomLevel * 0.1) * 100);
+  const percent = Math.round(Math.pow(1.2, zoomLevel) * 100);
 
   // Only show indicator if zoom is not 100%
   if (percent !== 100) {
