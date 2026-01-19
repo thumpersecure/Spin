@@ -11,7 +11,7 @@
 const { app, BrowserWindow, BrowserView, ipcMain, session, Menu, nativeTheme, shell, dialog, clipboard, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execSync, spawn } = require('child_process');
+const { execSync, spawn, exec } = require('child_process');
 const Store = require('electron-store');
 const { PhoneFormatGenerator, PhoneIntelReport, COUNTRY_CODES } = require('../extensions/phone-intel');
 
@@ -99,17 +99,18 @@ const Platform = {
     ];
   },
 
-  // Check if Tor is running with timeout
+  // Check if Tor is running with timeout (async to avoid blocking main thread)
   isTorRunning() {
-    try {
+    return new Promise((resolve) => {
       const cmd = this.isWindows
         ? 'netstat -an | findstr ":9050"'
         : 'lsof -i :9050 2>/dev/null || ss -tlnp 2>/dev/null | grep :9050';
-      execSync(cmd, { stdio: 'pipe', timeout: 5000 });
-      return true;
-    } catch (e) {
-      return false;
-    }
+      
+      exec(cmd, { timeout: 2000 }, (error, stdout) => {
+        // If command succeeds and has output, Tor is running
+        resolve(!error && stdout && stdout.trim().length > 0);
+      });
+    });
   },
 
   // Platform-specific user agents
@@ -371,9 +372,9 @@ class AppState {
     this._initNetworkMonitoring();
   }
 
-  _initNetworkMonitoring() {
-    // Check Tor availability on startup
-    this.torAvailable = Platform.isTorRunning();
+  async _initNetworkMonitoring() {
+    // Check Tor availability on startup (async to avoid blocking)
+    this.torAvailable = await Platform.isTorRunning();
 
     // Monitor network status
     this.isOnline = net.isOnline();
@@ -394,8 +395,8 @@ class AppState {
     return `tab-${++this.tabCounter}-${Date.now()}`;
   }
 
-  refreshTorStatus() {
-    this.torAvailable = Platform.isTorRunning();
+  async refreshTorStatus() {
+    this.torAvailable = await Platform.isTorRunning();
     return this.torAvailable;
   }
 
@@ -728,9 +729,9 @@ function closeActiveTab() {
   }
 }
 
-function checkTorAndNotify() {
+async function checkTorAndNotify() {
   try {
-    const available = state.refreshTorStatus();
+    const available = await state.refreshTorStatus();
     notifyRenderer('notification', {
       type: available ? 'success' : 'warning',
       message: available ? 'Tor service is running and ready.' : 'Tor service not detected. Please start Tor.'
@@ -1363,12 +1364,12 @@ function applyPrivacySettings() {
   applyTorProxy();
 }
 
-function applyTorProxy() {
+async function applyTorProxy() {
   const ses = session.defaultSession;
   const privacy = state.privacy;
 
   if (privacy.torEnabled) {
-    if (!Platform.isTorRunning()) {
+    if (!(await Platform.isTorRunning())) {
       const torMessage = Platform.isWindows
         ? 'Tor not running. Start tor.exe from your Tor installation.'
         : Platform.isMac
@@ -1603,7 +1604,7 @@ function toggleDevTools() {
 function setupIpcHandlers() {
   // Platform & System info
   ipcMain.handle('get-platform-info', () => CONFIG.platform);
-  ipcMain.handle('check-tor-status', () => ({ available: state.refreshTorStatus() }));
+  ipcMain.handle('check-tor-status', async () => ({ available: await state.refreshTorStatus() }));
   ipcMain.handle('get-network-status', () => ({ online: state.isOnline }));
   ipcMain.handle('get-app-version', () => CONFIG.version);
 
