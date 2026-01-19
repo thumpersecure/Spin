@@ -22,6 +22,16 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const Store = require('electron-store');
 const { PhoneFormatGenerator, PhoneIntelReport, COUNTRY_CODES } = require('../extensions/phone-intel');
+const { AIResearchAssistant } = require('../extensions/ai-research-assistant');
+const { AIPrivacyShield } = require('../extensions/ai-privacy-shield');
+const { AIResearchTools } = require('../extensions/ai-research-tools');
+const { AICognitiveTools } = require('../extensions/ai-cognitive-tools');
+
+// Initialize AI modules
+const aiResearchAssistant = new AIResearchAssistant();
+const aiPrivacyShield = new AIPrivacyShield();
+const aiResearchTools = new AIResearchTools();
+const aiCognitiveTools = new AICognitiveTools();
 
 // ============================================
 // Platform Detection & Configuration
@@ -1990,6 +2000,312 @@ function setupIpcHandlers() {
       console.error('Batch search error:', err);
       return null;
     }
+  });
+
+  // ============================================
+  // AI Research Assistant IPC Handlers
+  // ============================================
+
+  ipcMain.handle('ai-research-initialize', () => {
+    return aiResearchAssistant.initialize();
+  });
+
+  ipcMain.handle('ai-research-classify-tab', (event, tabId, url, title) => {
+    return aiResearchAssistant.classifyTab(tabId, url, title);
+  });
+
+  ipcMain.handle('ai-research-get-groups', () => {
+    return aiResearchAssistant.getTabGroups();
+  });
+
+  ipcMain.handle('ai-research-get-tab-topic', (event, tabId) => {
+    return aiResearchAssistant.getTabTopic(tabId);
+  });
+
+  ipcMain.handle('ai-research-remove-tab', (event, tabId) => {
+    aiResearchAssistant.removeTab(tabId);
+    return { success: true };
+  });
+
+  ipcMain.handle('ai-research-get-suggestions', (event, url, title) => {
+    return aiResearchAssistant.getSuggestions(url, title);
+  });
+
+  ipcMain.handle('ai-research-get-all-topics', () => {
+    return aiResearchAssistant.getAllTopics();
+  });
+
+  ipcMain.handle('ai-research-start-session', (event, name) => {
+    return aiResearchAssistant.startNewSession(name);
+  });
+
+  ipcMain.handle('ai-research-set-purpose', (event, purpose) => {
+    aiResearchAssistant.setSessionPurpose(purpose);
+    return { success: true };
+  });
+
+  ipcMain.handle('ai-research-add-note', (event, note) => {
+    aiResearchAssistant.addSessionNote(note);
+    return { success: true };
+  });
+
+  ipcMain.handle('ai-research-track-visit', (event, url, title, topic) => {
+    aiResearchAssistant.trackPageVisit(url, title, topic);
+    return { success: true };
+  });
+
+  ipcMain.handle('ai-research-get-session', () => {
+    return aiResearchAssistant.getCurrentSession();
+  });
+
+  ipcMain.handle('ai-research-get-past-sessions', (event, limit) => {
+    return aiResearchAssistant.getPastSessions(limit);
+  });
+
+  ipcMain.handle('ai-research-search-sessions', (event, query) => {
+    return aiResearchAssistant.searchSessions(query);
+  });
+
+  // ============================================
+  // AI Privacy Shield IPC Handlers
+  // ============================================
+
+  ipcMain.handle('ai-privacy-initialize', () => {
+    return aiPrivacyShield.initialize(state.privacy);
+  });
+
+  ipcMain.handle('ai-privacy-analyze-url', async (event, url) => {
+    return aiPrivacyShield.analyzeUrl(url);
+  });
+
+  ipcMain.handle('ai-privacy-get-exposure', () => {
+    return aiPrivacyShield.getExposure();
+  });
+
+  ipcMain.handle('ai-privacy-update-protections', (event, settings) => {
+    return aiPrivacyShield.updateProtections(settings);
+  });
+
+  ipcMain.handle('ai-privacy-set-auto-opsec', (event, enabled) => {
+    return aiPrivacyShield.setAutoOpsec(enabled);
+  });
+
+  ipcMain.handle('ai-privacy-is-auto-opsec', () => {
+    return aiPrivacyShield.isAutoOpsecEnabled();
+  });
+
+  ipcMain.handle('ai-privacy-set-opsec-level', (event, level) => {
+    return aiPrivacyShield.setOpsecLevel(level);
+  });
+
+  ipcMain.handle('ai-privacy-get-opsec-level', () => {
+    return aiPrivacyShield.getCurrentOpsecLevel();
+  });
+
+  ipcMain.handle('ai-privacy-get-all-levels', () => {
+    return aiPrivacyShield.getAllOpsecLevels();
+  });
+
+  ipcMain.handle('ai-privacy-evaluate-url', async (event, url) => {
+    return aiPrivacyShield.evaluateUrl(url);
+  });
+
+  ipcMain.handle('ai-privacy-get-status', () => {
+    return aiPrivacyShield.getOpsecStatus();
+  });
+
+  ipcMain.handle('ai-privacy-get-history', () => {
+    return aiPrivacyShield.getEscalationHistory();
+  });
+
+  // ============================================
+  // AI Research Tools IPC Handlers
+  // ============================================
+
+  ipcMain.handle('ai-tools-initialize', () => {
+    return aiResearchTools.initialize();
+  });
+
+  ipcMain.handle('ai-tools-extract-entities', (event, text, sourceInfo) => {
+    return aiResearchTools.extractEntities(text, sourceInfo);
+  });
+
+  ipcMain.handle('ai-tools-get-entity-stats', () => {
+    return aiResearchTools.getEntityStats();
+  });
+
+  ipcMain.handle('ai-tools-find-related', (event, value) => {
+    return aiResearchTools.findRelatedEntities(value);
+  });
+
+  ipcMain.handle('ai-tools-capture-snapshot', async (event, pageData) => {
+    return aiResearchTools.captureSnapshot(pageData);
+  });
+
+  ipcMain.handle('ai-tools-get-snapshot', (event, id) => {
+    return aiResearchTools.getSnapshot(id);
+  });
+
+  ipcMain.handle('ai-tools-get-snapshots', (event, limit, offset) => {
+    return aiResearchTools.getSnapshots(limit, offset);
+  });
+
+  ipcMain.handle('ai-tools-search-snapshots', (event, query) => {
+    return aiResearchTools.searchSnapshots(query);
+  });
+
+  ipcMain.handle('ai-tools-delete-snapshot', (event, id) => {
+    return aiResearchTools.deleteSnapshot(id);
+  });
+
+  ipcMain.handle('ai-tools-export-snapshot', (event, id, format) => {
+    return aiResearchTools.exportSnapshot(id, format);
+  });
+
+  ipcMain.handle('ai-tools-add-snapshot-note', (event, snapshotId, note) => {
+    return aiResearchTools.addSnapshotNote(snapshotId, note);
+  });
+
+  ipcMain.handle('ai-tools-register-tab-entities', (event, tabId, entities) => {
+    aiResearchTools.registerTabEntities(tabId, entities);
+    return { success: true };
+  });
+
+  ipcMain.handle('ai-tools-unregister-tab', (event, tabId) => {
+    aiResearchTools.unregisterTab(tabId);
+    return { success: true };
+  });
+
+  ipcMain.handle('ai-tools-get-alerts', (event, includeAcknowledged) => {
+    return aiResearchTools.getAlerts(includeAcknowledged);
+  });
+
+  ipcMain.handle('ai-tools-acknowledge-alert', (event, alertId) => {
+    return aiResearchTools.acknowledgeAlert(alertId);
+  });
+
+  ipcMain.handle('ai-tools-dismiss-alert', (event, alertId) => {
+    return aiResearchTools.dismissAlert(alertId);
+  });
+
+  ipcMain.handle('ai-tools-get-alert-count', () => {
+    return aiResearchTools.getUnacknowledgedAlertCount();
+  });
+
+  ipcMain.handle('ai-tools-get-crossref-report', () => {
+    return aiResearchTools.getCrossReferenceReport();
+  });
+
+  // ============================================
+  // AI Cognitive Tools IPC Handlers
+  // ============================================
+
+  ipcMain.handle('ai-cognitive-initialize', () => {
+    return aiCognitiveTools.initialize();
+  });
+
+  ipcMain.handle('ai-cognitive-start-focus', (event, preset, customDuration, customBreak) => {
+    return aiCognitiveTools.startFocusSession(preset, customDuration, customBreak);
+  });
+
+  ipcMain.handle('ai-cognitive-end-focus', (event, force) => {
+    return aiCognitiveTools.endFocusSession(force);
+  });
+
+  ipcMain.handle('ai-cognitive-pause-focus', () => {
+    return aiCognitiveTools.pauseFocusSession();
+  });
+
+  ipcMain.handle('ai-cognitive-resume-focus', () => {
+    return aiCognitiveTools.resumeFocusSession();
+  });
+
+  ipcMain.handle('ai-cognitive-check-focus-url', (event, url) => {
+    return aiCognitiveTools.checkFocusUrl(url);
+  });
+
+  ipcMain.handle('ai-cognitive-get-focus-status', () => {
+    return aiCognitiveTools.getFocusStatus();
+  });
+
+  ipcMain.handle('ai-cognitive-get-focus-presets', () => {
+    return aiCognitiveTools.getFocusPresets();
+  });
+
+  ipcMain.handle('ai-cognitive-get-focus-history', (event, limit) => {
+    return aiCognitiveTools.getFocusHistory(limit);
+  });
+
+  ipcMain.handle('ai-cognitive-get-focus-stats', () => {
+    return aiCognitiveTools.getFocusStats();
+  });
+
+  ipcMain.handle('ai-cognitive-add-focus-note', (event, note) => {
+    return aiCognitiveTools.addFocusNote(note);
+  });
+
+  ipcMain.handle('ai-cognitive-add-bookmark', (event, bookmark) => {
+    return aiCognitiveTools.addSmartBookmark(bookmark);
+  });
+
+  ipcMain.handle('ai-cognitive-remove-bookmark', (event, id) => {
+    return aiCognitiveTools.removeSmartBookmark(id);
+  });
+
+  ipcMain.handle('ai-cognitive-update-bookmark', (event, id, updates) => {
+    return aiCognitiveTools.updateSmartBookmark(id, updates);
+  });
+
+  ipcMain.handle('ai-cognitive-get-bookmarks', (event, options) => {
+    return aiCognitiveTools.getSmartBookmarks(options);
+  });
+
+  ipcMain.handle('ai-cognitive-search-bookmarks', (event, query) => {
+    return aiCognitiveTools.searchSmartBookmarks(query);
+  });
+
+  ipcMain.handle('ai-cognitive-get-bookmark-categories', () => {
+    return aiCognitiveTools.getBookmarkCategories();
+  });
+
+  ipcMain.handle('ai-cognitive-get-bookmark-tags', () => {
+    return aiCognitiveTools.getBookmarkTags();
+  });
+
+  ipcMain.handle('ai-cognitive-start-investigation', (event, name, description) => {
+    return aiCognitiveTools.startInvestigation(name, description);
+  });
+
+  ipcMain.handle('ai-cognitive-end-investigation', (event, summary) => {
+    return aiCognitiveTools.endInvestigation(summary);
+  });
+
+  ipcMain.handle('ai-cognitive-track-event', (event, eventData) => {
+    return aiCognitiveTools.trackTimelineEvent(eventData);
+  });
+
+  ipcMain.handle('ai-cognitive-track-page-visit', (event, url, title, tabId) => {
+    return aiCognitiveTools.trackPageVisit(url, title, tabId);
+  });
+
+  ipcMain.handle('ai-cognitive-track-search', (event, query, engine) => {
+    return aiCognitiveTools.trackSearch(query, engine);
+  });
+
+  ipcMain.handle('ai-cognitive-get-timeline', (event, options) => {
+    return aiCognitiveTools.getTimelineEvents(options);
+  });
+
+  ipcMain.handle('ai-cognitive-get-investigation', () => {
+    return aiCognitiveTools.getCurrentInvestigation();
+  });
+
+  ipcMain.handle('ai-cognitive-get-timeline-viz', (event, limit) => {
+    return aiCognitiveTools.getTimelineVisualization(limit);
+  });
+
+  ipcMain.handle('ai-cognitive-export-timeline', (event, investigationId) => {
+    return aiCognitiveTools.exportTimeline(investigationId);
   });
 }
 
