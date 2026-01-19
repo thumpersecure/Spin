@@ -52,7 +52,7 @@
     "prettier": "^3.2.4"
   },
   "dependencies": {
-    "electron-store": "^11.0.2"
+    "electron-store": "^8.2.0"
   },
   "overrides": {
     "tar": "^6.2.1"
