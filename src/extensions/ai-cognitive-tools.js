@@ -570,7 +570,7 @@ class SmartBookmarkManager {
     try {
       const hostname = new URL(url).hostname.replace('www.', '');
       tags.push(hostname);
-    } catch (e) {
+    } catch (_e) {
       // Invalid URL - skip hostname tag
     }
 

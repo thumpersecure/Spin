@@ -268,12 +268,12 @@ class SiteRiskScorer {
       this._enforceCacheLimits();
 
       return risk;
-    } catch (e) {
+    } catch (_e) {
       return this._createEmptyRisk();
     }
   }
 
-  async _analyzeUrlInternal(urlObj) {
+  _analyzeUrlInternal(urlObj) {
     const hostname = urlObj.hostname.toLowerCase();
     const fullUrl = urlObj.href.toLowerCase();
     const protocol = urlObj.protocol;
@@ -714,7 +714,7 @@ class AIPrivacyShield {
   }
 
   // Risk scoring methods
-  async analyzeUrl(url) {
+  analyzeUrl(url) {
     return this.riskScorer.analyzeUrl(url);
   }
 

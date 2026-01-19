@@ -218,7 +218,7 @@ class TabGroupingManager {
       }
 
       return null;
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   }
@@ -565,7 +565,7 @@ class RelatedLinkSuggester {
         const suggestionHost = new URL(s.url).hostname;
         const currentHost = new URL(url).hostname;
         return suggestionHost !== currentHost;
-      } catch (e) {
+      } catch (_e) {
         return true;
       }
     });

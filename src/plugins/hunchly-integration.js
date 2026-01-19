@@ -75,7 +75,7 @@ const HunchlyIntegration = {
     /**
      * Capture page on navigation
      */
-    onPageLoad: async function(context, data) {
+    onPageLoad: function(context, data) {
       const settings = context.settings;
 
       if (!settings.autoCapture) return;
@@ -130,7 +130,7 @@ const HunchlyIntegration = {
     /**
      * Handle screenshot events
      */
-    onScreenshot: async function(context, data) {
+    onScreenshot: function(context, data) {
       if (!context.settings.captureScreenshots) return;
 
       const capture = {

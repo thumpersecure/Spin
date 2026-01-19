@@ -9,9 +9,6 @@
  * "Between Heaven and Hell, intelligence prevails."
  */
 
-const path = require('path');
-const fs = require('fs');
-
 // Default configuration for AI modules
 const DEFAULT_AI_CONFIG = {
   enabled: true,

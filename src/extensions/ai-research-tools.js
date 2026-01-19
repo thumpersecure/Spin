@@ -157,7 +157,6 @@ const ENTITY_TYPES = {
 
 // Maximum entries to prevent memory exhaustion
 const MAX_EXTRACTED_ENTITIES = 5000;
-const MAX_SNAPSHOTS = 500;
 const MAX_ENTITY_TABS = 1000;
 
 class EntityExtractor {
@@ -373,7 +372,7 @@ class QuickIntelSnapshot {
     this.maxSnapshots = 100;
   }
 
-  async captureSnapshot(pageData) {
+  captureSnapshot(pageData) {
     const {
       url,
       title,
@@ -420,7 +419,7 @@ class QuickIntelSnapshot {
     try {
       const urlObj = new URL(url);
       tags.add(urlObj.hostname);
-    } catch (e) {
+    } catch (_e) {
       // Invalid URL - skip hostname tag
     }
 
@@ -519,7 +518,7 @@ class QuickIntelSnapshot {
         grouped[entity.type].push(entity);
       }
 
-      for (const [type, entities] of Object.entries(grouped)) {
+      for (const [_type, entities] of Object.entries(grouped)) {
         md += `### ${entities[0].displayName} (${entities.length})\n\n`;
         for (const entity of entities) {
           md += `- \`${entity.value}\`\n`;
@@ -581,7 +580,7 @@ class QuickIntelSnapshot {
         grouped[entity.type].push(entity);
       }
 
-      for (const [type, entities] of Object.entries(grouped)) {
+      for (const [_type, entities] of Object.entries(grouped)) {
         html += `<h3>${entities[0].icon} ${escapeHtml(entities[0].displayName)} (${entities.length})</h3>`;
         for (const entity of entities) {
           html += `<div class="entity"><span class="entity-value">${escapeHtml(entity.value)}</span></div>`;
@@ -617,7 +616,7 @@ class QuickIntelSnapshot {
         grouped[entity.type].push(entity);
       }
 
-      for (const [type, entities] of Object.entries(grouped)) {
+      for (const [_type, entities] of Object.entries(grouped)) {
         text += `${entities[0].displayName} (${entities.length}):\n`;
         for (const entity of entities) {
           text += `  - ${entity.value}\n`;
@@ -870,7 +869,7 @@ class AIResearchTools {
   }
 
   // Snapshot methods
-  async captureSnapshot(pageData) {
+  captureSnapshot(pageData) {
     return this.snapshotManager.captureSnapshot(pageData);
   }
 

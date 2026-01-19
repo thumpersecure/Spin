@@ -23,7 +23,7 @@ const { exec } = require('child_process');
 const { promisify } = require('util');
 const execAsync = promisify(exec);
 const Store = require('electron-store');
-const { PhoneFormatGenerator, PhoneIntelReport, COUNTRY_CODES } = require('../extensions/phone-intel');
+const { PhoneFormatGenerator, COUNTRY_CODES } = require('../extensions/phone-intel');
 const { AIResearchAssistant } = require('../extensions/ai-research-assistant');
 const { AIPrivacyShield } = require('../extensions/ai-privacy-shield');
 const { AIResearchTools } = require('../extensions/ai-research-tools');
@@ -69,7 +69,7 @@ const Platform = {
         const version = info.version.split('.');
         const build = parseInt(version[2] || 0);
         info.isWindows11 = build >= 22000;
-      } catch (e) { /* ignore */ }
+      } catch (_e) { /* ignore */ }
     }
 
     if (this.isLinux) {
@@ -81,7 +81,7 @@ const Platform = {
           info.isFedora = /fedora/i.test(osRelease);
           info.isArch = /arch/i.test(osRelease);
         }
-      } catch (e) { /* ignore */ }
+      } catch (_e) { /* ignore */ }
     }
 
     if (this.isMac) {
@@ -127,14 +127,13 @@ const Platform = {
         : 'lsof -i :9050 2>/dev/null || ss -tlnp 2>/dev/null | grep :9050';
       await execAsync(cmd, { timeout: 5000 });
       return true;
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   },
 
   // Platform-specific user agents
   get userAgents() {
-    const year = new Date().getFullYear();
     if (this.isWindows) {
       return {
         firefox: `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0`,
@@ -297,22 +296,11 @@ function debounce(func, wait) {
   };
 }
 
-function throttle(func, limit) {
-  let inThrottle;
-  return function(...args) {
-    if (!inThrottle) {
-      func.apply(this, args);
-      inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
-    }
-  };
-}
-
 function safelyParseUrl(input) {
   if (!input || typeof input !== 'string') return null;
   try {
     return new URL(input);
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }
@@ -568,7 +556,7 @@ function createMainWindow() {
     state.mainWindow = null;
   });
 
-  state.mainWindow.on('close', async (event) => {
+  state.mainWindow.on('close', async (_event) => {
     try {
       // Save session before closing
       state.saveSession();
@@ -1135,7 +1123,7 @@ function setupViewEventHandlers(tabId, view) {
   });
 
   // New window handling
-  wc.setWindowOpenHandler(({ url, frameName, features }) => {
+  wc.setWindowOpenHandler(({ url, frameName: _frameName, features: _features }) => {
     // Validate URL
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       return { action: 'deny' };
@@ -1367,7 +1355,7 @@ function applyPrivacySettings() {
   // ============================================
 
   // Handle permission requests - deny by default, whitelist safe permissions
-  ses.setPermissionRequestHandler((webContents, permission, callback, details) => {
+  ses.setPermissionRequestHandler((webContents, permission, callback, _details) => {
     const allowedPermissions = ['clipboard-read', 'clipboard-sanitized-write'];
     const promptPermissions = ['fullscreen'];
 
@@ -1413,7 +1401,7 @@ function applyPrivacySettings() {
   });
 
   // Check permissions - return denied for sensitive permissions
-  ses.setPermissionCheckHandler((webContents, permission, requestingOrigin) => {
+  ses.setPermissionCheckHandler((webContents, permission, _requestingOrigin) => {
     const deniedPermissions = [
       'geolocation',
       'media',
@@ -1460,7 +1448,7 @@ function applyPrivacySettings() {
       }
 
       callback({ cancel: false });
-    } catch (e) {
+    } catch (_e) {
       callback({ cancel: false });
     }
   });
@@ -1493,7 +1481,7 @@ function applyPrivacySettings() {
       responseHeaders['X-Frame-Options'] = ['SAMEORIGIN'];
 
       callback({ responseHeaders });
-    } catch (e) {
+    } catch (_e) {
       callback({ responseHeaders: details.responseHeaders });
     }
   });
@@ -1519,7 +1507,7 @@ function applyPrivacySettings() {
       delete headers['X-Client-Data'];
 
       callback({ requestHeaders: headers });
-    } catch (e) {
+    } catch (_e) {
       callback({ requestHeaders: details.requestHeaders });
     }
   });
@@ -1971,7 +1959,7 @@ function setupIpcHandlers() {
           };
         })()
       `);
-    } catch (err) {
+    } catch (_err) {
       return null;
     }
   });
@@ -2004,7 +1992,7 @@ function setupIpcHandlers() {
     }
   });
 
-  ipcMain.handle('phone-intel-open-search', async (event, searchUrl) => {
+  ipcMain.handle('phone-intel-open-search', (_event, searchUrl) => {
     if (!searchUrl || typeof searchUrl !== 'string') return null;
     try {
       const url = safelyParseUrl(searchUrl);
@@ -2017,12 +2005,12 @@ function setupIpcHandlers() {
       createTab(tabId, searchUrl);
       notifyRenderer('tab-created', { tabId, url: searchUrl });
       return tabId;
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   });
 
-  ipcMain.handle('phone-intel-batch-search', async (event, phoneNumber, countryCode, searchEngine) => {
+  ipcMain.handle('phone-intel-batch-search', (_event, phoneNumber, countryCode, searchEngine) => {
     try {
       if (!phoneNumber || typeof phoneNumber !== 'string' || phoneNumber.length > 30) {
         return null;
@@ -2120,7 +2108,7 @@ function setupIpcHandlers() {
     return aiPrivacyShield.initialize(state.privacy);
   });
 
-  ipcMain.handle('ai-privacy-analyze-url', async (event, url) => {
+  ipcMain.handle('ai-privacy-analyze-url', (_event, url) => {
     return aiPrivacyShield.analyzeUrl(url);
   });
 
@@ -2152,7 +2140,7 @@ function setupIpcHandlers() {
     return aiPrivacyShield.getAllOpsecLevels();
   });
 
-  ipcMain.handle('ai-privacy-evaluate-url', async (event, url) => {
+  ipcMain.handle('ai-privacy-evaluate-url', (_event, url) => {
     return aiPrivacyShield.evaluateUrl(url);
   });
 
@@ -2184,7 +2172,7 @@ function setupIpcHandlers() {
     return aiResearchTools.findRelatedEntities(value);
   });
 
-  ipcMain.handle('ai-tools-capture-snapshot', async (event, pageData) => {
+  ipcMain.handle('ai-tools-capture-snapshot', (_event, pageData) => {
     return aiResearchTools.captureSnapshot(pageData);
   });
 
@@ -2383,7 +2371,7 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 } else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
     if (state.mainWindow) {
       if (state.mainWindow.isMinimized()) state.mainWindow.restore();
       state.mainWindow.focus();
@@ -2427,7 +2415,7 @@ app.on('before-quit', () => {
 
   // Clean up all BrowserViews and their listeners to prevent memory leaks
   try {
-    for (const [tabId, tab] of state.tabs) {
+    for (const [_tabId, tab] of state.tabs) {
       if (tab.view && tab.view.webContents && !tab.view.webContents.isDestroyed()) {
         tab.view.webContents.removeAllListeners();
         tab.view.webContents.destroy();

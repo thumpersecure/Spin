@@ -34,7 +34,11 @@
     "supernatural",
     "exorcist"
   ],
-  "author": "CONSTANTINE Team",
+  "author": {
+    "name": "CONSTANTINE Team",
+    "email": "dev@constantine-browser.io"
+  },
+  "homepage": "https://github.com/thumpersecure/Spin",
   "license": "Unlicense",
   "theme": {
     "name": "constantine",
@@ -87,14 +91,11 @@
     "linux": {
       "target": [
         "AppImage",
-        "deb",
-        "rpm"
+        "deb"
       ],
       "category": "Network",
       "icon": "assets/icon.png",
-      "desktop": {
-        "StartupWMClass": "constantine-browser"
-      }
+      "executableName": "constantine-browser"
     },
     "nsis": {
       "oneClick": false,
