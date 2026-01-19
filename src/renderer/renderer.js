@@ -1312,17 +1312,19 @@ function showNotification(type, message, duration = 3000) {
     </button>
   `;
 
-  notification.querySelector('.notification-close')?.addEventListener('click', () => {
-    notification.remove();
-  });
-
-  DOM.notificationContainer.appendChild(notification);
-
-  setTimeout(() => {
+  // Store timeout ID to allow clearing it when manually closed
+  let timeoutId = setTimeout(() => {
     if (notification.parentNode) {
       notification.remove();
     }
   }, duration);
+
+  notification.querySelector('.notification-close')?.addEventListener('click', () => {
+    clearTimeout(timeoutId);
+    notification.remove();
+  });
+
+  DOM.notificationContainer.appendChild(notification);
 }
 
 // ============================================
