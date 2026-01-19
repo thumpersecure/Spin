@@ -108,7 +108,14 @@ contextBridge.exposeInMainWorld('sandiego', {
   // Cleanup
   // ============================================
   removeListener: (channel) => {
-    ipcRenderer.removeAllListeners(channel);
+    // Only allow removing listeners for known safe channels
+    const allowedChannels = [
+      'tab-loading', 'tab-navigated', 'tab-title-updated', 'tab-favicon-updated',
+      'tab-activated', 'tab-created', 'tab-error', 'privacy-updated', 'notification', 'go-home'
+    ];
+    if (allowedChannels.includes(channel)) {
+      ipcRenderer.removeAllListeners(channel);
+    }
   }
 });
 

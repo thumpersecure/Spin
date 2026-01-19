@@ -84,8 +84,13 @@ const COUNTRY_CODES = {
 
 class PhoneFormatGenerator {
   constructor(phoneNumber, countryCode = 'US') {
-    this.rawNumber = this.cleanNumber(phoneNumber);
+    // Input validation and sanitization
+    if (!phoneNumber || typeof phoneNumber !== 'string') {
+      throw new Error('Invalid phone number');
+    }
+    this.rawNumber = this.cleanNumber(phoneNumber.slice(0, 30)); // Limit input length
     this.country = COUNTRY_CODES[countryCode] || COUNTRY_CODES['US'];
+    this._cachedFormats = null; // Cache for optimization
   }
 
   cleanNumber(phone) {
@@ -93,6 +98,9 @@ class PhoneFormatGenerator {
   }
 
   generateFormats() {
+    // Return cached formats if available
+    if (this._cachedFormats) return this._cachedFormats;
+
     const num = this.rawNumber;
     const cc = this.country.code.replace('+', '');
 
@@ -186,6 +194,7 @@ class PhoneFormatGenerator {
       description: 'Alternative international format'
     });
 
+    this._cachedFormats = formats;
     return formats;
   }
 
@@ -198,7 +207,7 @@ class PhoneFormatGenerator {
   }
 
   generateSmartQuery() {
-    const formats = this.generateFormats();
+    const formats = this.generateFormats(); // Uses cache if available
     const quotedFormats = formats.map(f => `"${f.value}"`).join(' OR ');
     return {
       query: quotedFormats,
