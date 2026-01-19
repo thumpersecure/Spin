@@ -1,6 +1,6 @@
 {
   "name": "sandiego-browser",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "SANDIEGO Browser - The OSINT Investigation Suite. A privacy-first browser with Tor integration, anti-fingerprinting, and comprehensive intelligence tools.",
   "main": "src/main/main.js",
   "scripts": {
