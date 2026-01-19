@@ -11,7 +11,7 @@
       "id": "constantine",
       "name": "Constantine",
       "codename": "The Exorcist's Edge",
-      "version": "4.1.1",
+      "version": "4.2.0",
       "tagline": "Between Heaven and Hell, intelligence prevails.",
       "inspiration": "Supernatural noir - inspired by the realm between light and darkness",
       "description": "A dark supernatural theme featuring amber gold accents, hellfire undertones, and celestial highlights. Designed for investigators who walk the line between worlds.",
@@ -312,6 +312,12 @@
       "version": "4.1.1",
       "theme": "constantine",
       "codename": "The Exorcist's Edge",
+      "releaseDate": "2026-01-19"
+    },
+    {
+      "version": "4.2.0",
+      "theme": "constantine",
+      "codename": "The Exorcist's Edge - AI Suite",
       "releaseDate": "2026-01-19"
     }
   ],

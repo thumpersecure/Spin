@@ -123,9 +123,9 @@ const ENTITY_TYPES = {
     icon: '📅',
     color: '#16A085',
     patterns: [
-      // Various date formats
-      /\b\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}\b/g,
-      /\b\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}\b/g,
+      // Various date formats (in character class: / and . don't need escaping, - at end)
+      /\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b/g,
+      /\b\d{4}[/.-]\d{1,2}[/.-]\d{1,2}\b/g,
       /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s+\d{4}\b/gi
     ]
   },
@@ -276,7 +276,7 @@ class EntityExtractor {
       case 'USERNAME':
         // Must be 3-30 characters
         return value.length >= 3 && value.length <= 30;
-      case 'IP_ADDRESS':
+      case 'IP_ADDRESS': {
         // Validate IP format
         const parts = value.split('.');
         if (parts.length !== 4) return false;
@@ -284,6 +284,7 @@ class EntityExtractor {
           const num = parseInt(p, 10);
           return num >= 0 && num <= 255;
         });
+      }
       case 'HASH':
         // Only accept common hash lengths
         return [32, 40, 64].includes(value.length);
@@ -291,10 +292,11 @@ class EntityExtractor {
       case 'CREDIT_CARD':
         // Be conservative with sensitive data
         return true;
-      case 'NAME':
+      case 'NAME': {
         // Filter out common false positives
         const commonWords = ['The', 'This', 'That', 'With', 'From', 'About', 'More'];
         return !commonWords.some(w => value.startsWith(w));
+      }
       default:
         return value.length > 0;
     }
@@ -418,7 +420,9 @@ class QuickIntelSnapshot {
     try {
       const urlObj = new URL(url);
       tags.add(urlObj.hostname);
-    } catch (e) {}
+    } catch (e) {
+      // Invalid URL - skip hostname tag
+    }
 
     // Add entity type tags
     const entityTypes = new Set(entities.map(e => e.type));

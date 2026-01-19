@@ -242,7 +242,7 @@ class ThemeManager {
    * Set accessibility option
    */
   setAccessibility(option, value) {
-    if (this.accessibility.hasOwnProperty(option)) {
+    if (Object.hasOwn(this.accessibility, option)) {
       this.accessibility[option] = value;
       this.store?.set(`theme.accessibility.${option}`, value);
       this._notifyListeners('accessibilityChanged', { option, value });

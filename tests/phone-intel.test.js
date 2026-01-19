@@ -133,7 +133,9 @@ describe('PhoneFormatGenerator', () => {
       const formats = generator.generateFormats();
       const queries = generator.generateSearchQueries(formats);
       const usFormat = queries.find(q => q.name === 'US Format');
-      expect(usFormat.searchUrl).toContain('%28'); // encoded (
+      // encodeURIComponent does not encode parentheses (they're safe chars)
+      // but it does encode spaces as %20
+      expect(usFormat.searchUrl).toContain('%20'); // encoded space
     });
   });
 
