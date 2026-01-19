@@ -1019,19 +1019,44 @@ function setupViewEventHandlers(tabId, view) {
   wc.on('certificate-error', (event, url, error, certificate, callback) => {
     event.preventDefault();
 
-    // Store the error for this URL
-    state.certificateErrors.set(url, { error, certificate });
+    // Generate a unique ID for this certificate error so the renderer can respond via IPC
+    const requestId = `${tabId}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
 
+    // Store the error for this URL (including requestId for potential lookups)
+    state.certificateErrors.set(url, { error, certificate, requestId });
+
+    // Notify renderer so it can decide whether to proceed or block
     notifyRenderer('certificate-error', {
       tabId,
       url,
       error,
       issuer: certificate.issuerName,
-      subject: certificate.subjectName
+      subject: certificate.subjectName,
+      requestId
     });
 
-    // Block by default for security
-    callback(false);
+    // Wait for renderer decision via a dedicated IPC channel.
+    // Default to blocking if no decision is received in time.
+    const decisionChannel = `certificate-error-decision-${requestId}`;
+    let decided = false;
+
+    const decisionHandler = (ipcEvent, decision) => {
+      decided = true;
+      // Ensure we only handle this once
+      callback(!!decision);
+    };
+
+    ipcMain.once(decisionChannel, decisionHandler);
+
+    // Security: if the renderer never responds, block by default after a timeout
+    const DECISION_TIMEOUT_MS = 30000;
+    setTimeout(() => {
+      if (decided) {
+        return;
+      }
+      // No decision received in time; block navigation
+      callback(false);
+    }, DECISION_TIMEOUT_MS);
   });
 
   // New window handling
