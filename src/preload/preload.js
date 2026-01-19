@@ -1,6 +1,6 @@
 /**
  * CONSTANTINE Browser - Preload Script
- * Version: 4.1.1 - The Exorcist's Edge
+ * Version: 4.2.0 - The Exorcist's Edge
  *
  * Secure bridge between renderer and main process.
  * Implements context isolation for maximum security.

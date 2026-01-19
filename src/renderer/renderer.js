@@ -1,6 +1,6 @@
 /**
  * CONSTANTINE Browser - Renderer Process
- * Version: 4.1.1 - The Exorcist's Edge
+ * Version: 4.2.0 - The Exorcist's Edge
  * Clean state management and robust UI handling
  *
  * "Between Heaven and Hell, intelligence prevails."
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Setup network status monitoring
   setupNetworkMonitoring();
 
-  console.log('CONSTANTINE Browser v4.1.1 - The Exorcist\'s Edge initialized');
+  console.log('CONSTANTINE Browser v4.2.0 - The Exorcist\'s Edge initialized');
 });
 
 async function initializePlatform() {
@@ -1357,8 +1357,8 @@ function escapeHtml(text) {
 
 // Escape for use in attributes
 function escapeAttr(text) {
-  // Handle null and undefined
-  if (text == null) return '';
+  // Handle null and undefined (== null covers both)
+  if (text === null || text === undefined) return '';
   
   // Convert to string to handle numbers, booleans, and other types
   const str = String(text);

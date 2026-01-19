@@ -1,6 +1,6 @@
 /**
  * CONSTANTINE Browser - OSINT Investigation Suite
- * Version: 4.1.1 - The Exorcist's Edge
+ * Version: 4.2.0 - The Exorcist's Edge
  *
  * A privacy-first browser engineered for Open Source Intelligence gathering.
  * Built for investigators, researchers, and privacy-conscious users.
@@ -191,7 +191,7 @@ const Platform = {
 // ============================================
 
 const CONFIG = {
-  version: '4.1.1',
+  version: '4.2.0',
   name: 'CONSTANTINE Browser',
   codename: 'The Exorcist\'s Edge',
   theme: 'constantine',
@@ -1774,9 +1774,9 @@ function setupIpcHandlers() {
   ipcMain.handle('get-network-status', () => ({ online: state.isOnline }));
   ipcMain.handle('get-app-version', () => CONFIG.version);
 
-  // Window controls
+  // Window controls (silent failure if window destroyed)
   ipcMain.on('window-minimize', () => {
-    try { state.mainWindow?.minimize(); } catch (e) {}
+    try { state.mainWindow?.minimize(); } catch (_e) { /* Window may be destroyed */ }
   });
   ipcMain.on('window-maximize', () => {
     try {
@@ -1785,10 +1785,10 @@ function setupIpcHandlers() {
       } else {
         state.mainWindow?.maximize();
       }
-    } catch (e) {}
+    } catch (_e) { /* Window may be destroyed */ }
   });
   ipcMain.on('window-close', () => {
-    try { state.mainWindow?.close(); } catch (e) {}
+    try { state.mainWindow?.close(); } catch (_e) { /* Window may be destroyed */ }
   });
 
   // Tab management
@@ -1827,7 +1827,7 @@ function setupIpcHandlers() {
       if (tab && tab.view.webContents && tab.view.webContents.canGoBack()) {
         tab.view.webContents.goBack();
       }
-    } catch (e) {}
+    } catch (_e) { /* Tab may be destroyed */ }
   });
 
   ipcMain.on('go-forward', (event, tabId) => {
@@ -1836,7 +1836,7 @@ function setupIpcHandlers() {
       if (tab && tab.view.webContents && tab.view.webContents.canGoForward()) {
         tab.view.webContents.goForward();
       }
-    } catch (e) {}
+    } catch (_e) { /* Tab may be destroyed */ }
   });
 
   ipcMain.on('reload', (event, tabId) => {
@@ -1845,7 +1845,7 @@ function setupIpcHandlers() {
       if (tab && tab.view.webContents && !tab.view.webContents.isDestroyed()) {
         tab.view.webContents.reload();
       }
-    } catch (e) {}
+    } catch (_e) { /* Tab may be destroyed */ }
   });
 
   ipcMain.on('stop-loading', (event, tabId) => {
@@ -1854,7 +1854,7 @@ function setupIpcHandlers() {
       if (tab && tab.view.webContents && !tab.view.webContents.isDestroyed()) {
         tab.view.webContents.stop();
       }
-    } catch (e) {}
+    } catch (_e) { /* Tab may be destroyed */ }
   });
 
   // Panel management
