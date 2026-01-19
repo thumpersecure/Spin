@@ -20,7 +20,7 @@
               ║                                                                   ║
               ╚═══════════════════════════════════════════════════════════════════╝
 
-                                    [ Version 4.1.1 ]
+                                    [ Version 4.2.0 ]
 ```
 
 <div align="center">
@@ -29,6 +29,7 @@
 [![Electron](https://img.shields.io/badge/Electron-35.7.5-47848F.svg)](https://electronjs.org/)
 [![Platform](https://img.shields.io/badge/Platform-Win%20%7C%20macOS%20%7C%20Linux-181818.svg)](#platform-installation)
 [![OSINT](https://img.shields.io/badge/Purpose-OSINT-D4A32D.svg)](#osint-capabilities)
+[![AI](https://img.shields.io/badge/AI-Intelligence%20Suite-00CED1.svg)](#ai-intelligence-suite)
 [![Theme](https://img.shields.io/badge/Theme-Constantine-E65C00.svg)](#constantine-theme)
 
 *A privacy-first browser engineered for Open Source Intelligence gathering.*
@@ -37,7 +38,7 @@
 
 ---
 
-[The Mission](#the-mission) | [Installation](#installation) | [OSINT Tools](#osint-capabilities) | [Privacy](#privacy-arsenal) | [Theme](#constantine-theme)
+[The Mission](#the-mission) | [Installation](#installation) | [OSINT Tools](#osint-capabilities) | [AI Suite](#ai-intelligence-suite) | [Privacy](#privacy-arsenal) | [Theme](#constantine-theme)
 
 </div>
 
@@ -69,6 +70,10 @@ Like the legendary exorcist John Constantine, you'll navigate through layers of 
 | **Cross-Platform** | Native experience on Windows 11, macOS, and Linux |
 | **Multi-Format Reports** | Export to Text, JSON, Markdown, and HTML |
 | **Risk Assessment** | Automatic threat level evaluation |
+| **AI Research Assistant** | Smart tab grouping, session memory, related link suggestions |
+| **AI Privacy Shield** | Predictive risk scoring, fingerprint exposure meter, auto-OPSEC |
+| **AI Research Tools** | Entity extraction, quick intel snapshots, cross-reference alerts |
+| **AI Cognitive Tools** | Focus mode, smart bookmarks, investigation timeline |
 
 ---
 
@@ -444,6 +449,73 @@ Transform any phone number into 10 searchable format variations, then execute sm
 
 ---
 
+## AI Intelligence Suite
+
+*"Some souls can't be saved. Some information can't stay hidden."*
+
+Version 4.2.0 introduces the **AI Intelligence Suite** — four integrated modules that augment your investigative capabilities with intelligent automation.
+
+### Intelligent Research Assistant
+
+The AI Research Assistant helps organize and contextualize your investigation workflow.
+
+| Feature | Description |
+|---------|-------------|
+| **Smart Tab Grouping** | Automatically categorizes tabs by investigation topic (Person, Email, Domain, Social Media, etc.) |
+| **Session Context Memory** | Remembers research context across sessions with purpose tracking and notes |
+| **Related Link Suggestions** | Suggests relevant OSINT resources based on current page content |
+
+**Topic Categories**: Person Investigation, Email Investigation, Domain/IP, Social Media, Phone/Telecom, Image Analysis, Financial, Document/Archive, Threat Intel, Geolocation, General Research
+
+### Predictive Privacy Shield
+
+The AI Privacy Shield provides real-time risk assessment and automatic protection escalation.
+
+| Feature | Description |
+|---------|-------------|
+| **Site Risk Scoring** | Analyzes URLs for tracking risk, data collection, and privacy threats (0-100 score) |
+| **Fingerprint Exposure Meter** | Tracks which fingerprinting vectors have been exposed during your session |
+| **Auto-OPSEC Mode** | Automatically escalates privacy protections based on detected threats |
+
+**OPSEC Levels**:
+| Level | Description |
+|-------|-------------|
+| **STANDARD** | Normal browsing with basic protections |
+| **ENHANCED** | Stricter blocking, reduced JavaScript exposure |
+| **MAXIMUM** | Full lockdown mode — Tor required, minimal fingerprint surface |
+
+### Research Augmentation Tools
+
+AI-powered tools for extracting, saving, and cross-referencing intelligence.
+
+| Feature | Description |
+|---------|-------------|
+| **Entity Extraction Panel** | Extracts phones, emails, IPs, Bitcoin addresses, usernames, dates, and more |
+| **Quick Intel Snapshot** | Capture and archive page content with metadata for later reference |
+| **Cross-Reference Alerts** | Notifies when the same entity appears across multiple sources |
+
+**Extractable Entity Types**: Phone Numbers, Email Addresses, IP Addresses (v4/v6), Bitcoin Addresses, Ethereum Addresses, Usernames (@handles), Hashtags, URLs, Dates, SSN patterns, Credit Card patterns, Coordinates
+
+### Cognitive Load Reduction
+
+Tools to maintain focus and organize long-running investigations.
+
+| Feature | Description |
+|---------|-------------|
+| **Focus Mode** | Timed investigation sessions with distraction blocking |
+| **Smart Bookmarks** | AI-categorized bookmarks with tags, notes, and importance ratings |
+| **Investigation Timeline** | Automatic event logging with visual timeline export |
+
+**Focus Mode Presets**:
+| Preset | Work | Break | Use Case |
+|--------|------|-------|----------|
+| **Quick** | 15 min | 3 min | Short lookups |
+| **Standard** | 25 min | 5 min | Regular research |
+| **Deep** | 50 min | 10 min | Deep investigation |
+| **Marathon** | 90 min | 20 min | Extended analysis |
+
+---
+
 ## Privacy Arsenal
 
 ### Tor Integration
@@ -503,6 +575,7 @@ Blocks 60+ tracking domains including:
 | Toggle Tor | `Ctrl+Shift+T` | `Cmd+Shift+T` |
 | Screenshot | `Ctrl+Shift+S` | `Cmd+Shift+S` |
 | View Source | `Ctrl+U` | `Cmd+U` |
+| **AI Intelligence Suite** | `Ctrl+Shift+A` | `Cmd+Shift+A` |
 
 ---
 
@@ -512,18 +585,22 @@ Blocks 60+ tracking domains including:
 Spin/
 ├── src/
 │   ├── main/
-│   │   └── main.js              # Main process with platform detection
+│   │   └── main.js                  # Main process with platform detection
 │   ├── renderer/
-│   │   ├── index.html           # Browser UI
-│   │   ├── styles.css           # Constantine theme styles
-│   │   └── renderer.js          # UI logic
+│   │   ├── index.html               # Browser UI
+│   │   ├── styles.css               # Constantine theme styles
+│   │   └── renderer.js              # UI logic
 │   ├── preload/
-│   │   ├── preload.js           # Secure IPC bridge
-│   │   └── webview-preload.js   # Minimal webview API
+│   │   ├── preload.js               # Secure IPC bridge
+│   │   └── webview-preload.js       # Minimal webview API
 │   ├── extensions/
-│   │   └── phone-intel.js       # Phone intelligence module
+│   │   ├── phone-intel.js           # Phone intelligence module
+│   │   ├── ai-research-assistant.js # Smart tab grouping, session memory
+│   │   ├── ai-privacy-shield.js     # Risk scoring, auto-OPSEC
+│   │   ├── ai-research-tools.js     # Entity extraction, snapshots
+│   │   └── ai-cognitive-tools.js    # Focus mode, timeline, bookmarks
 │   └── data/
-│       └── themes.json          # Theme configuration
+│       └── themes.json              # Theme configuration
 ├── package.json
 └── README.md
 ```
@@ -553,6 +630,39 @@ Spin/
 - No external API calls except user-initiated searches
 - All settings stored locally
 - Optional data purge on exit
+
+---
+
+## Version 4.2.0 Changelog
+
+### Major Features — AI Intelligence Suite
+
+- **AI Research Assistant**: Smart tab grouping by investigation topic, session context memory with notes, related link suggestions based on page content
+- **AI Privacy Shield**: Real-time site risk scoring (0-100), fingerprint exposure tracking, automatic OPSEC level escalation
+- **AI Research Tools**: Entity extraction for 12+ types (phones, emails, IPs, crypto addresses, etc.), quick intel snapshots with metadata, cross-reference alerts for recurring entities
+- **AI Cognitive Tools**: Focus mode with Pomodoro-style presets, smart bookmarks with auto-categorization, investigation timeline with visual export
+
+### New IPC Handlers
+
+- 40+ new IPC handlers for AI module communication
+- Secure preload API exposure for `aiResearch`, `aiPrivacy`, `aiTools`, `aiCognitive` namespaces
+- New event channels: `ai-tab-grouped`, `ai-suggestion-available`, `ai-risk-assessed`, `ai-entity-found`, `ai-crossref-alert`, `ai-focus-tick`, `ai-focus-complete`, `ai-focus-distraction`, `ai-opsec-escalated`
+
+### UI Enhancements
+
+- New AI Intelligence Suite button in navigation toolbar
+- Comprehensive AI panel styles (1000+ lines) matching Constantine theme
+- Tab group indicators with topic-based color coding
+- Risk badge and exposure meter visualizations
+- Focus mode overlay with session timer
+- Timeline visualization component
+
+### Technical Details
+
+- 4 new extension modules (~3200 lines of code)
+- Persistent storage via electron-store for AI data
+- Modular class-based architecture for each AI subsystem
+- Full cleanup/shutdown support to prevent memory leaks
 
 ---
 
@@ -641,7 +751,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
-**CONSTANTINE** — Version 4.1.1 - The Exorcist's Edge
+**CONSTANTINE** — Version 4.2.0 - The Exorcist's Edge
 
 [Report Issue](https://github.com/thumpersecure/Spin/issues) | [OSINT Framework](https://osintframework.com/)
 
