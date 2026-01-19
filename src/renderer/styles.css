@@ -1,6 +1,6 @@
 /* ============================================
    SANDIEGO Browser - OSINT Investigation Suite
-   Version: 3.1.0
+   Version: 3.2.0
    Theme: Noir / International Investigation
    ============================================ */
 
@@ -1953,4 +1953,581 @@ body.fullscreen .nav-bar {
   .browser-content {
     position: static;
   }
+}
+
+/* ============================================
+   Session Restore Banner
+   ============================================ */
+
+.session-restore-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: linear-gradient(90deg, rgba(196, 30, 58, 0.15) 0%, rgba(196, 30, 58, 0.05) 100%);
+  border-bottom: 1px solid var(--carmen-red);
+  animation: slide-down 0.3s ease;
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.session-restore-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.session-restore-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--carmen-red);
+}
+
+.session-restore-text {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.session-restore-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.session-restore-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.session-restore-btn.restore {
+  background: var(--carmen-red);
+  color: white;
+}
+
+.session-restore-btn.restore:hover {
+  background: var(--carmen-red-light);
+}
+
+.session-restore-btn.dismiss {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+}
+
+.session-restore-btn.dismiss:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ============================================
+   Tab Crash/Unresponsive States
+   ============================================ */
+
+.tab.crashed {
+  background: rgba(255, 69, 58, 0.15);
+  border-color: var(--danger);
+}
+
+.tab.crashed .tab-title {
+  color: var(--danger);
+}
+
+.tab.unresponsive {
+  opacity: 0.6;
+}
+
+.tab.unresponsive::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgba(255, 159, 10, 0.1) 5px,
+    rgba(255, 159, 10, 0.1) 10px
+  );
+  pointer-events: none;
+}
+
+/* Crash Overlay */
+.crash-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.crash-content {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 40px 48px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: var(--shadow-lg);
+}
+
+.crash-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.crash-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--danger);
+  margin-bottom: 8px;
+}
+
+.crash-message {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.crash-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.crash-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.crash-btn.primary {
+  background: var(--carmen-red);
+  color: white;
+}
+
+.crash-btn.primary:hover {
+  background: var(--carmen-red-light);
+}
+
+.crash-btn.secondary {
+  background: var(--bg-overlay);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+}
+
+.crash-btn.secondary:hover {
+  background: var(--bg-hover);
+}
+
+/* ============================================
+   Offline Banner
+   ============================================ */
+
+.offline-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, rgba(255, 159, 10, 0.2) 0%, rgba(255, 159, 10, 0.1) 100%);
+  border-bottom: 1px solid var(--warning);
+  color: var(--warning);
+  font-size: 12px;
+  font-weight: 600;
+  animation: slide-down 0.3s ease;
+}
+
+.offline-icon {
+  width: 16px;
+  height: 16px;
+  fill: var(--warning);
+}
+
+/* ============================================
+   Certificate Error Dialog
+   ============================================ */
+
+.certificate-dialog {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fade-in 0.2s ease;
+}
+
+.certificate-dialog-content {
+  background: var(--bg-elevated);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-lg);
+  padding: 40px 48px;
+  text-align: center;
+  max-width: 450px;
+  box-shadow: 0 0 30px rgba(255, 69, 58, 0.3);
+}
+
+.certificate-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.certificate-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--danger);
+  margin-bottom: 12px;
+}
+
+.certificate-host {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  font-family: var(--font-mono);
+}
+
+.certificate-error {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+}
+
+.certificate-warning {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.certificate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.certificate-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.certificate-btn.primary {
+  background: var(--success);
+  color: white;
+}
+
+.certificate-btn.primary:hover {
+  background: #25a545;
+}
+
+.certificate-btn.secondary {
+  background: transparent;
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
+}
+
+.certificate-btn.secondary:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   Zoom Badge
+   ============================================ */
+
+.zoom-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-left: 8px;
+  animation: fade-in 0.15s ease;
+}
+
+/* ============================================
+   Enhanced Context Menu
+   ============================================ */
+
+.context-menu {
+  position: fixed;
+  min-width: 200px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 6px 0;
+  z-index: 10000;
+  animation: context-menu-in 0.15s ease;
+}
+
+@keyframes context-menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.context-menu-item {
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.context-menu-item:hover {
+  background: var(--carmen-red);
+  color: white;
+}
+
+.context-menu-item.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.context-menu-item.disabled:hover {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 6px 0;
+}
+
+/* ============================================
+   Security Badge Error State
+   ============================================ */
+
+.security-badge.error svg {
+  stroke: var(--danger);
+}
+
+.security-badge.error {
+  animation: pulse-danger 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-danger {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ============================================
+   Phone Intel Loading State
+   ============================================ */
+
+.phone-intel-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.phone-intel-loading::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  border: 2px solid var(--bg-overlay);
+  border-top-color: var(--carmen-red);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ============================================
+   History Panel (for future use)
+   ============================================ */
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.history-item:hover {
+  background: var(--bg-hover);
+}
+
+.history-item-favicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.history-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-item-title {
+  font-size: 13px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-item-url {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-item-time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   Download Progress (for future use)
+   ============================================ */
+
+.download-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+
+.download-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-overlay);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+}
+
+.download-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.download-filename {
+  font-size: 13px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.download-progress-bar {
+  height: 4px;
+  background: var(--bg-overlay);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.download-progress-fill {
+  height: 100%;
+  background: var(--carmen-red);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.download-progress-text {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+.download-cancel {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.download-cancel:hover {
+  background: var(--danger);
+}
+
+.download-cancel svg {
+  width: 12px;
+  height: 12px;
+  stroke: var(--text-tertiary);
+  stroke-width: 2;
+}
+
+.download-cancel:hover svg {
+  stroke: white;
 }

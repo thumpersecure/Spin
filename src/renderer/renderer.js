@@ -1,6 +1,6 @@
 /**
  * SANDIEGO Browser - Renderer Process
- * Version: 3.1.0
+ * Version: 3.2.0
  * Clean state management and robust UI handling
  */
 
@@ -16,7 +16,10 @@ const AppState = {
   activePanel: null,
   bookmarks: [],
   platform: null,
-  isFullscreen: false
+  isFullscreen: false,
+  isOnline: true,
+  hasSessionToRestore: false,
+  zoomLevel: 0
 };
 
 // ============================================
@@ -134,7 +137,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadPrivacySettings();
   await createInitialTab();
 
-  console.log('SANDIEGO Browser v3.1.0 initialized');
+  // Check for previous session to restore
+  checkSessionRestore();
+
+  // Setup network status monitoring
+  setupNetworkMonitoring();
+
+  console.log('SANDIEGO Browser v3.2.0 initialized');
 });
 
 async function initializePlatform() {
@@ -343,6 +352,47 @@ function setupIPCListeners() {
     link.download = `sandiego-screenshot-${Date.now()}.png`;
     link.click();
     showNotification('success', 'Screenshot saved');
+  });
+
+  // Tab crash handling
+  window.sandiego.on('tab-crashed', ({ tabId, reason }) => {
+    handleTabCrashed(tabId, reason);
+  });
+
+  window.sandiego.on('tab-unresponsive', ({ tabId }) => {
+    handleTabUnresponsive(tabId);
+  });
+
+  window.sandiego.on('tab-responsive', ({ tabId }) => {
+    handleTabResponsive(tabId);
+  });
+
+  // Network status
+  window.sandiego.on('network-status', ({ isOnline }) => {
+    handleNetworkStatusChange(isOnline);
+  });
+
+  // Session restore prompt
+  window.sandiego.on('session-available', ({ count, urls }) => {
+    handleSessionAvailable(count, urls);
+  });
+
+  // Certificate errors
+  window.sandiego.on('certificate-error', ({ tabId, url, error }) => {
+    handleCertificateError(tabId, url, error);
+  });
+
+  // Zoom level changes
+  window.sandiego.on('zoom-changed', ({ tabId, zoomLevel }) => {
+    if (tabId === AppState.activeTabId) {
+      AppState.zoomLevel = zoomLevel;
+      updateZoomIndicator(zoomLevel);
+    }
+  });
+
+  // Context menu
+  window.sandiego.on('context-menu', ({ x, y, hasSelection, selectionText }) => {
+    showContextMenu(x, y, hasSelection, selectionText);
   });
 }
 
@@ -1262,17 +1312,19 @@ function showNotification(type, message, duration = 3000) {
     </button>
   `;
 
-  notification.querySelector('.notification-close')?.addEventListener('click', () => {
-    notification.remove();
-  });
-
-  DOM.notificationContainer.appendChild(notification);
-
-  setTimeout(() => {
+  // Store timeout ID to allow clearing it when manually closed
+  let timeoutId = setTimeout(() => {
     if (notification.parentNode) {
       notification.remove();
     }
   }, duration);
+
+  notification.querySelector('.notification-close')?.addEventListener('click', () => {
+    clearTimeout(timeoutId);
+    notification.remove();
+  });
+
+  DOM.notificationContainer.appendChild(notification);
 }
 
 // ============================================
@@ -1289,11 +1341,457 @@ function escapeHtml(text) {
 
 // Escape for use in attributes
 function escapeAttr(text) {
-  if (!text) return '';
-  return text
+  // Handle null and undefined
+  if (text == null) return '';
+  
+  // Convert to string to handle numbers, booleans, and other types
+  const str = String(text);
+  
+  return str
     .replace(/&/g, '&amp;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+// ============================================
+// Session Restore
+// ============================================
+
+async function checkSessionRestore() {
+  try {
+    const session = await window.sandiego.getLastSession();
+    if (session && session.length > 0) {
+      AppState.hasSessionToRestore = true;
+      handleSessionAvailable(session.length, session);
+    }
+  } catch (err) {
+    console.error('Failed to check session:', err);
+  }
+}
+
+function handleSessionAvailable(count, urls) {
+  if (count === 0 || !urls || urls.length === 0) return;
+
+  // Create session restore banner
+  const banner = document.createElement('div');
+  banner.className = 'session-restore-banner';
+  banner.innerHTML = `
+    <div class="session-restore-content">
+      <svg class="session-restore-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+      </svg>
+      <span class="session-restore-text">Restore ${count} tab${count > 1 ? 's' : ''} from your previous session?</span>
+    </div>
+    <div class="session-restore-actions">
+      <button class="session-restore-btn restore" id="restoreSessionBtn">Restore</button>
+      <button class="session-restore-btn dismiss" id="dismissSessionBtn">Dismiss</button>
+    </div>
+  `;
+
+  // Insert after title bar
+  const titleBar = document.getElementById('titleBar');
+  if (titleBar && titleBar.nextSibling) {
+    titleBar.parentNode.insertBefore(banner, titleBar.nextSibling);
+  } else {
+    document.body.prepend(banner);
+  }
+
+  // Event handlers
+  banner.querySelector('#restoreSessionBtn')?.addEventListener('click', async () => {
+    banner.remove();
+    try {
+      await window.sandiego.restoreSession();
+      showNotification('success', `Restored ${count} tab${count > 1 ? 's' : ''}`);
+    } catch (err) {
+      console.error('Failed to restore session:', err);
+      showNotification('error', 'Failed to restore session');
+    }
+  });
+
+  banner.querySelector('#dismissSessionBtn')?.addEventListener('click', () => {
+    banner.remove();
+    AppState.hasSessionToRestore = false;
+  });
+
+  // Auto-dismiss after 15 seconds
+  setTimeout(() => {
+    if (banner.parentNode) {
+      banner.remove();
+    }
+  }, 15000);
+}
+
+// ============================================
+// Tab Crash Handling
+// ============================================
+
+function handleTabCrashed(tabId, reason) {
+  const tab = AppState.tabs.get(tabId);
+  if (!tab) return;
+
+  // Mark tab as crashed in state
+  tab.crashed = true;
+
+  // Update tab UI
+  const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+  if (tabEl) {
+    tabEl.classList.add('crashed');
+    const titleEl = tabEl.querySelector('.tab-title');
+    if (titleEl) {
+      titleEl.textContent = `⚠ ${tab.title || 'Crashed'}`;
+    }
+  }
+
+  // Show notification
+  const reasonText = reason === 'killed' ? 'was killed' :
+                     reason === 'crashed' ? 'crashed unexpectedly' :
+                     reason === 'oom' ? 'ran out of memory' :
+                     'stopped working';
+  showNotification('error', `Tab ${reasonText}. Click to reload.`, 5000);
+
+  // If this is the active tab, show crash overlay
+  if (tabId === AppState.activeTabId) {
+    showCrashOverlay(tabId, reason);
+  }
+}
+
+function showCrashOverlay(tabId, reason) {
+  // Remove existing overlay if any
+  document.querySelector('.crash-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'crash-overlay';
+  overlay.innerHTML = `
+    <div class="crash-content">
+      <div class="crash-icon">&#128683;</div>
+      <h2 class="crash-title">Tab Crashed</h2>
+      <p class="crash-message">This tab ${reason === 'oom' ? 'ran out of memory' : 'stopped responding'}.</p>
+      <div class="crash-actions">
+        <button class="crash-btn primary" id="reloadCrashedTab">Reload Tab</button>
+        <button class="crash-btn secondary" id="closeCrashedTab">Close Tab</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('#reloadCrashedTab')?.addEventListener('click', () => {
+    overlay.remove();
+    window.sandiego.reload(tabId);
+    const tab = AppState.tabs.get(tabId);
+    if (tab) tab.crashed = false;
+    const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+    tabEl?.classList.remove('crashed');
+  });
+
+  overlay.querySelector('#closeCrashedTab')?.addEventListener('click', () => {
+    overlay.remove();
+    closeTab(tabId);
+  });
+}
+
+function handleTabUnresponsive(tabId) {
+  const tab = AppState.tabs.get(tabId);
+  if (!tab) return;
+
+  tab.unresponsive = true;
+
+  const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+  if (tabEl) {
+    tabEl.classList.add('unresponsive');
+  }
+
+  if (tabId === AppState.activeTabId) {
+    showNotification('warning', 'Tab is not responding...', 3000);
+  }
+}
+
+function handleTabResponsive(tabId) {
+  const tab = AppState.tabs.get(tabId);
+  if (!tab) return;
+
+  tab.unresponsive = false;
+
+  const tabEl = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+  if (tabEl) {
+    tabEl.classList.remove('unresponsive');
+  }
+}
+
+// ============================================
+// Network Status Monitoring
+// ============================================
+
+function setupNetworkMonitoring() {
+  // Use browser's online/offline events as backup
+  window.addEventListener('online', () => handleNetworkStatusChange(true));
+  window.addEventListener('offline', () => handleNetworkStatusChange(false));
+
+  // Check initial state
+  AppState.isOnline = navigator.onLine;
+  if (!AppState.isOnline) {
+    showOfflineBanner();
+  }
+}
+
+function handleNetworkStatusChange(isOnline) {
+  const wasOnline = AppState.isOnline;
+  AppState.isOnline = isOnline;
+
+  if (!isOnline && wasOnline) {
+    // Just went offline
+    showOfflineBanner();
+    showNotification('warning', 'You are offline. Some features may not work.');
+  } else if (isOnline && !wasOnline) {
+    // Just came back online
+    hideOfflineBanner();
+    showNotification('success', 'Connection restored');
+  }
+}
+
+function showOfflineBanner() {
+  // Remove existing if any
+  document.querySelector('.offline-banner')?.remove();
+
+  const banner = document.createElement('div');
+  banner.className = 'offline-banner';
+  banner.innerHTML = `
+    <svg class="offline-icon" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l6.921 6.922c.05.062.105.118.168.167l6.91 6.911a1 1 0 001.415-1.414l-.675-.675a9.001 9.001 0 00-.668-11.982A1 1 0 1014.95 5.05a7.002 7.002 0 01.657 9.143l-1.435-1.435a5.002 5.002 0 00-.636-6.294A1 1 0 0012.12 7.88c.924.923 1.12 2.3.587 3.415l-1.992-1.992a.922.922 0 00-.018-.018l-6.99-6.991zM3.238 8.187a1 1 0 00-1.933-.518c-.006.012-.01.025-.014.037a9.004 9.004 0 002.497 8.062 1 1 0 001.414-1.414 7.002 7.002 0 01-1.964-6.167z" clip-rule="evenodd"/>
+    </svg>
+    <span>No internet connection</span>
+  `;
+
+  const toolbar = document.querySelector('.toolbar');
+  if (toolbar) {
+    toolbar.parentNode.insertBefore(banner, toolbar.nextSibling);
+  }
+}
+
+function hideOfflineBanner() {
+  document.querySelector('.offline-banner')?.remove();
+}
+
+// ============================================
+// Certificate Error Handling
+// ============================================
+
+function handleCertificateError(tabId, url, error) {
+  const tab = AppState.tabs.get(tabId);
+  if (!tab) return;
+
+  // Mark tab with certificate error
+  tab.certificateError = { url, error };
+
+  // Show security warning
+  showNotification('warning', `Certificate error on ${new URL(url).hostname}: ${error}`, 5000);
+
+  // Update security badge
+  if (tabId === AppState.activeTabId) {
+    DOM.securityBadge?.classList.add('error');
+    DOM.securityBadge.title = `Certificate Error: ${error}`;
+  }
+
+  // Show certificate error dialog
+  showCertificateDialog(tabId, url, error);
+}
+
+function showCertificateDialog(tabId, url, error) {
+  // Remove existing dialog if any
+  document.querySelector('.certificate-dialog')?.remove();
+
+  const hostname = new URL(url).hostname;
+  const dialog = document.createElement('div');
+  dialog.className = 'certificate-dialog';
+  dialog.innerHTML = `
+    <div class="certificate-dialog-content">
+      <div class="certificate-icon">&#128274;</div>
+      <h2 class="certificate-title">Connection Not Secure</h2>
+      <p class="certificate-host">${escapeHtml(hostname)}</p>
+      <p class="certificate-error">${escapeHtml(error)}</p>
+      <p class="certificate-warning">This connection may be intercepted or the website's certificate may be invalid.</p>
+      <div class="certificate-actions">
+        <button class="certificate-btn primary" id="goBackBtn">Go Back (Recommended)</button>
+        <button class="certificate-btn secondary" id="proceedUnsafeBtn">Proceed Anyway (Unsafe)</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(dialog);
+
+  dialog.querySelector('#goBackBtn')?.addEventListener('click', () => {
+    dialog.remove();
+    handleNavigation('back');
+  });
+
+  dialog.querySelector('#proceedUnsafeBtn')?.addEventListener('click', async () => {
+    dialog.remove();
+    // Note: The main process has already blocked this. We'd need a dedicated
+    // IPC call to proceed with the certificate error. For now, just notify.
+    showNotification('warning', 'Cannot proceed - certificate blocked for security');
+  });
+}
+
+// ============================================
+// Zoom Level Indicator
+// ============================================
+
+function updateZoomIndicator(zoomLevel) {
+  const percent = Math.round(Math.pow(1.2, zoomLevel) * 100);
+
+  // Only show indicator if zoom is not 100%
+  if (percent !== 100) {
+    showZoomBadge(percent);
+  } else {
+    hideZoomBadge();
+  }
+}
+
+function showZoomBadge(percent) {
+  let badge = document.querySelector('.zoom-badge');
+
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.className = 'zoom-badge';
+    DOM.urlInput?.parentNode?.appendChild(badge);
+  }
+
+  badge.textContent = `${percent}%`;
+  badge.style.display = 'flex';
+
+  // Auto-hide after 2 seconds
+  clearTimeout(badge._hideTimeout);
+  badge._hideTimeout = setTimeout(() => {
+    badge.style.display = 'none';
+  }, 2000);
+}
+
+function hideZoomBadge() {
+  const badge = document.querySelector('.zoom-badge');
+  if (badge) {
+    badge.style.display = 'none';
+  }
+}
+
+// ============================================
+// Context Menu
+// ============================================
+
+function showContextMenu(x, y, hasSelection, selectionText) {
+  // Remove existing menu
+  document.querySelector('.context-menu')?.remove();
+
+  const menu = document.createElement('div');
+  menu.className = 'context-menu';
+  menu.style.left = `${x}px`;
+  menu.style.top = `${y}px`;
+
+  const items = [];
+
+  if (hasSelection && selectionText) {
+    items.push({
+      label: 'Copy',
+      action: async () => {
+        if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+          console.error('Clipboard API not available');
+          showNotification('Clipboard is not available. Unable to copy selection.');
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(selectionText);
+        } catch (err) {
+          console.error('Failed to write text to clipboard:', err);
+          showNotification('Failed to copy text to clipboard.');
+        }
+      }
+    });
+    items.push({
+      label: `Search "${selectionText.slice(0, 30)}${selectionText.length > 30 ? '...' : ''}"`,
+      action: () => {
+        const searchUrl = new URL('https://duckduckgo.com/');
+        searchUrl.searchParams.set('q', selectionText);
+        navigateToUrl(searchUrl.toString());
+      }
+    });
+    items.push({ divider: true });
+  }
+
+  items.push({
+    label: 'Back',
+    action: () => handleNavigation('back'),
+    disabled: !AppState.tabs.get(AppState.activeTabId)?.canGoBack
+  });
+  items.push({
+    label: 'Forward',
+    action: () => handleNavigation('forward'),
+    disabled: !AppState.tabs.get(AppState.activeTabId)?.canGoForward
+  });
+  items.push({
+    label: 'Reload',
+    action: () => handleNavigation('reload')
+  });
+  items.push({ divider: true });
+  items.push({
+    label: 'View Page Source',
+    action: () => {
+      const url = AppState.tabs.get(AppState.activeTabId)?.url;
+      if (url) navigateToUrl(`view-source:${url}`);
+    }
+  });
+
+  items.forEach(item => {
+    if (item.divider) {
+      const divider = document.createElement('div');
+      divider.className = 'context-menu-divider';
+      menu.appendChild(divider);
+    } else {
+      const menuItem = document.createElement('div');
+      menuItem.className = 'context-menu-item';
+      if (item.disabled) menuItem.classList.add('disabled');
+      menuItem.textContent = item.label;
+      if (!item.disabled) {
+        menuItem.addEventListener('click', () => {
+          item.action();
+          menu.remove();
+        });
+      }
+      menu.appendChild(menuItem);
+    }
+  });
+
+  document.body.appendChild(menu);
+
+  // Adjust position if menu goes off screen
+  const rect = menu.getBoundingClientRect();
+  if (rect.right > window.innerWidth) {
+    menu.style.left = `${window.innerWidth - rect.width - 10}px`;
+  }
+  if (rect.bottom > window.innerHeight) {
+    menu.style.top = `${window.innerHeight - rect.height - 10}px`;
+  }
+
+  // Close menu on click outside or escape
+  const closeMenu = (e) => {
+    if (!menu.contains(e.target)) {
+      menu.remove();
+      document.removeEventListener('click', closeMenu);
+      document.removeEventListener('keydown', escHandler);
+    }
+  };
+
+  const escHandler = (e) => {
+    if (e.key === 'Escape') {
+      menu.remove();
+      document.removeEventListener('click', closeMenu);
+      document.removeEventListener('keydown', escHandler);
+    }
+  };
+
+  // Delay to prevent immediate close
+  setTimeout(() => {
+    document.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', escHandler);
+  }, 10);
 }

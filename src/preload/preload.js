@@ -1,6 +1,6 @@
 /**
  * SANDIEGO Browser - Preload Script
- * Version: 3.1.0
+ * Version: 3.2.0
  *
  * Secure bridge between renderer and main process.
  * Implements context isolation for maximum security.
@@ -14,10 +14,12 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('sandiego', {
   // ============================================
-  // Platform Information
+  // Platform & System Information
   // ============================================
   getPlatformInfo: () => ipcRenderer.invoke('get-platform-info'),
   checkTorStatus: () => ipcRenderer.invoke('check-tor-status'),
+  getNetworkStatus: () => ipcRenderer.invoke('get-network-status'),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
 
   // ============================================
   // Window Controls
@@ -36,6 +38,7 @@ contextBridge.exposeInMainWorld('sandiego', {
   goBack: (tabId) => ipcRenderer.send('go-back', tabId),
   goForward: (tabId) => ipcRenderer.send('go-forward', tabId),
   reload: (tabId) => ipcRenderer.send('reload', tabId),
+  stopLoading: (tabId) => ipcRenderer.send('stop-loading', tabId),
 
   // ============================================
   // Panel Management
@@ -55,6 +58,18 @@ contextBridge.exposeInMainWorld('sandiego', {
   getBookmarks: () => ipcRenderer.invoke('get-bookmarks'),
   addBookmark: (bookmark) => ipcRenderer.invoke('add-bookmark', bookmark),
   removeBookmark: (url) => ipcRenderer.invoke('remove-bookmark', url),
+
+  // ============================================
+  // History
+  // ============================================
+  getHistory: (limit) => ipcRenderer.invoke('get-history', limit),
+  clearHistory: () => ipcRenderer.invoke('clear-history'),
+
+  // ============================================
+  // Session Management
+  // ============================================
+  getLastSession: () => ipcRenderer.invoke('get-last-session'),
+  restoreSession: () => ipcRenderer.invoke('restore-session'),
 
   // ============================================
   // OSINT Tools
@@ -77,13 +92,43 @@ contextBridge.exposeInMainWorld('sandiego', {
   // ============================================
   on: (channel, callback) => {
     const validChannels = [
+      // Tab events
       'tab-loading', 'tab-navigated', 'tab-title-updated', 'tab-favicon-updated',
-      'tab-activated', 'tab-created', 'tab-error', 'privacy-updated', 'notification',
-      'go-home', 'platform-info', 'fullscreen-change', 'tor-status', 'open-panel',
+      'tab-activated', 'tab-created', 'tab-error', 'tab-crashed', 'tab-unresponsive',
+      'tab-responsive',
+      // Privacy events
+      'privacy-updated', 'tor-status',
+      // System events
+      'notification', 'platform-info', 'fullscreen-change', 'window-focus',
+      'network-status', 'session-available',
+      // Navigation events
+      'go-home', 'open-panel', 'zoom-changed',
+      // Security events
+      'certificate-error', 'context-menu',
+      // OSINT events
       'screenshot-captured'
     ];
     if (validChannels.includes(channel)) {
-      ipcRenderer.on(channel, (event, data) => callback(data));
+      const listener = (event, data) => callback(data);
+      ipcRenderer.on(channel, listener);
+      // Return unsubscribe function
+      return () => ipcRenderer.removeListener(channel, listener);
+    }
+    return () => {};
+  },
+
+  // One-time event listener
+  once: (channel, callback) => {
+    const validChannels = [
+      'tab-loading', 'tab-navigated', 'tab-title-updated', 'tab-favicon-updated',
+      'tab-activated', 'tab-created', 'tab-error', 'tab-crashed', 'tab-unresponsive',
+      'tab-responsive', 'privacy-updated', 'tor-status', 'notification',
+      'platform-info', 'fullscreen-change', 'window-focus', 'network-status',
+      'session-available', 'go-home', 'open-panel', 'zoom-changed',
+      'certificate-error', 'context-menu', 'screenshot-captured'
+    ];
+    if (validChannels.includes(channel)) {
+      ipcRenderer.once(channel, (event, data) => callback(data));
     }
   },
 
@@ -105,12 +150,27 @@ contextBridge.exposeInMainWorld('sandiego', {
   removeListener: (channel) => {
     const allowedChannels = [
       'tab-loading', 'tab-navigated', 'tab-title-updated', 'tab-favicon-updated',
-      'tab-activated', 'tab-created', 'tab-error', 'privacy-updated', 'notification',
-      'go-home', 'platform-info', 'fullscreen-change', 'tor-status', 'open-panel',
-      'screenshot-captured'
+      'tab-activated', 'tab-created', 'tab-error', 'tab-crashed', 'tab-unresponsive',
+      'tab-responsive', 'privacy-updated', 'tor-status', 'notification',
+      'platform-info', 'fullscreen-change', 'window-focus', 'network-status',
+      'session-available', 'go-home', 'open-panel', 'zoom-changed',
+      'certificate-error', 'context-menu', 'screenshot-captured'
     ];
     if (allowedChannels.includes(channel)) {
       ipcRenderer.removeAllListeners(channel);
     }
+  },
+
+  // Remove all listeners for cleanup
+  removeAllListeners: () => {
+    const channels = [
+      'tab-loading', 'tab-navigated', 'tab-title-updated', 'tab-favicon-updated',
+      'tab-activated', 'tab-created', 'tab-error', 'tab-crashed', 'tab-unresponsive',
+      'tab-responsive', 'privacy-updated', 'tor-status', 'notification',
+      'platform-info', 'fullscreen-change', 'window-focus', 'network-status',
+      'session-available', 'go-home', 'open-panel', 'zoom-changed',
+      'certificate-error', 'context-menu', 'screenshot-captured'
+    ];
+    channels.forEach(channel => ipcRenderer.removeAllListeners(channel));
   }
 });
