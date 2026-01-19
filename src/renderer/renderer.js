@@ -1341,7 +1341,7 @@ function escapeHtml(text) {
 
 // Escape for use in attributes
 function escapeAttr(text) {
-  // Handle null and undefined explicitly
+  // Handle null and undefined (== null checks for both)
   if (text == null) return '';
   // Convert to string to handle numbers and booleans
   const str = String(text);
