@@ -25,7 +25,7 @@
 
 <div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-D4A32D.svg)](https://opensource.org/licenses/MIT)
+[![License: Unlicense](https://img.shields.io/badge/License-Unlicense-D4A32D.svg)](https://unlicense.org)
 [![Electron](https://img.shields.io/badge/Electron-35.7.5-47848F.svg)](https://electronjs.org/)
 [![Platform](https://img.shields.io/badge/Platform-Win%20%7C%20macOS%20%7C%20Linux-181818.svg)](#platform-installation)
 [![OSINT](https://img.shields.io/badge/Purpose-OSINT-D4A32D.svg)](#osint-capabilities)
@@ -81,7 +81,7 @@ Like the legendary exorcist John Constantine, you'll navigate through layers of 
 
 ### The Exorcist's Edge - Supernatural Noir
 
-Version 4.1.1 introduces the **Constantine** theme, a dramatic shift from the previous Carmen Sandiego aesthetic to a darker, supernatural noir experience.
+Version 4.x introduces the **Constantine** theme, a dramatic shift from the previous Carmen Sandiego aesthetic to a darker, supernatural noir experience.
 
 #### Color Palette
 
@@ -100,7 +100,7 @@ Version 4.1.1 introduces the **Constantine** theme, a dramatic shift from the pr
 v1.0  Dick Tracy Edition     - Classic Detective Yellow
 v2.0  Tracey Edition         - Hollywood Noir
 v3.x  Carmen Sandiego        - International Red
-v4.x  CONSTANTINE            - Supernatural Gold  <-- CURRENT
+v4.x  CONSTANTINE            - Supernatural Gold  <-- CURRENT (v4.2.0)
 ```
 
 #### Future Themes
@@ -723,7 +723,7 @@ git push origin feature/your-feature
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+This is free and unencumbered software released into the public domain — see [LICENSE](LICENSE) for details.
 
 ---
 

@@ -1,9 +1,9 @@
 {
   "$schema": "./themes-schema.json",
   "meta": {
-    "version": "1.0.0",
-    "description": "SANDIEGO Browser Theme Configuration - Defines visual themes for the OSINT Investigation Suite",
-    "maintainer": "SANDIEGO Team",
+    "version": "4.2.0",
+    "description": "CONSTANTINE Browser Theme Configuration - Defines visual themes for the OSINT Investigation Suite",
+    "maintainer": "CONSTANTINE Team",
     "lastUpdated": "2026-01-19"
   },
   "themes": {
@@ -142,7 +142,145 @@
           "secondary": "#B0B0B0"
         }
       }
+    },
+    "constantine-light": {
+      "id": "constantine-light",
+      "name": "Constantine Light",
+      "codename": "Daylight Investigator",
+      "version": "4.2.0",
+      "tagline": "Between Heaven and Hell, intelligence prevails.",
+      "inspiration": "Light mode for reduced eye strain during long investigations",
+      "description": "A light variant of the Constantine theme for users who prefer reduced eye strain. Features warm amber accents on clean, bright backgrounds.",
+      "mode": "light",
+      "colors": {
+        "primary": {
+          "main": "#B8860B",
+          "dark": "#8B6914",
+          "light": "#D4A32D",
+          "glow": "rgba(184, 134, 11, 0.2)"
+        },
+        "accent": {
+          "hellfire": "#CC4400",
+          "celestial": "#008B8B",
+          "sulfur": "#DAA520",
+          "blood": "#A52A2A",
+          "holy": "#BDB76B"
+        },
+        "background": {
+          "base": "#FAFAFA",
+          "elevated": "#FFFFFF",
+          "surface": "#F5F5F5",
+          "overlay": "#EEEEEE",
+          "hover": "#E8E8E8",
+          "active": "#E0E0E0"
+        },
+        "text": {
+          "primary": "#1A1A1A",
+          "secondary": "#4A4A4A",
+          "tertiary": "#757575",
+          "disabled": "#BDBDBD"
+        },
+        "semantic": {
+          "success": "#228B22",
+          "warning": "#CC7000",
+          "info": "#008B8B",
+          "danger": "#B22222",
+          "gold": "#B8860B"
+        },
+        "borders": {
+          "subtle": "rgba(184, 134, 11, 0.1)",
+          "default": "rgba(184, 134, 11, 0.2)",
+          "strong": "rgba(184, 134, 11, 0.35)"
+        },
+        "shadows": {
+          "glow": "0 2px 8px rgba(184, 134, 11, 0.15)",
+          "card": "0 2px 4px rgba(0, 0, 0, 0.1)",
+          "elevated": "0 4px 12px rgba(0, 0, 0, 0.08)"
+        }
+      },
+      "typography": {
+        "fontSans": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif",
+        "fontMono": "'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace"
+      },
+      "effects": {
+        "animations": ["constantine-pulse-light", "gentle-glow"],
+        "transitions": {
+          "fast": "0.15s ease",
+          "normal": "0.25s ease",
+          "slow": "0.4s ease"
+        }
+      }
+    },
+    "carmen-light": {
+      "id": "carmen-light",
+      "name": "Carmen Light",
+      "codename": "Daylight Pursuit",
+      "version": "4.2.0",
+      "tagline": "Where in the World Will You Search?",
+      "inspiration": "Light mode international investigation theme",
+      "description": "A light variant of Carmen Sandiego for bright environments. Rich red accents on cream backgrounds.",
+      "mode": "light",
+      "colors": {
+        "primary": {
+          "main": "#B22222",
+          "dark": "#8B1A1A",
+          "light": "#CD5C5C",
+          "glow": "rgba(178, 34, 34, 0.15)"
+        },
+        "accent": {
+          "gold": "#B8860B",
+          "goldLight": "#D4A32D"
+        },
+        "background": {
+          "base": "#FFFAF5",
+          "elevated": "#FFFFFF",
+          "surface": "#FFF5EE",
+          "overlay": "#FAEBD7",
+          "hover": "#F5DEB3",
+          "active": "#EEE0D0"
+        },
+        "text": {
+          "primary": "#2D1810",
+          "secondary": "#5D4037",
+          "tertiary": "#8D6E63",
+          "disabled": "#BCAAA4"
+        },
+        "semantic": {
+          "success": "#2E7D32",
+          "warning": "#E65100",
+          "info": "#0277BD",
+          "danger": "#C62828",
+          "gold": "#B8860B"
+        }
+      }
     }
+  },
+  "modes": {
+    "dark": {
+      "description": "Dark mode optimized for low-light investigations",
+      "defaultTheme": "constantine",
+      "availableThemes": ["constantine", "carmen", "tracey"]
+    },
+    "light": {
+      "description": "Light mode for reduced eye strain",
+      "defaultTheme": "constantine-light",
+      "availableThemes": ["constantine-light", "carmen-light"]
+    },
+    "auto": {
+      "description": "Automatically switch based on system preference or time of day",
+      "followSystem": true,
+      "timeBasedSwitch": {
+        "enabled": false,
+        "lightStart": "06:00",
+        "lightEnd": "18:00"
+      }
+    }
+  },
+  "accessibility": {
+    "reduceMotion": false,
+    "highContrast": false,
+    "largerText": false,
+    "focusIndicators": true
   },
   "activeTheme": "constantine",
   "themeHistory": [
@@ -196,12 +334,26 @@
       "headerGlyph": "🔱",
       "footerQuote": "\"God's a kid with an ant farm. He's not planning anything.\""
     },
+    "constantine-light": {
+      "headerColor": "#B8860B",
+      "borderStyle": "double",
+      "accentGlyph": "⚡",
+      "headerGlyph": "🔱",
+      "footerQuote": "\"Between Heaven and Hell, intelligence prevails.\""
+    },
     "carmen": {
       "headerColor": "#C41E3A",
       "borderStyle": "solid",
       "accentGlyph": "🔴",
       "headerGlyph": "🌍",
       "footerQuote": "\"She travels the world, leaving only questions in her wake.\""
+    },
+    "carmen-light": {
+      "headerColor": "#B22222",
+      "borderStyle": "solid",
+      "accentGlyph": "🔴",
+      "headerGlyph": "🌍",
+      "footerQuote": "\"Where in the World Will You Search?\""
     },
     "tracey": {
       "headerColor": "#FFD700",
