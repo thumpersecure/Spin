@@ -724,8 +724,13 @@ function renderExtensionsPanel() {
   });
 
   const searchInput = DOM.panelContent.querySelector('#osintSearch');
+  // Debounced search for better performance
+  let searchTimeout = null;
   searchInput?.addEventListener('input', (e) => {
-    renderOSINTBookmarks(e.target.value);
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      renderOSINTBookmarks(e.target.value);
+    }, 150); // 150ms debounce
   });
 
   renderOSINTBookmarks('');
@@ -1296,8 +1301,17 @@ function handleKeyboardShortcuts(e) {
 // Notifications
 // ============================================
 
+// Track active notifications for cleanup
+const MAX_NOTIFICATIONS = 5;
+
 function showNotification(type, message, duration = 3000) {
   if (!DOM.notificationContainer) return;
+
+  // Limit notifications to prevent memory bloat
+  const existing = DOM.notificationContainer.querySelectorAll('.notification');
+  if (existing.length >= MAX_NOTIFICATIONS) {
+    existing[0].remove(); // Remove oldest
+  }
 
   const notification = document.createElement('div');
   notification.className = `notification ${type}`;

@@ -409,6 +409,27 @@ class AppState {
     return this.torAvailable;
   }
 
+  // Memory cleanup - prevent Map bloat
+  cleanupCertificateErrors() {
+    // Keep only errors from the last 5 minutes
+    const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+    for (const [url, error] of this.certificateErrors) {
+      if (error.timestamp && error.timestamp < fiveMinutesAgo) {
+        this.certificateErrors.delete(url);
+      }
+    }
+  }
+
+  cleanupDownloads() {
+    // Remove completed/cancelled downloads older than 10 minutes
+    const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
+    for (const [id, download] of this.downloads) {
+      if (download.completed && download.timestamp < tenMinutesAgo) {
+        this.downloads.delete(id);
+      }
+    }
+  }
+
   // Session management
   saveSession() {
     const sessionData = [];
@@ -1033,7 +1054,7 @@ function setupViewEventHandlers(tabId, view) {
     const requestId = `${tabId}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
 
     // Store the error for this URL (including requestId for potential lookups)
-    state.certificateErrors.set(url, { error, certificate, requestId });
+    state.certificateErrors.set(url, { error, certificate, requestId, timestamp: Date.now() });
 
     // Notify renderer so it can decide whether to proceed or block
     notifyRenderer('certificate-error', {
@@ -2014,6 +2035,12 @@ app.whenReady().then(() => {
 
   setupIpcHandlers();
   createMainWindow();
+
+  // Periodic memory cleanup (every 5 minutes)
+  setInterval(() => {
+    state.cleanupCertificateErrors();
+    state.cleanupDownloads();
+  }, 5 * 60 * 1000);
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
