@@ -753,6 +753,6 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 **CONSTANTINE** — Version 4.2.0 - The Exorcist's Edge
 
-[Report Issue](https://github.com/thumpersecure/Spin/issues) | [OSINT Framework](https://osintframework.com/)
+[Report Issue](https://github.com/thumpersecure/Spin/issues) | [spin 💫 osint]
 
 </div>
