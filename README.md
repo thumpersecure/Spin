@@ -1,66 +1,117 @@
-# SANDIEGO
+# CONSTANTINE
 
 ```
-   ▄████████    ▄████████ ███▄▄▄▄   ████████▄   ▄█     ▄████████    ▄██████▄   ▄██████▄
-  ███    ███   ███    ███ ███▀▀▀██▄ ███   ▀███ ███    ███    ███   ███    ███ ███    ███
-  ███    █▀    ███    ███ ███   ███ ███    ███ ███▌   ███    █▀    ███    █▀  ███    ███
-  ███          ███    ███ ███   ███ ███    ███ ███▌  ▄███▄▄▄      ▄███        ███    ███
-▀███████████ ▀███████████ ███   ███ ███    ███ ███▌ ▀▀███▀▀▀     ▀▀███ ████▄  ███    ███
-         ███   ███    ███ ███   ███ ███    ███ ███    ███    █▄    ███    ███ ███    ███
-   ▄█    ███   ███    ███ ███   ███ ███   ▄███ ███    ███    ███   ███    ███ ███    ███
- ▄████████▀    ███    █▀   ▀█   █▀  ████████▀  █▀     ██████████    ████████▀  ▀██████▀
+   ▄████████  ▄██████▄  ███▄▄▄▄      ▄████████     ███        ▄████████ ███▄▄▄▄       ███      ▄█  ███▄▄▄▄      ▄████████
+  ███    ███ ███    ███ ███▀▀▀██▄   ███    ███ ▀█████████▄   ███    ███ ███▀▀▀██▄ ▀█████████▄ ███  ███▀▀▀██▄   ███    ███
+  ███    █▀  ███    ███ ███   ███   ███    █▀     ▀███▀▀██   ███    ███ ███   ███    ▀███▀▀██ ███▌ ███   ███   ███    █▀
+  ███        ███    ███ ███   ███   ███            ███   ▀   ███    ███ ███   ███     ███   ▀ ███▌ ███   ███  ▄███▄▄▄
+  ███        ███    ███ ███   ███ ▀███████████     ███     ▀███████████ ███   ███     ███     ███▌ ███   ███ ▀▀███▀▀▀
+  ███    █▄  ███    ███ ███   ███          ███     ███       ███    ███ ███   ███     ███     ███  ███   ███   ███    █▄
+  ███    ███ ███    ███ ███   ███    ▄█    ███     ███       ███    ███ ███   ███     ███     ███  ███   ███   ███    ███
+  ████████▀   ▀██████▀   ▀█   █▀   ▄████████▀     ▄████▀     ███    █▀   ▀█   █▀     ▄████▀   █▀    ▀█   █▀    ██████████
 
-              ╔═══════════════════════════════════════════════════════╗
-              ║                                                       ║
-              ║   T H E   O S I N T   I N V E S T I G A T I O N       ║
-              ║                     S U I T E                         ║
-              ║                                                       ║
-              ║         "Where in the World Will You Search?"         ║
-              ║                                                       ║
-              ╚═══════════════════════════════════════════════════════╝
+              ╔═══════════════════════════════════════════════════════════════════╗
+              ║                                                                   ║
+              ║       T H E   E X O R C I S T ' S   E D G E                       ║
+              ║                                                                   ║
+              ║     O S I N T   I N V E S T I G A T I O N   S U I T E             ║
+              ║                                                                   ║
+              ║     "Between Heaven and Hell, intelligence prevails."            ║
+              ║                                                                   ║
+              ╚═══════════════════════════════════════════════════════════════════╝
 
-                              [ Version 3.2.0 ]
+                                    [ Version 4.1.1 ]
 ```
 
 <div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-crimson.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-D4A32D.svg)](https://opensource.org/licenses/MIT)
 [![Electron](https://img.shields.io/badge/Electron-35.7.5-47848F.svg)](https://electronjs.org/)
 [![Platform](https://img.shields.io/badge/Platform-Win%20%7C%20macOS%20%7C%20Linux-181818.svg)](#platform-installation)
-[![OSINT](https://img.shields.io/badge/Purpose-OSINT-C41E3A.svg)](#osint-capabilities)
+[![OSINT](https://img.shields.io/badge/Purpose-OSINT-D4A32D.svg)](#osint-capabilities)
+[![Theme](https://img.shields.io/badge/Theme-Constantine-E65C00.svg)](#constantine-theme)
 
 *A privacy-first browser engineered for Open Source Intelligence gathering.*
 
+*Inspired by the supernatural noir aesthetic of the legendary exorcist.*
+
 ---
 
-[The Case](#the-case) | [Installation](#installation) | [OSINT Tools](#osint-capabilities) | [Privacy](#privacy-arsenal) | [Platform Guide](#platform-installation)
+[The Mission](#the-mission) | [Installation](#installation) | [OSINT Tools](#osint-capabilities) | [Privacy](#privacy-arsenal) | [Theme](#constantine-theme)
 
 </div>
 
 ---
 
-## The Case
+## The Mission
 
-In the shadows of the digital world, information hides in plain sight. To find it, you need the right tools—and the discipline to leave no trace.
+*"Demons exist. Some of them are the ones you're hunting."*
 
-**SANDIEGO** is an OSINT investigation browser built for those who hunt data, not those who are hunted by it. Every feature is designed with one purpose: *gather intelligence while remaining invisible*.
+In the shadows between worlds, information hides in plain sight. Some data is buried so deep, it takes someone who walks the line between light and darkness to find it. That someone is you.
 
-Like the legendary Carmen Sandiego, you'll traverse continents of data, slipping through digital borders undetected. The question isn't whether the information exists—it's whether you can find it before the trail goes cold.
+**CONSTANTINE** is an OSINT investigation browser forged for those who see what others cannot. Every feature is designed with one purpose: *gather intelligence from the depths while leaving no trace of your passage*.
 
-**Your mission:** Investigate. Analyze. Vanish.
+Like the legendary exorcist John Constantine, you'll navigate through layers of reality - surfacing data that most consider lost forever. The question isn't whether the truth exists—it's whether you're willing to descend into the abyss to find it.
+
+**Your calling:** Investigate. Exorcise the truth. Vanish.
 
 ---
 
-## What Sets SANDIEGO Apart
+## What Sets CONSTANTINE Apart
 
 | Feature | Purpose |
 |---------|---------|
-| **Built-in Tor** | Route traffic through the Tor network—no plugins required |
-| **Anti-Fingerprinting** | Canvas, WebGL, and hardware spoofing to blend with the crowd |
+| **Built-in Tor** | Route traffic through the Tor network—traverse realms undetected |
+| **Anti-Fingerprinting** | Canvas, WebGL, and hardware spoofing to remain invisible |
 | **Phone Intelligence** | Transform phone numbers into 10 searchable format variations |
-| **Tracker Annihilation** | Block 60+ tracking domains before they see you |
-| **OSINT Bookmarks** | Pre-loaded links to essential investigation resources |
-| **Cross-Platform** | Native experience on Windows 11, macOS, and Debian/Ubuntu |
+| **Tracker Exorcism** | Block 60+ tracking demons before they see you |
+| **OSINT Grimoire** | Pre-loaded links to essential investigation resources |
+| **Cross-Platform** | Native experience on Windows 11, macOS, and Linux |
+| **Multi-Format Reports** | Export to Text, JSON, Markdown, and HTML |
+| **Risk Assessment** | Automatic threat level evaluation |
+
+---
+
+## Constantine Theme
+
+### The Exorcist's Edge - Supernatural Noir
+
+Version 4.1.1 introduces the **Constantine** theme, a dramatic shift from the previous Carmen Sandiego aesthetic to a darker, supernatural noir experience.
+
+#### Color Palette
+
+| Element | Color | Purpose |
+|---------|-------|---------|
+| **Constantine Gold** | `#D4A32D` | Primary accent - holy fire |
+| **Hellfire** | `#E65C00` | Secondary accent - danger/warnings |
+| **Celestial** | `#00CED1` | Info/links - heavenly guidance |
+| **Abyss** | `#0A0A0C` | Background - the void |
+| **Sulfur** | `#FFD700` | Highlights - demonic glow |
+| **Blood** | `#8B0000` | Critical errors |
+
+#### Theme Evolution
+
+```
+v1.0  Dick Tracy Edition     - Classic Detective Yellow
+v2.0  Tracey Edition         - Hollywood Noir
+v3.x  Carmen Sandiego        - International Red
+v4.x  CONSTANTINE            - Supernatural Gold  <-- CURRENT
+```
+
+#### Future Themes
+
+The new `themes.json` configuration file allows easy theme switching:
+
+```json
+{
+  "activeTheme": "constantine",
+  "themes": {
+    "constantine": { /* current */ },
+    "carmen": { /* legacy */ },
+    "tracey": { /* classic */ }
+  }
+}
+```
 
 ---
 
@@ -84,7 +135,7 @@ cd Spin
 # Install dependencies
 npm install
 
-# Launch SANDIEGO
+# Launch CONSTANTINE
 npm start
 ```
 
@@ -92,7 +143,7 @@ npm start
 
 ## Platform Installation
 
-SANDIEGO is optimized for each operating system. Follow the guide for your platform.
+CONSTANTINE is optimized for each operating system. Follow the guide for your platform.
 
 ### Windows 11
 
@@ -109,7 +160,7 @@ SANDIEGO is optimized for each operating system. Follow the guide for your platf
    npm --version
    ```
 
-#### Step 2: Install SANDIEGO
+#### Step 2: Install CONSTANTINE
 
 ```powershell
 # Clone repository
@@ -132,19 +183,19 @@ npm start
    cd C:\Tor
    .\tor.exe
    ```
-4. Keep the window open while using SANDIEGO with Tor enabled
+4. Keep the window open while using CONSTANTINE with Tor enabled
 
 #### Building for Windows
 
 ```powershell
 npm run build:win
-# Output: dist/SANDIEGO Browser Setup x.x.x.exe
+# Output: dist/CONSTANTINE Browser Setup x.x.x.exe
 ```
 
 #### Windows-Specific Features
 
 - Windows 11 Snap Layouts support
-- Native window controls
+- Native window controls with Constantine gold accents
 - AppUserModelId for taskbar grouping
 - NSIS installer with custom install path option
 
@@ -170,7 +221,7 @@ node --version
 npm --version
 ```
 
-#### Step 2: Install SANDIEGO
+#### Step 2: Install CONSTANTINE
 
 ```bash
 # Clone repository
@@ -201,15 +252,15 @@ lsof -i :9050
 
 ```bash
 npm run build:mac
-# Output: dist/SANDIEGO Browser-x.x.x.dmg
+# Output: dist/CONSTANTINE Browser-x.x.x.dmg
 ```
 
 #### macOS-Specific Features
 
 - Native traffic light window controls
 - Hidden inset title bar
-- Dark mode support (forced dark for OSINT work)
-- Vibrancy effects
+- Dark mode support (forced dark for investigations)
+- Vibrancy effects with Constantine gold accents
 - Full screen support with proper menu bar
 - Hardened runtime for notarization
 
@@ -241,12 +292,6 @@ node --version
 npm --version
 ```
 
-Alternative using apt (older version):
-```bash
-sudo apt update
-sudo apt install -y nodejs npm
-```
-
 #### Step 2: Install Build Dependencies
 
 ```bash
@@ -257,7 +302,7 @@ sudo apt install -y build-essential
 sudo apt install -y libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libdrm2 libgbm1 libxcb-dri3-0
 ```
 
-#### Step 3: Install SANDIEGO
+#### Step 3: Install CONSTANTINE
 
 ```bash
 # Clone repository
@@ -293,13 +338,13 @@ ss -tlnp | grep 9050
 ```bash
 npm run build:linux
 # Output:
-#   dist/SANDIEGO Browser-x.x.x.AppImage
-#   dist/sandiego-browser_x.x.x_amd64.deb
+#   dist/CONSTANTINE Browser-x.x.x.AppImage
+#   dist/constantine-browser_x.x.x_amd64.deb
 ```
 
 Install the .deb package:
 ```bash
-sudo dpkg -i dist/sandiego-browser_*.deb
+sudo dpkg -i dist/constantine-browser_*.deb
 ```
 
 #### Linux-Specific Features
@@ -307,7 +352,7 @@ sudo dpkg -i dist/sandiego-browser_*.deb
 - AppImage for universal Linux support
 - .deb package for Debian-based systems
 - .rpm package for Fedora/RHEL (use `build:linux`)
-- XDG-compliant config path (`~/.config/sandiego`)
+- XDG-compliant config path (`~/.config/constantine`)
 - Proper desktop integration
 
 </details>
@@ -375,6 +420,16 @@ Transform any phone number into 10 searchable format variations, then execute sm
 
 **Smart Search**: Combines all formats into a single OR query for maximum coverage.
 
+### Enhanced Report Features (v4.1.1)
+
+| Feature | Description |
+|---------|-------------|
+| **Multi-Format Export** | Text, JSON, Markdown, HTML |
+| **Risk Assessment** | Automatic exposure level scoring |
+| **Security Recommendations** | OPSEC guidance based on findings |
+| **Pattern Recognition** | Emails, usernames, social profiles, locations |
+| **Confidence Scoring** | Relevance ratings for each finding |
+
 ### Pre-loaded OSINT Resources
 
 | Category | Resources |
@@ -410,7 +465,7 @@ Transform any phone number into 10 searchable format variations, then execute sm
 | **Battery** | API completely removed |
 | **WebDriver** | Hidden from detection |
 
-### Tracker Blocking
+### Tracker Exorcism
 
 Blocks 60+ tracking domains including:
 - Google Analytics, Tag Manager, AdServices
@@ -460,13 +515,15 @@ Spin/
 │   │   └── main.js              # Main process with platform detection
 │   ├── renderer/
 │   │   ├── index.html           # Browser UI
-│   │   ├── styles.css           # Dark theme styles
+│   │   ├── styles.css           # Constantine theme styles
 │   │   └── renderer.js          # UI logic
 │   ├── preload/
 │   │   ├── preload.js           # Secure IPC bridge
 │   │   └── webview-preload.js   # Minimal webview API
-│   └── extensions/
-│       └── phone-intel.js       # Phone intelligence module
+│   ├── extensions/
+│   │   └── phone-intel.js       # Phone intelligence module
+│   └── data/
+│       └── themes.json          # Theme configuration
 ├── package.json
 └── README.md
 ```
@@ -499,9 +556,33 @@ Spin/
 
 ---
 
+## Version 4.1.1 Changelog
+
+### Major Changes
+- **Theme Rebrand**: Complete visual overhaul from Carmen Sandiego to Constantine
+- **Color Scheme**: New amber gold, hellfire orange, and celestial cyan palette
+- **Name Change**: SANDIEGO -> CONSTANTINE throughout
+- **Theme System**: New `themes.json` for easy theme management
+
+### Enhanced Features
+- **Multi-Format Reports**: Export to Text, JSON, Markdown, HTML
+- **Risk Assessment**: Automatic exposure level scoring
+- **Security Recommendations**: OPSEC guidance based on findings
+- **Pattern Recognition**: Enhanced with confidence scoring
+- **Constantine Animations**: New supernatural-themed CSS animations
+
+### Technical Improvements
+- Updated all file headers with Constantine branding
+- Enhanced PhoneIntelReport class with 4 export formats
+- Added risk level calculation and recommendations
+- New CSS variables for Constantine theme
+- Legacy theme bridge for backwards compatibility
+
+---
+
 ## Legal Notice
 
-SANDIEGO is designed for:
+CONSTANTINE is designed for:
 - Legitimate OSINT research
 - Journalism and fact-checking
 - Security research with authorization
@@ -539,25 +620,28 @@ MIT License — see [LICENSE](LICENSE) for details.
 <div align="center">
 
 ```
-╔═══════════════════════════════════════════════════════════════════════╗
-║                                                                       ║
-║        The world is full of secrets waiting to be uncovered.         ║
-║                                                                       ║
-║           The question is: can you find them first?                  ║
-║                                                                       ║
-║                            🔴 🌍 🔍                                    ║
-║                                                                       ║
-║                          SANDIEGO                                     ║
-║                 The OSINT Investigation Suite                         ║
-║                                                                       ║
-╚═══════════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║            "God's a kid with an ant farm. He's not planning anything."        ║
+║                                                                               ║
+║                                    ⚡ 🔱 ⚡                                     ║
+║                                                                               ║
+║                              CONSTANTINE                                      ║
+║                    The OSINT Investigation Suite                              ║
+║                        The Exorcist's Edge                                    ║
+║                                                                               ║
+║             "Between Heaven and Hell, intelligence prevails."                 ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
 ```
 
-*"She travels the world, leaving only questions in her wake."*
+*"Angels and demons can't cross over onto our plane. So instead, we get half-breeds."*
+
+*"And you... you're one of the ones who can see."*
 
 ---
 
-**SANDIEGO** — Version 3.1.0
+**CONSTANTINE** — Version 4.1.1 - The Exorcist's Edge
 
 [Report Issue](https://github.com/thumpersecure/Spin/issues) | [OSINT Framework](https://osintframework.com/)
 

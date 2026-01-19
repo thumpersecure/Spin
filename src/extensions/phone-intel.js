@@ -1,8 +1,19 @@
 /**
- * SANDIEGO Browser - Phone Intelligence Extension
+ * CONSTANTINE Browser - Phone Intelligence Extension
+ * Version: 4.1.1 - Constantine Edition
  * Based on xTELENUMSINT by thumpersecure
  *
  * Phone Number Intelligence Search - transforms phone numbers into actionable OSINT
+ *
+ * "Between Heaven and Hell, intelligence prevails."
+ *
+ * Enhanced Features in v4.1.1:
+ * - Multi-format report generation (Text, JSON, HTML, Markdown)
+ * - Enhanced pattern recognition with confidence scoring
+ * - Batch export capabilities
+ * - Theme-aware report styling
+ * - Carrier lookup hints
+ * - Risk assessment scoring
  */
 
 // ============================================
@@ -367,75 +378,304 @@ class PhoneIntelReport {
   toText() {
     const report = this.generateReport();
     const lines = [
-      '═══════════════════════════════════════════════════════════',
-      '  SANDIEGO PHONE INTELLIGENCE REPORT',
-      '  Powered by xTELENUMSINT Technology',
-      '═══════════════════════════════════════════════════════════',
+      '╔═══════════════════════════════════════════════════════════════════════╗',
+      '║       CONSTANTINE PHONE INTELLIGENCE REPORT - CONSTANTINE EDITION        ║',
+      '║                   Powered by xTELENUMSINT Technology                   ║',
+      '║          "Between Heaven and Hell, intelligence prevails."            ║',
+      '╚═══════════════════════════════════════════════════════════════════════╝',
       '',
-      `Phone Number: ${report.summary.phoneNumber}`,
-      `Country: ${report.summary.country} (${report.summary.countryCode})`,
-      `Generated: ${new Date(report.summary.generatedAt).toLocaleString()}`,
-      `Total Relevance Score: ${report.summary.totalScore}`,
+      `  Phone Number: ${report.summary.phoneNumber}`,
+      `  Country: ${report.summary.country} (${report.summary.countryCode})`,
+      `  Generated: ${new Date(report.summary.generatedAt).toLocaleString()}`,
+      `  Relevance Score: ${report.summary.totalScore}/100`,
+      `  Risk Assessment: ${this._calculateRiskLevel(report.summary.totalScore)}`,
       '',
-      '───────────────────────────────────────────────────────────',
-      '  AGGREGATED INTELLIGENCE',
-      '───────────────────────────────────────────────────────────',
+      '┌───────────────────────────────────────────────────────────────────────┐',
+      '│                      AGGREGATED INTELLIGENCE                          │',
+      '└───────────────────────────────────────────────────────────────────────┘',
       ''
     ];
 
     if (report.aggregatedIntel.emails.length > 0) {
-      lines.push('📧 EMAILS FOUND:');
-      report.aggregatedIntel.emails.forEach(e => lines.push(`   • ${e}`));
+      lines.push('  ⚡ EMAILS DISCOVERED:');
+      report.aggregatedIntel.emails.forEach(e => lines.push(`     ├─ ${e}`));
       lines.push('');
     }
 
     if (report.aggregatedIntel.usernames.length > 0) {
-      lines.push('👤 USERNAMES FOUND:');
-      report.aggregatedIntel.usernames.forEach(u => lines.push(`   • @${u}`));
+      lines.push('  ⚡ USERNAMES IDENTIFIED:');
+      report.aggregatedIntel.usernames.forEach(u => lines.push(`     ├─ @${u}`));
       lines.push('');
     }
 
     if (report.aggregatedIntel.names.length > 0) {
-      lines.push('📛 POSSIBLE NAMES:');
-      report.aggregatedIntel.names.forEach(n => lines.push(`   • ${n}`));
+      lines.push('  ⚡ POTENTIAL IDENTITIES:');
+      report.aggregatedIntel.names.forEach(n => lines.push(`     ├─ ${n}`));
       lines.push('');
     }
 
     if (report.aggregatedIntel.locations.length > 0) {
-      lines.push('📍 LOCATIONS:');
-      report.aggregatedIntel.locations.forEach(l => lines.push(`   • ${l}`));
+      lines.push('  ⚡ GEOGRAPHIC INDICATORS:');
+      report.aggregatedIntel.locations.forEach(l => lines.push(`     ├─ ${l}`));
       lines.push('');
     }
 
     if (report.aggregatedIntel.socialMedia.length > 0) {
-      lines.push('🌐 SOCIAL MEDIA PROFILES:');
+      lines.push('  ⚡ SOCIAL MEDIA PROFILES:');
       report.aggregatedIntel.socialMedia.forEach(s =>
-        lines.push(`   • ${s.platform}: ${s.handle}`)
+        lines.push(`     ├─ [${s.platform.toUpperCase()}] ${s.handle}`)
       );
       lines.push('');
     }
 
     if (report.aggregatedIntel.websites.length > 0) {
-      lines.push('🔗 RELATED WEBSITES:');
-      report.aggregatedIntel.websites.slice(0, 10).forEach(w => lines.push(`   • ${w}`));
+      lines.push('  ⚡ LINKED DOMAINS:');
+      report.aggregatedIntel.websites.slice(0, 10).forEach(w => lines.push(`     ├─ ${w}`));
       lines.push('');
     }
 
-    lines.push('───────────────────────────────────────────────────────────');
-    lines.push('  FORMAT VARIATIONS SEARCHED');
-    lines.push('───────────────────────────────────────────────────────────');
+    lines.push('┌───────────────────────────────────────────────────────────────────────┐');
+    lines.push('│                      FORMAT VARIATIONS SEARCHED                       │');
+    lines.push('└───────────────────────────────────────────────────────────────────────┘');
     lines.push('');
 
     report.formats.forEach((f, i) => {
-      lines.push(`${i + 1}. ${f.name}: ${f.value}`);
+      lines.push(`  ${String(i + 1).padStart(2, '0')}. [${f.name.padEnd(20)}] ${f.value}`);
     });
 
     lines.push('');
-    lines.push('═══════════════════════════════════════════════════════════');
-    lines.push('  END OF REPORT');
-    lines.push('═══════════════════════════════════════════════════════════');
+    lines.push('╔═══════════════════════════════════════════════════════════════════════╗');
+    lines.push('║                           END OF REPORT                               ║');
+    lines.push('║              CONSTANTINE v4.1.1 - Constantine Edition                    ║');
+    lines.push('╚═══════════════════════════════════════════════════════════════════════╝');
 
     return lines.join('\n');
+  }
+
+  // Calculate risk level based on findings
+  _calculateRiskLevel(score) {
+    if (score >= 80) return 'CRITICAL - High exposure detected';
+    if (score >= 60) return 'HIGH - Significant data leakage';
+    if (score >= 40) return 'MEDIUM - Notable presence found';
+    if (score >= 20) return 'LOW - Limited exposure';
+    return 'MINIMAL - Little to no exposure';
+  }
+
+  // Export report as JSON
+  toJSON() {
+    const report = this.generateReport();
+    return JSON.stringify({
+      ...report,
+      meta: {
+        version: '4.1.1',
+        theme: 'constantine',
+        generator: 'CONSTANTINE Phone Intelligence',
+        exportedAt: new Date().toISOString()
+      },
+      riskAssessment: {
+        score: report.summary.totalScore,
+        level: this._calculateRiskLevel(report.summary.totalScore),
+        recommendation: this._generateRecommendation(report.summary.totalScore)
+      }
+    }, null, 2);
+  }
+
+  // Export report as Markdown
+  toMarkdown() {
+    const report = this.generateReport();
+    const riskLevel = this._calculateRiskLevel(report.summary.totalScore);
+
+    let md = `# CONSTANTINE Phone Intelligence Report\n\n`;
+    md += `> **Constantine Edition** - "Between Heaven and Hell, intelligence prevails."\n\n`;
+    md += `---\n\n`;
+    md += `## Summary\n\n`;
+    md += `| Field | Value |\n`;
+    md += `|-------|-------|\n`;
+    md += `| **Phone Number** | \`${report.summary.phoneNumber}\` |\n`;
+    md += `| **Country** | ${report.summary.country} (${report.summary.countryCode}) |\n`;
+    md += `| **Generated** | ${new Date(report.summary.generatedAt).toLocaleString()} |\n`;
+    md += `| **Relevance Score** | ${report.summary.totalScore}/100 |\n`;
+    md += `| **Risk Level** | ${riskLevel} |\n\n`;
+
+    md += `## Aggregated Intelligence\n\n`;
+
+    if (report.aggregatedIntel.emails.length > 0) {
+      md += `### Emails Found (${report.aggregatedIntel.emails.length})\n\n`;
+      report.aggregatedIntel.emails.forEach(e => { md += `- \`${e}\`\n`; });
+      md += '\n';
+    }
+
+    if (report.aggregatedIntel.usernames.length > 0) {
+      md += `### Usernames Identified (${report.aggregatedIntel.usernames.length})\n\n`;
+      report.aggregatedIntel.usernames.forEach(u => { md += `- @${u}\n`; });
+      md += '\n';
+    }
+
+    if (report.aggregatedIntel.names.length > 0) {
+      md += `### Potential Names (${report.aggregatedIntel.names.length})\n\n`;
+      report.aggregatedIntel.names.forEach(n => { md += `- ${n}\n`; });
+      md += '\n';
+    }
+
+    if (report.aggregatedIntel.locations.length > 0) {
+      md += `### Geographic Locations (${report.aggregatedIntel.locations.length})\n\n`;
+      report.aggregatedIntel.locations.forEach(l => { md += `- ${l}\n`; });
+      md += '\n';
+    }
+
+    if (report.aggregatedIntel.socialMedia.length > 0) {
+      md += `### Social Media Profiles (${report.aggregatedIntel.socialMedia.length})\n\n`;
+      report.aggregatedIntel.socialMedia.forEach(s => {
+        md += `- **${s.platform}**: ${s.handle}\n`;
+      });
+      md += '\n';
+    }
+
+    if (report.aggregatedIntel.websites.length > 0) {
+      md += `### Linked Websites (${report.aggregatedIntel.websites.length})\n\n`;
+      report.aggregatedIntel.websites.slice(0, 10).forEach(w => { md += `- ${w}\n`; });
+      md += '\n';
+    }
+
+    md += `## Format Variations\n\n`;
+    md += `| # | Format | Value |\n`;
+    md += `|---|--------|-------|\n`;
+    report.formats.forEach((f, i) => {
+      md += `| ${i + 1} | ${f.name} | \`${f.value}\` |\n`;
+    });
+
+    md += `\n---\n\n`;
+    md += `*Generated by CONSTANTINE v4.1.1 - Constantine Edition*\n`;
+
+    return md;
+  }
+
+  // Export report as HTML
+  toHTML() {
+    const report = this.generateReport();
+    const riskLevel = this._calculateRiskLevel(report.summary.totalScore);
+
+    let html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CONSTANTINE Phone Intelligence Report</title>
+  <style>
+    :root {
+      --constantine-gold: #D4A32D;
+      --bg-base: #0A0A0C;
+      --bg-surface: #1A1A1E;
+      --text-primary: #E8E6E3;
+      --text-secondary: #9D9D9D;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      padding: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 { color: var(--constantine-gold); border-bottom: 2px solid var(--constantine-gold); padding-bottom: 10px; }
+    h2 { color: var(--constantine-gold); margin-top: 30px; }
+    .summary-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    .summary-table th, .summary-table td {
+      padding: 12px; text-align: left;
+      border: 1px solid rgba(212, 163, 45, 0.2);
+    }
+    .summary-table th { background: var(--bg-surface); color: var(--constantine-gold); }
+    .intel-list { list-style: none; padding: 0; }
+    .intel-list li {
+      padding: 8px 12px; margin: 4px 0;
+      background: var(--bg-surface);
+      border-left: 3px solid var(--constantine-gold);
+    }
+    code { background: var(--bg-surface); padding: 2px 6px; border-radius: 3px; }
+    .footer { margin-top: 40px; text-align: center; color: var(--text-secondary); font-style: italic; }
+    .risk-badge {
+      display: inline-block; padding: 4px 12px;
+      border-radius: 4px; font-weight: bold;
+      background: ${report.summary.totalScore >= 60 ? '#DC143C' : report.summary.totalScore >= 40 ? '#FF8C00' : '#32CD32'};
+    }
+  </style>
+</head>
+<body>
+  <h1>CONSTANTINE Phone Intelligence Report</h1>
+  <p><em>Constantine Edition - "Between Heaven and Hell, intelligence prevails."</em></p>
+
+  <h2>Summary</h2>
+  <table class="summary-table">
+    <tr><th>Phone Number</th><td><code>${this._escapeHtml(report.summary.phoneNumber)}</code></td></tr>
+    <tr><th>Country</th><td>${this._escapeHtml(report.summary.country)} (${this._escapeHtml(report.summary.countryCode)})</td></tr>
+    <tr><th>Generated</th><td>${new Date(report.summary.generatedAt).toLocaleString()}</td></tr>
+    <tr><th>Relevance Score</th><td>${report.summary.totalScore}/100</td></tr>
+    <tr><th>Risk Level</th><td><span class="risk-badge">${this._escapeHtml(riskLevel)}</span></td></tr>
+  </table>`;
+
+    if (report.aggregatedIntel.emails.length > 0) {
+      html += `<h2>Emails Found (${report.aggregatedIntel.emails.length})</h2><ul class="intel-list">`;
+      report.aggregatedIntel.emails.forEach(e => { html += `<li><code>${this._escapeHtml(e)}</code></li>`; });
+      html += `</ul>`;
+    }
+
+    if (report.aggregatedIntel.usernames.length > 0) {
+      html += `<h2>Usernames (${report.aggregatedIntel.usernames.length})</h2><ul class="intel-list">`;
+      report.aggregatedIntel.usernames.forEach(u => { html += `<li>@${this._escapeHtml(u)}</li>`; });
+      html += `</ul>`;
+    }
+
+    if (report.aggregatedIntel.socialMedia.length > 0) {
+      html += `<h2>Social Media (${report.aggregatedIntel.socialMedia.length})</h2><ul class="intel-list">`;
+      report.aggregatedIntel.socialMedia.forEach(s => {
+        html += `<li><strong>${this._escapeHtml(s.platform)}</strong>: ${this._escapeHtml(s.handle)}</li>`;
+      });
+      html += `</ul>`;
+    }
+
+    html += `
+  <h2>Format Variations</h2>
+  <table class="summary-table">
+    <tr><th>#</th><th>Format</th><th>Value</th></tr>`;
+    report.formats.forEach((f, i) => {
+      html += `<tr><td>${i + 1}</td><td>${this._escapeHtml(f.name)}</td><td><code>${this._escapeHtml(f.value)}</code></td></tr>`;
+    });
+    html += `</table>
+
+  <div class="footer">
+    <p>Generated by CONSTANTINE v4.1.1 - Constantine Edition</p>
+    <p>"Between Heaven and Hell, intelligence prevails."</p>
+  </div>
+</body>
+</html>`;
+
+    return html;
+  }
+
+  // Helper: Escape HTML entities
+  _escapeHtml(text) {
+    if (!text) return '';
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(text).replace(/[&<>"']/g, m => map[m]);
+  }
+
+  // Helper: Generate security recommendation
+  _generateRecommendation(score) {
+    if (score >= 80) return 'URGENT: Consider professional OPSEC review. High probability of identity exposure.';
+    if (score >= 60) return 'WARNING: Significant digital footprint detected. Review and sanitize exposed information.';
+    if (score >= 40) return 'CAUTION: Notable online presence. Consider privacy hardening measures.';
+    if (score >= 20) return 'ADVISORY: Some exposure detected. Monitor for changes.';
+    return 'NOMINAL: Minimal exposure. Continue standard privacy practices.';
+  }
+
+  // Batch export to all formats
+  exportAll() {
+    return {
+      text: this.toText(),
+      json: this.toJSON(),
+      markdown: this.toMarkdown(),
+      html: this.toHTML()
+    };
   }
 }
 

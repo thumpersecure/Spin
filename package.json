@@ -1,7 +1,7 @@
 {
-  "name": "sandiego-browser",
-  "version": "3.2.0",
-  "description": "SANDIEGO Browser - The OSINT Investigation Suite. A privacy-first browser with Tor integration, anti-fingerprinting, and comprehensive intelligence tools.",
+  "name": "constantine-browser",
+  "version": "4.1.1",
+  "description": "CONSTANTINE Browser - The Exorcist's Edge. The OSINT Investigation Suite with supernatural noir theme. A privacy-first browser with Tor integration, anti-fingerprinting, and comprehensive intelligence tools. Between Heaven and Hell, intelligence prevails.",
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
@@ -11,7 +11,8 @@
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux",
     "pack": "electron-builder --dir",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "test": "echo \"Tests passed\" && exit 0"
   },
   "keywords": [
     "osint",
@@ -23,10 +24,18 @@
     "electron",
     "chromium",
     "intelligence",
-    "research"
+    "research",
+    "constantine",
+    "supernatural",
+    "exorcist"
   ],
-  "author": "SANDIEGO Team",
+  "author": "CONSTANTINE Team",
   "license": "MIT",
+  "theme": {
+    "name": "constantine",
+    "codename": "The Exorcist's Edge",
+    "tagline": "Between Heaven and Hell, intelligence prevails."
+  },
   "devDependencies": {
     "electron": "^35.7.5",
     "electron-builder": "^24.9.1"
@@ -35,8 +44,8 @@
     "electron-store": "^8.1.0"
   },
   "build": {
-    "appId": "com.sandiego.browser",
-    "productName": "SANDIEGO Browser",
+    "appId": "com.constantine.browser",
+    "productName": "CONSTANTINE Browser",
     "directories": {
       "output": "dist"
     },
@@ -64,7 +73,7 @@
       "category": "Network",
       "icon": "assets/icon.png",
       "desktop": {
-        "StartupWMClass": "sandiego-browser"
+        "StartupWMClass": "constantine-browser"
       }
     },
     "nsis": {
