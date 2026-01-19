@@ -1691,14 +1691,14 @@ function showContextMenu(x, y, hasSelection, selectionText) {
       action: async () => {
         if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
           console.error('Clipboard API not available');
-          alert('Clipboard is not available. Unable to copy selection.');
+          showNotification('Clipboard is not available. Unable to copy selection.');
           return;
         }
         try {
           await navigator.clipboard.writeText(selectionText);
         } catch (err) {
           console.error('Failed to write text to clipboard:', err);
-          alert('Failed to copy text to clipboard.');
+          showNotification('Failed to copy text to clipboard.');
         }
       }
     });
