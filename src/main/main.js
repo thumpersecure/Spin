@@ -106,8 +106,9 @@ const Platform = {
         ? 'netstat -an | findstr ":9050"'
         : 'lsof -i :9050 2>/dev/null || ss -tlnp 2>/dev/null | grep :9050';
       
-      exec(cmd, { timeout: 2000 }, (error, stdout) => {
+      exec(cmd, { timeout: 2000 }, (error, stdout, stderr) => {
         // If command succeeds and has output, Tor is running
+        // We treat any error as "not running" for robustness
         resolve(!error && stdout && stdout.trim().length > 0);
       });
     });
