@@ -1690,7 +1690,11 @@ function showContextMenu(x, y, hasSelection, selectionText) {
     });
     items.push({
       label: `Search "${selectionText.slice(0, 30)}${selectionText.length > 30 ? '...' : ''}"`,
-      action: () => navigateToUrl(`https://duckduckgo.com/?q=${encodeURIComponent(selectionText)}`)
+      action: () => {
+        const searchUrl = new URL('https://duckduckgo.com/');
+        searchUrl.searchParams.set('q', selectionText);
+        navigateToUrl(searchUrl.toString());
+      }
     });
     items.push({ divider: true });
   }
