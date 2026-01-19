@@ -135,19 +135,28 @@ class FocusModeController {
   }
 
   _tick() {
-    if (!this.currentSession || !this.isActive) return;
+    try {
+      if (!this.currentSession || !this.isActive) return;
 
-    const now = Date.now();
-    this.currentSession.remainingTime = Math.max(0, this.currentSession.endsAt - now);
+      const now = Date.now();
+      this.currentSession.remainingTime = Math.max(0, this.currentSession.endsAt - now);
 
-    this._emit('onTick', {
-      remainingTime: this.currentSession.remainingTime,
-      elapsed: now - this.currentSession.startedAt,
-      progress: ((now - this.currentSession.startedAt) / this.currentSession.duration) * 100
-    });
+      this._emit('onTick', {
+        remainingTime: this.currentSession.remainingTime,
+        elapsed: now - this.currentSession.startedAt,
+        progress: ((now - this.currentSession.startedAt) / this.currentSession.duration) * 100
+      });
 
-    if (this.currentSession.remainingTime <= 0) {
-      this._completeSession();
+      if (this.currentSession.remainingTime <= 0) {
+        this._completeSession();
+      }
+    } catch (err) {
+      console.error('Focus mode tick error:', err);
+      // Clear interval on error to prevent infinite error loops
+      if (this.tickInterval) {
+        clearInterval(this.tickInterval);
+        this.tickInterval = null;
+      }
     }
   }
 
@@ -358,6 +367,20 @@ class FocusModeController {
           console.error(`Focus mode event error (${event}):`, e);
         }
       }
+    }
+  }
+
+  // Clean up resources on shutdown
+  shutdown() {
+    if (this.tickInterval) {
+      clearInterval(this.tickInterval);
+      this.tickInterval = null;
+    }
+    this.isActive = false;
+    this.currentSession = null;
+    // Clear all listeners
+    for (const event of Object.keys(this.listeners)) {
+      this.listeners[event] = [];
     }
   }
 }
@@ -1070,9 +1093,8 @@ class AICognitiveTools {
 
   shutdown() {
     this.isActive = false;
-    if (this.focusMode.isActive) {
-      this.focusMode.endSession(true);
-    }
+    // Clean up focus mode - this clears the interval timer
+    this.focusMode.shutdown();
     return { success: true };
   }
 
