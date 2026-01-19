@@ -1,6 +1,6 @@
 /**
  * SANDIEGO Browser - Renderer Process
- * Version: 3.0.0-sandiego
+ * Version: 3.1.0
  * Clean state management and robust UI handling
  */
 
@@ -14,7 +14,9 @@ const AppState = {
   privacy: {},
   panelOpen: false,
   activePanel: null,
-  bookmarks: []
+  bookmarks: [],
+  platform: null,
+  isFullscreen: false
 };
 
 // ============================================
@@ -24,6 +26,7 @@ const AppState = {
 const DOM = {};
 
 function cacheDOMElements() {
+  DOM.body = document.body;
   DOM.tabsWrapper = document.getElementById('tabsWrapper');
   DOM.newTabBtn = document.getElementById('newTabBtn');
   DOM.urlInput = document.getElementById('urlInput');
@@ -48,6 +51,7 @@ function cacheDOMElements() {
   DOM.maximizeBtn = document.getElementById('maximizeBtn');
   DOM.closeBtn = document.getElementById('closeBtn');
   DOM.notificationContainer = document.getElementById('notificationContainer');
+  DOM.titleBar = document.getElementById('titleBar');
 }
 
 // ============================================
@@ -124,13 +128,51 @@ const OSINT_BOOKMARKS = {
 
 document.addEventListener('DOMContentLoaded', async () => {
   cacheDOMElements();
+  await initializePlatform();
   setupEventListeners();
   renderQuickLinks();
   await loadPrivacySettings();
   await createInitialTab();
 
-  console.log('SANDIEGO Browser initialized - Where in the World?');
+  console.log('SANDIEGO Browser v3.1.0 initialized');
 });
+
+async function initializePlatform() {
+  try {
+    AppState.platform = await window.sandiego.getPlatformInfo();
+    applyPlatformStyles();
+  } catch (err) {
+    console.error('Failed to get platform info:', err);
+    // Fallback platform detection
+    AppState.platform = {
+      isWindows: navigator.userAgent.includes('Windows'),
+      isMac: navigator.userAgent.includes('Mac'),
+      isLinux: navigator.userAgent.includes('Linux')
+    };
+    applyPlatformStyles();
+  }
+}
+
+function applyPlatformStyles() {
+  if (!AppState.platform) return;
+
+  const { isWindows, isMac, isLinux } = AppState.platform;
+
+  // Add platform class to body for CSS targeting
+  if (isWindows) DOM.body.classList.add('platform-windows');
+  if (isMac) DOM.body.classList.add('platform-mac');
+  if (isLinux) DOM.body.classList.add('platform-linux');
+
+  // macOS: Hide window controls (use native traffic lights)
+  if (isMac && DOM.titleBar) {
+    const controls = DOM.titleBar.querySelector('.window-controls');
+    if (controls) {
+      controls.style.display = 'none';
+    }
+    // Add padding for traffic lights
+    DOM.titleBar.style.paddingLeft = '80px';
+  }
+}
 
 async function createInitialTab() {
   try {
@@ -140,6 +182,7 @@ async function createInitialTab() {
     showStartPage(true);
   } catch (err) {
     console.error('Failed to create initial tab:', err);
+    showNotification('error', 'Failed to create initial tab');
   }
 }
 
@@ -199,6 +242,7 @@ function setupEventListeners() {
 }
 
 function setupIPCListeners() {
+  // Tab events
   window.sandiego.onTabLoading(({ tabId, loading }) => {
     updateTabLoading(tabId, loading);
   });
@@ -238,7 +282,17 @@ function setupIPCListeners() {
   });
 
   window.sandiego.onTabCreated(({ tabId, url }) => {
-    addTabToUI(tabId, 'New Tab', null, url || '');
+    // Only add if not already in our state
+    if (!AppState.tabs.has(tabId)) {
+      addTabToUI(tabId, 'New Tab', null, url || '');
+    }
+  });
+
+  window.sandiego.onTabError(({ tabId, error, url, code }) => {
+    console.error(`Tab ${tabId} error:`, error, url, code);
+    if (tabId === AppState.activeTabId) {
+      showNotification('error', `Failed to load: ${error}`);
+    }
   });
 
   window.sandiego.onPrivacyUpdated((privacy) => {
@@ -248,6 +302,47 @@ function setupIPCListeners() {
 
   window.sandiego.onNotification(({ type, message }) => {
     showNotification(type, message);
+  });
+
+  // Platform events
+  window.sandiego.on('platform-info', (info) => {
+    AppState.platform = info;
+    applyPlatformStyles();
+  });
+
+  window.sandiego.on('fullscreen-change', (isFullscreen) => {
+    AppState.isFullscreen = isFullscreen;
+    DOM.body.classList.toggle('fullscreen', isFullscreen);
+  });
+
+  window.sandiego.on('tor-status', ({ available }) => {
+    if (available) {
+      showNotification('info', 'Tor service detected and ready');
+    }
+  });
+
+  window.sandiego.on('open-panel', (panelType) => {
+    if (panelType === 'phone-intel') {
+      openPanel('extensions');
+      // Wait for panel to render, then switch to phone-intel tab
+      setTimeout(() => {
+        const phoneIntelTab = DOM.panelContent?.querySelector('[data-tab="phone-intel"]');
+        phoneIntelTab?.click();
+      }, 100);
+    } else if (panelType === 'bookmarks') {
+      openPanel('extensions');
+    } else if (panelType === 'privacy') {
+      openPanel('privacy');
+    }
+  });
+
+  window.sandiego.on('screenshot-captured', ({ dataUrl }) => {
+    // Create download link for screenshot
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `sandiego-screenshot-${Date.now()}.png`;
+    link.click();
+    showNotification('success', 'Screenshot saved');
   });
 }
 
@@ -264,10 +359,14 @@ async function handleNewTab() {
     DOM.urlInput?.focus();
   } catch (err) {
     console.error('Failed to create new tab:', err);
+    showNotification('error', 'Failed to create new tab');
   }
 }
 
 function addTabToUI(tabId, title, favicon, url) {
+  // Prevent duplicate tabs
+  if (AppState.tabs.has(tabId)) return;
+
   AppState.tabs.set(tabId, {
     title: title || 'New Tab',
     favicon: favicon,
@@ -281,7 +380,7 @@ function addTabToUI(tabId, title, favicon, url) {
   tabEl.className = 'tab';
   tabEl.dataset.tabId = tabId;
   tabEl.innerHTML = `
-    ${favicon ? `<img class="tab-favicon" src="${favicon}" alt="">` : ''}
+    ${favicon ? `<img class="tab-favicon" src="${escapeAttr(favicon)}" alt="">` : ''}
     <span class="tab-title">${escapeHtml(title || 'New Tab')}</span>
     <button class="tab-close" aria-label="Close tab">
       <svg viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
@@ -409,7 +508,6 @@ function updateTabLoading(tabId, loading) {
 
 function navigateToUrl(input) {
   if (!input || !input.trim()) return;
-
   if (!AppState.activeTabId) return;
 
   window.sandiego.navigate(AppState.activeTabId, input.trim());
@@ -433,12 +531,24 @@ function handleNavigation(action) {
 }
 
 function handleGoHome() {
+  if (!AppState.activeTabId) return;
+
   const tab = AppState.tabs.get(AppState.activeTabId);
   if (tab) {
     tab.url = '';
     tab.title = 'New Tab';
+    tab.canGoBack = false;
+    tab.canGoForward = false;
     DOM.urlInput.value = '';
+    updateNavButtons(false, false);
+    updateSecurityBadge('');
     showStartPage(true);
+
+    // Update tab title in UI
+    updateTabTitle(AppState.activeTabId, 'New Tab');
+
+    // Focus start page search
+    DOM.startSearch?.focus();
   }
 }
 
@@ -452,8 +562,13 @@ function updateSecurityBadge(url) {
 
   if (url && url.startsWith('https://')) {
     DOM.securityBadge.classList.add('secure');
+    DOM.securityBadge.title = 'Secure Connection (HTTPS)';
+  } else if (url && url.startsWith('http://')) {
+    DOM.securityBadge.classList.remove('secure');
+    DOM.securityBadge.title = 'Insecure Connection (HTTP)';
   } else {
     DOM.securityBadge.classList.remove('secure');
+    DOM.securityBadge.title = 'Connection Security';
   }
 }
 
@@ -572,11 +687,16 @@ async function renderPhoneIntelPanel() {
   const container = DOM.panelContent.querySelector('.phone-intel-container');
   if (!container) return;
 
+  // Show loading state
+  container.innerHTML = '<div class="phone-intel-loading">Loading countries...</div>';
+
   let countries = {};
   try {
     countries = await window.sandiego.phoneIntel.getCountries();
   } catch (err) {
     console.error('Failed to load countries:', err);
+    container.innerHTML = '<div class="phone-intel-error">Failed to load countries. Please try again.</div>';
+    return;
   }
 
   container.innerHTML = `
@@ -589,14 +709,14 @@ async function renderPhoneIntelPanel() {
     <div class="phone-intel-form">
       <div class="form-group">
         <label class="form-label">Phone Number</label>
-        <input type="tel" id="phoneNumber" class="form-input" placeholder="Enter phone number...">
+        <input type="tel" id="phoneNumber" class="form-input" placeholder="Enter phone number..." maxlength="30">
       </div>
 
       <div class="form-group">
         <label class="form-label">Country</label>
         <select id="countrySelect" class="form-select">
           ${Object.entries(countries).map(([code, data]) =>
-            `<option value="${code}" ${code === 'US' ? 'selected' : ''}>${data.name} (${data.code})</option>`
+            `<option value="${escapeAttr(code)}" ${code === 'US' ? 'selected' : ''}>${escapeHtml(data.name)} (${escapeHtml(data.code)})</option>`
           ).join('')}
         </select>
       </div>
@@ -617,12 +737,12 @@ async function renderPhoneIntelPanel() {
 
       <button class="phone-intel-btn primary" id="generateFormatsBtn">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"/></svg>
-        Generate Format Variations
+        <span class="btn-text">Generate Format Variations</span>
       </button>
 
       <button class="phone-intel-btn accent" id="smartSearchBtn">
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
-        Smart OSINT Search
+        <span class="btn-text">Smart OSINT Search</span>
       </button>
     </div>
 
@@ -644,16 +764,29 @@ async function renderPhoneIntelPanel() {
 
     if (!phone) {
       showNotification('warning', 'Please enter a phone number');
+      phoneInput?.focus();
       return;
     }
+
+    // Show loading state
+    const btnText = generateBtn.querySelector('.btn-text');
+    const originalText = btnText.textContent;
+    btnText.textContent = 'Generating...';
+    generateBtn.disabled = true;
 
     try {
       const result = await window.sandiego.phoneIntel.generateFormats(phone, country);
       if (result) {
         displayFormatResults(result);
+      } else {
+        showNotification('error', 'Failed to generate formats');
       }
     } catch (err) {
+      console.error('Generate formats error:', err);
       showNotification('error', 'Failed to generate formats');
+    } finally {
+      btnText.textContent = originalText;
+      generateBtn.disabled = false;
     }
   });
 
@@ -664,16 +797,29 @@ async function renderPhoneIntelPanel() {
 
     if (!phone) {
       showNotification('warning', 'Please enter a phone number');
+      phoneInput?.focus();
       return;
     }
+
+    // Show loading state
+    const btnText = smartSearchBtn.querySelector('.btn-text');
+    const originalText = btnText.textContent;
+    btnText.textContent = 'Searching...';
+    smartSearchBtn.disabled = true;
 
     try {
       const result = await window.sandiego.phoneIntel.batchSearch(phone, country, searchEngine);
       if (result) {
         showNotification('success', 'OSINT search opened in new tab');
+      } else {
+        showNotification('error', 'Failed to execute search');
       }
     } catch (err) {
+      console.error('Batch search error:', err);
       showNotification('error', 'Failed to execute search');
+    } finally {
+      btnText.textContent = originalText;
+      smartSearchBtn.disabled = false;
     }
   });
 
@@ -703,29 +849,38 @@ function displayFormatResults(result) {
         <span class="format-value">${escapeHtml(format.value)}</span>
       </div>
       <div class="format-actions">
-        <button class="format-btn copy" title="Copy to clipboard" data-value="${escapeHtml(format.value)}">
+        <button class="format-btn copy" title="Copy to clipboard" data-value="${escapeAttr(format.value)}">
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/></svg>
         </button>
-        <button class="format-btn search" title="Search this format" data-url="${escapeHtml(result.searchQueries[index]?.duckDuckGoUrl || '')}">
+        <button class="format-btn search" title="Search this format" data-url="${escapeAttr(result.searchQueries[index]?.duckDuckGoUrl || '')}">
           <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
         </button>
       </div>
     `;
 
     // Copy button handler
-    formatEl.querySelector('.copy')?.addEventListener('click', (e) => {
+    formatEl.querySelector('.copy')?.addEventListener('click', async (e) => {
       const value = e.currentTarget.dataset.value;
-      navigator.clipboard.writeText(value).then(() => {
+      try {
+        await navigator.clipboard.writeText(value);
         showNotification('success', 'Copied to clipboard');
-      });
+      } catch (err) {
+        console.error('Clipboard error:', err);
+        showNotification('error', 'Failed to copy to clipboard');
+      }
     });
 
     // Search button handler
     formatEl.querySelector('.search')?.addEventListener('click', async (e) => {
       const url = e.currentTarget.dataset.url;
       if (url) {
-        await window.sandiego.phoneIntel.openSearch(url);
-        showNotification('success', 'Search opened in new tab');
+        try {
+          await window.sandiego.phoneIntel.openSearch(url);
+          showNotification('success', 'Search opened in new tab');
+        } catch (err) {
+          console.error('Search error:', err);
+          showNotification('error', 'Failed to open search');
+        }
       }
     });
 
@@ -807,7 +962,7 @@ function renderPrivacyPanel() {
       <div class="privacy-option">
         <div class="privacy-info">
           <div class="privacy-label">Block Trackers</div>
-          <div class="privacy-desc">Block known tracking domains</div>
+          <div class="privacy-desc">Block known tracking domains (60+ domains)</div>
         </div>
         <label class="toggle">
           <input type="checkbox" data-setting="blockTrackers" ${privacy.blockTrackers ? 'checked' : ''}>
@@ -818,7 +973,7 @@ function renderPrivacyPanel() {
       <div class="privacy-option">
         <div class="privacy-info">
           <div class="privacy-label">Block Fingerprinting</div>
-          <div class="privacy-desc">Randomize canvas, WebGL, and audio fingerprints</div>
+          <div class="privacy-desc">Randomize canvas, WebGL, and hardware fingerprints</div>
         </div>
         <label class="toggle">
           <input type="checkbox" data-setting="blockFingerprinting" ${privacy.blockFingerprinting ? 'checked' : ''}>
@@ -851,7 +1006,7 @@ function renderPrivacyPanel() {
       <div class="privacy-option">
         <div class="privacy-info">
           <div class="privacy-label">Spoof User Agent</div>
-          <div class="privacy-desc">Use Firefox user agent to blend in</div>
+          <div class="privacy-desc">Use platform-specific Firefox user agent</div>
         </div>
         <label class="toggle">
           <input type="checkbox" data-setting="spoofUserAgent" ${privacy.spoofUserAgent ? 'checked' : ''}>
@@ -862,7 +1017,7 @@ function renderPrivacyPanel() {
       <div class="privacy-option">
         <div class="privacy-info">
           <div class="privacy-label">Do Not Track</div>
-          <div class="privacy-desc">Send DNT and GPC headers</div>
+          <div class="privacy-desc">Send DNT and Global Privacy Control headers</div>
         </div>
         <label class="toggle">
           <input type="checkbox" data-setting="doNotTrack" ${privacy.doNotTrack ? 'checked' : ''}>
@@ -893,6 +1048,7 @@ function renderPrivacyPanel() {
       </div>
 
       <button class="shield-btn" id="clearDataBtn">Clear Browsing Data Now</button>
+      <button class="shield-btn secondary" id="checkTorBtn" style="margin-top: 8px; background: var(--bg-overlay); border: 1px solid var(--border-default);">Check Tor Status</button>
     </div>
   `;
 
@@ -903,14 +1059,40 @@ function renderPrivacyPanel() {
     input.addEventListener('change', async (e) => {
       const key = e.target.dataset.setting;
       const value = e.target.checked;
-      await window.sandiego.setPrivacySetting(key, value);
+      try {
+        await window.sandiego.setPrivacySetting(key, value);
+      } catch (err) {
+        console.error('Failed to set privacy setting:', err);
+        e.target.checked = !value; // Revert on error
+        showNotification('error', 'Failed to update setting');
+      }
     });
   });
 
   // Clear data button
   DOM.panelContent.querySelector('#clearDataBtn')?.addEventListener('click', async () => {
-    await window.sandiego.clearBrowsingData();
-    showNotification('success', 'Browsing data cleared successfully');
+    try {
+      await window.sandiego.clearBrowsingData();
+      showNotification('success', 'Browsing data cleared successfully');
+    } catch (err) {
+      console.error('Failed to clear data:', err);
+      showNotification('error', 'Failed to clear browsing data');
+    }
+  });
+
+  // Check Tor button
+  DOM.panelContent.querySelector('#checkTorBtn')?.addEventListener('click', async () => {
+    try {
+      const status = await window.sandiego.checkTorStatus();
+      if (status.available) {
+        showNotification('success', 'Tor service is running and ready');
+      } else {
+        showNotification('warning', 'Tor service not detected. Please start Tor.');
+      }
+    } catch (err) {
+      console.error('Failed to check Tor:', err);
+      showNotification('error', 'Failed to check Tor status');
+    }
   });
 }
 
@@ -972,7 +1154,10 @@ async function handleBookmarkPage() {
   if (!AppState.activeTabId) return;
 
   const tab = AppState.tabs.get(AppState.activeTabId);
-  if (!tab || !tab.url) return;
+  if (!tab || !tab.url) {
+    showNotification('warning', 'No page to bookmark');
+    return;
+  }
 
   try {
     await window.sandiego.addBookmark({
@@ -982,6 +1167,7 @@ async function handleBookmarkPage() {
     DOM.bookmarkPageBtn?.classList.add('bookmarked');
     showNotification('success', 'Page bookmarked');
   } catch (err) {
+    console.error('Failed to bookmark:', err);
     showNotification('error', 'Failed to bookmark page');
   }
 }
@@ -1019,11 +1205,38 @@ function handleKeyboardShortcuts(e) {
         handleBookmarkPage();
         break;
     }
+
+    // Shift + Key shortcuts
+    if (e.shiftKey) {
+      switch (e.key.toLowerCase()) {
+        case 'p':
+          e.preventDefault();
+          openPanel('extensions');
+          setTimeout(() => {
+            const phoneIntelTab = DOM.panelContent?.querySelector('[data-tab="phone-intel"]');
+            phoneIntelTab?.click();
+          }, 100);
+          break;
+        case 'b':
+          e.preventDefault();
+          openPanel('extensions');
+          break;
+        case 'd':
+          e.preventDefault();
+          openPanel('privacy');
+          break;
+      }
+    }
   }
 
   // Escape to close panel
   if (e.key === 'Escape' && AppState.panelOpen) {
     closePanel();
+  }
+
+  // F12 for DevTools (handled by main process, but prevent default)
+  if (e.key === 'F12') {
+    // Let it propagate to main process
   }
 }
 
@@ -1040,6 +1253,7 @@ function showNotification(type, message, duration = 3000) {
     <svg class="notification-icon" viewBox="0 0 20 20">
       ${type === 'success' ? '<path d="M16 5l-9 9-4-4" fill="none"/>' :
         type === 'error' ? '<circle cx="10" cy="10" r="8" fill="none"/><line x1="6" y1="6" x2="14" y2="14"/><line x1="14" y1="6" x2="6" y2="14"/>' :
+        type === 'warning' ? '<path d="M10 3L2 17h16L10 3z" fill="none"/><line x1="10" y1="9" x2="10" y2="12"/><circle cx="10" cy="15" r="0.5"/>' :
         '<circle cx="10" cy="10" r="8" fill="none"/><line x1="10" y1="6" x2="10" y2="10"/><circle cx="10" cy="14" r="1"/>'}
     </svg>
     <span class="notification-text">${escapeHtml(message)}</span>
@@ -1055,7 +1269,9 @@ function showNotification(type, message, duration = 3000) {
   DOM.notificationContainer.appendChild(notification);
 
   setTimeout(() => {
-    notification.remove();
+    if (notification.parentNode) {
+      notification.remove();
+    }
   }, duration);
 }
 
@@ -1063,8 +1279,21 @@ function showNotification(type, message, duration = 3000) {
 // Utility Functions
 // ============================================
 
+// Optimized HTML escape using cached template
+const escapeEl = document.createElement('div');
 function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+  if (!text) return '';
+  escapeEl.textContent = text;
+  return escapeEl.innerHTML;
+}
+
+// Escape for use in attributes
+function escapeAttr(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
