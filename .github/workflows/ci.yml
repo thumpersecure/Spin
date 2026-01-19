@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x, 22.x]
 
     steps:
       - name: Checkout repository
@@ -64,11 +64,6 @@ jobs:
 
       - name: Run npm audit
         run: npm audit --audit-level=high
-        continue-on-error: true
-
-      - name: Check for known vulnerabilities
-        run: npx audit-ci --high
-        continue-on-error: true
 
   build:
     name: Build
