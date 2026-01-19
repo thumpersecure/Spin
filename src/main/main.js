@@ -742,11 +742,11 @@ async function checkTorAndNotify() {
   }
 }
 
-function toggleTor() {
+async function toggleTor() {
   try {
     const current = state.privacy.torEnabled;
     state.setPrivacy('torEnabled', !current);
-    applyTorProxy();
+    await applyTorProxy();
     notifyRenderer('privacy-updated', state.privacy);
   } catch (err) {
     console.error('Error toggling Tor:', err);
@@ -1272,7 +1272,7 @@ function processUrl(input) {
 // Privacy Protection System
 // ============================================
 
-function applyPrivacySettings() {
+async function applyPrivacySettings() {
   if (state.privacyApplied) return;
   state.privacyApplied = true;
 
@@ -1360,8 +1360,8 @@ function applyPrivacySettings() {
     }
   });
 
-  // Apply Tor proxy if enabled
-  applyTorProxy();
+  // Apply Tor proxy if enabled (non-blocking)
+  applyTorProxy().catch(err => console.error('Error applying Tor proxy:', err));
 }
 
 async function applyTorProxy() {
@@ -1701,12 +1701,12 @@ function setupIpcHandlers() {
   // Privacy settings
   ipcMain.handle('get-privacy-settings', () => state.privacy);
 
-  ipcMain.handle('set-privacy-setting', (event, key, value) => {
+  ipcMain.handle('set-privacy-setting', async (event, key, value) => {
     if (typeof key !== 'string') return state.privacy;
     try {
       const privacy = state.setPrivacy(key, Boolean(value));
       if (key === 'torEnabled') {
-        applyTorProxy();
+        await applyTorProxy();
       }
       notifyRenderer('privacy-updated', privacy);
       return privacy;
