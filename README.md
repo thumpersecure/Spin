@@ -81,7 +81,7 @@ Like the legendary exorcist John Constantine, you'll navigate through layers of 
 
 ### The Exorcist's Edge - Supernatural Noir
 
-Version 4.1.1 introduces the **Constantine** theme, a dramatic shift from the previous Carmen Sandiego aesthetic to a darker, supernatural noir experience.
+Version 4.x features the **Constantine** theme, a dramatic shift from the previous Carmen Sandiego aesthetic to a darker, supernatural noir experience.
 
 #### Color Palette
 
