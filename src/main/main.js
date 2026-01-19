@@ -11,7 +11,7 @@
 const { app, BrowserWindow, BrowserView, ipcMain, session, Menu, nativeTheme, shell, dialog, clipboard, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execSync, spawn } = require('child_process');
+const { execSync } = require('child_process');
 const Store = require('electron-store');
 const { PhoneFormatGenerator, PhoneIntelReport, COUNTRY_CODES } = require('../extensions/phone-intel');
 
