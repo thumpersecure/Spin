@@ -1,380 +1,529 @@
-# osint web browser
+# SANDIEGO Browser
 
 ```
-  ████████╗██████╗  █████╗  ██████╗███████╗██╗   ██╗
-  ╚══██╔══╝██╔══██╗██╔══██╗██╔════╝██╔════╝╚██╗ ██╔╝
-     ██║   ██████╔╝███████║██║     █████╗   ╚████╔╝
-     ██║   ██╔══██╗██╔══██║██║     ██╔══╝    ╚██╔╝
-     ██║   ██║  ██║██║  ██║╚██████╗███████╗   ██║
-     ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚══════╝   ╚═╝
+███████╗ █████╗ ███╗   ██╗██████╗ ██╗███████╗ ██████╗  ██████╗
+██╔════╝██╔══██╗████╗  ██║██╔══██╗██║██╔════╝██╔════╝ ██╔═══██╗
+███████╗███████║██╔██╗ ██║██║  ██║██║█████╗  ██║  ███╗██║   ██║
+╚════██║██╔══██║██║╚██╗██║██║  ██║██║██╔══╝  ██║   ██║██║   ██║
+███████║██║  ██║██║ ╚████║██████╔╝██║███████╗╚██████╔╝╚██████╔╝
+╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝╚══════╝ ╚═════╝  ╚═════╝
 
-    ★ ═══════════════════════════════════════════ ★
-    ║         💫  spin web osint  💫             ║
-    ║      "The Wrist Radio of the Digital Age"   ║
-    ★ ═══════════════════════════════════════════ ★
-                  ~ Tracey Edition v2.0 ~
+        ╔══════════════════════════════════════════════════════╗
+        ║     🌎  "Where in the World Will You Search?"  🔍    ║
+        ║                                                      ║
+        ║            The Carmen Sandiego Edition               ║
+        ║        Privacy-First OSINT Investigation Browser     ║
+        ╚══════════════════════════════════════════════════════╝
+
+                           Version 3.0.0
 ```
 
-> *"Calling all cars! Calling all cars!"* - This noir-style browser is your two-way wrist radio for Open Source Intelligence investigations. Built on Electron (Chromium-based) with integrated Tor support, anti-tracking protections, and comprehensive OSINT tooling.
+<div align="center">
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
+[![Electron](https://img.shields.io/badge/Electron-35.7.5-blue.svg)](https://electronjs.org/)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-brightgreen.svg)](#installation)
+[![Security](https://img.shields.io/badge/Security-Hardened-red.svg)](#security-features)
+
+**A privacy-focused, Chromium-based OSINT browser with built-in Tor integration, anti-fingerprinting protection, and comprehensive investigation tools.**
+
+[Features](#-features) | [Installation](#-installation) | [Usage](#-usage) | [Security](#-security-features) | [Contributing](#-contributing)
+
+</div>
 
 ---
 
-## The Case File
+## The Mission Briefing
 
-**Codename:** Tracey
-**Version:** 2.0.0
-**Classification:** OSINT Investigation Tool
-**Status:** Active Duty
+Good morning, Agent.
 
----
+Your mission, should you choose to accept it, is to navigate the digital world without leaving a trace. **SANDIEGO Browser** is your trusted companion for Open Source Intelligence (OSINT) investigations—a browser that puts privacy first while providing powerful tools for legitimate research.
 
-## Features - Your Detective Kit
+Like the legendary Carmen Sandiego, you'll traverse the globe (digitally) while remaining one step ahead of those who would track your movements.
 
-### The Invisible Cloak - Privacy & Anonymity
-
-Like any good detective, sometimes you need to work in the shadows.
-
-- **Extreme Privacy Mode** - Go completely dark with one click
-  - Tor proxy integration (routes all traffic through the Tor network)
-  - User agent spoofing (Firefox-like fingerprint)
-  - Google services blocking (redirects searches to DuckDuckGo)
-  - All tracking protections enabled simultaneously
-
-- **Anti-Surveillance Protections**
-  - Block 30+ known tracker domains (Google Analytics, Facebook Pixel, etc.)
-  - Third-party cookie blocking
-  - Do Not Track (DNT) and Global Privacy Control (GPC) headers
-  - WebRTC IP leak prevention - No one traces this detective
-
-- **Fingerprint Scrambler**
-  - Canvas fingerprint randomization
-  - WebGL fingerprint spoofing
-  - Audio fingerprint randomization
-  - *"They'll never know you were here"*
+**This browser will self-destruct in...** just kidding. But it *can* automatically clear all your data on exit.
 
 ---
 
-### The Case Files - OSINT Bookmarks
+## The Dossier
 
-Pre-loaded intelligence resources at your fingertips, like files in your detective's desk drawer:
-
-#### OSINT Framework Collection
-*Your primary investigation toolkit*
-- Username search tools (Namechk, Sherlock, Maigret)
-- Email lookup services (Hunter.io, Have I Been Pwned)
-- Phone number investigation (Truecaller, PhoneInfoga)
-- Social media OSINT (Twint, Osintgram, Social Searcher)
-- Domain & IP analysis (Shodan, Censys, SecurityTrails)
-- Image analysis & reverse search (TinEye, Yandex, PimEyes)
-- Geolocation tools (Google Earth, SunCalc, FlightRadar24)
-- People search engines (Pipl, Whitepages)
-- Business/company lookup (OpenCorporates, Crunchbase)
-- Threat intelligence (VirusTotal, Hybrid Analysis)
-- Breach data services (DeHashed, IntelX)
-
-#### Awesome OSINT Collection
-*Curated intelligence resources*
-- Privacy-focused search engines
-- Data visualization tools
-- Geospatial intelligence
-- Transportation tracking
-- Verification tools
-
-#### Kali Arsenal
-*Tools from the legendary penetration testing distro*
-- theHarvester, Recon-ng, SpiderFoot, Amass
-- Sherlock, Maigret, PhoneInfoga
-- DNSenum, Subfinder, and more
+| Codename | SANDIEGO |
+|----------|----------|
+| **Version** | 3.0.0 - Carmen Sandiego Edition |
+| **Classification** | OSINT Investigation Tool |
+| **Status** | Active Duty |
+| **Engine** | Chromium (via Electron) |
+| **Framework** | Electron 35.7.5 |
 
 ---
 
-### The Magnifying Glass - Google Dorks Toolbar
+## Features
 
-Interactive toolbar for constructing advanced search queries - every detective needs a magnifying glass:
+### The Invisible Cloak — Privacy & Anonymity
 
-**25+ Search Operators:**
-```
-site:    inurl:     intitle:    intext:    filetype:   ext:
-cache:   link:      related:    info:      define:     allinurl:
-allintitle:         allintext:  "..."      -           OR
-*        ..         before:     after:     AROUND(n)   inanchor:
-```
+Sometimes the best agent is the one nobody sees.
 
-**OSINT Dork Templates:**
-- Email Discovery
-- Document Leaks
-- Login Pages
-- Exposed Files
-- Config Files
-- Database Files
-- API Keys
-- Password Files
-- Subdomains
-- Error Pages
+#### Tor Integration (Built-in)
+- **One-Click Tor Activation** — Route all traffic through the Tor network
+- **DNS Leak Prevention** — Uses `socks5h://` protocol for DNS resolution through Tor
+- **No External Dependencies** — Just have Tor running on port 9050
 
-*"Leave no stone unturned, no search unqueried"*
+#### Anti-Fingerprinting Arsenal
+- **Canvas Fingerprint Randomization** — Adds noise to canvas data extraction
+- **WebGL Fingerprint Spoofing** — Reports generic Intel GPU info
+- **Screen Resolution Masking** — Reports standard 1920x1080 resolution
+- **Audio Fingerprint Protection** — Prevents audio-based tracking
+- **Battery API Removal** — Blocks battery status tracking
 
----
+#### Tracker Annihilation
+Blocks **50+ known tracking domains** including:
+- Google Analytics, Tag Manager, AdServices
+- Facebook Pixel, Connect
+- Twitter/X Analytics
+- TikTok Analytics
+- Hotjar, Mixpanel, Amplitude, Segment
+- Criteo, Outbrain, Taboola
+- And many more...
 
-### The Evidence Locker - Investigation Tools
-
-#### Investigation Log
-Your digital evidence locker:
-- Automatically log visited pages with metadata
-- Add notes and tags to entries
-- Screenshot capture per page
-- Export to JSON or HTML report
-- Timeline view of investigation
-- Search and filter entries
-
-#### The Analyzer - Metadata Viewer
-Extract every clue from the crime scene:
-- Meta tags, Open Graph, Twitter Card data
-- Technology detection (React, Vue, Angular, jQuery, etc.)
-- External links and scripts analysis
-- Page load timing metrics
-- Form enumeration
-
-#### Face Recognition - Reverse Image Search
-One-click reverse image search across multiple engines:
-- **Yandex Images** - Best for facial recognition
-- **PimEyes** - Face search specialist
-- **TinEye** - The original
-- **Google Lens** - AI-powered
-- **Bing Visual Search** - Microsoft's eye
+#### Privacy Headers
+- **Do Not Track (DNT)** — Sends DNT header with every request
+- **Global Privacy Control (GPC)** — The new standard for privacy signals
+- **User Agent Spoofing** — Blend in with Firefox ESR users
+- **HTTPS Upgrade** — Automatic upgrade from HTTP to HTTPS
+- **WebRTC IP Leak Prevention** — No accidental IP exposure
 
 ---
 
-### The Gadget Lab - Plugin System
+### OSINT Toolkit — Your Investigation Arsenal
 
-Extensible plugin architecture with built-in Hunchly integration:
+#### Pre-loaded OSINT Resources
 
-#### Hunchly Integration Plugin
-*Your automatic evidence collector*
-- Automatic page capture on navigation
-- Case-based organization
-- Screenshot capture with metadata
-- Export to Hunchly-compatible format
-- HTML report generation
-- Investigation timeline
+| Category | Tools |
+|----------|-------|
+| **Username Search** | Namechk, WhatsMyName, Sherlock, UserSearch |
+| **Email Lookup** | Hunter.io, Have I Been Pwned, Epieos, EmailRep |
+| **Domain & IP** | Shodan, Censys, SecurityTrails, DNSDumpster, crt.sh, VirusTotal |
+| **Image Analysis** | TinEye, Yandex Images, PimEyes, FotoForensics |
+| **Social Media** | Social Searcher, Social Blade |
+| **Archives** | Wayback Machine, Archive.org, CachedView |
+| **People Search** | Pipl, ThatsThem, Whitepages |
+| **Threat Intel** | VirusTotal, Hybrid Analysis, Any.run, AbuseIPDB |
 
----
+#### Phone Intelligence Module (xTELENUMSINT)
 
-### Two-Way Wrist Radio - Developer Portal
+Our integrated phone intelligence system transforms phone numbers into actionable OSINT:
 
-Built-in console for power users - just like Tracy's famous wrist radio:
-
-```
-Commands:
-help              - Show available commands
-privacy           - Show privacy settings
-privacy.set KEY VALUE - Set privacy setting
-tor.status        - Check Tor connection ("Going dark, Chief")
-tor.enable/disable - Toggle Tor proxy
-navigate URL      - Navigate to URL
-search QUERY      - Search with DuckDuckGo
-bookmark.add URL  - Add bookmark to case file
-bookmark.list     - List bookmarks
-history           - Show browsing history
-history.clear     - Clear history (destroy evidence)
-version           - Show version info
-```
+- **50+ Country Support** — Americas, Europe, Asia-Pacific, Middle East, Africa
+- **10 Format Variations** — Raw, E.164, International, Spaced, Dashed, US Format, Dotted, and more
+- **Smart OSINT Search** — Combines all formats into a single optimized query
+- **Pattern Recognition** — Extracts emails, usernames, names, locations, social profiles
+- **Intelligence Reports** — Comprehensive reports with relevance scoring
 
 ---
 
-## Installation - Joining the Force
+### Browser Features
 
-### Prerequisites
+#### Tab Management
+- Multi-tab browsing with BrowserView isolation
+- Per-tab security settings
+- Favicon and title tracking
+- Navigation history per tab
 
-- Node.js 18+ (your badge)
-- npm or yarn (your sidearm)
-- Tor (for going dark)
+#### Start Page
+- Quick access to popular OSINT tools
+- Integrated search via DuckDuckGo
+- Clean, distraction-free design
 
-### Setup - Getting Your Badge
+#### Extensions Panel
+- Categorized OSINT bookmarks
+- Phone Intelligence tool
+- Privacy settings dashboard
+- Searchable interface
+
+---
+
+## Installation
+
+### System Requirements
+
+| Requirement | Minimum | Recommended |
+|-------------|---------|-------------|
+| **Node.js** | 18.x | 20.x or later |
+| **npm** | 8.x | 10.x or later |
+| **RAM** | 4 GB | 8 GB |
+| **Disk Space** | 500 MB | 1 GB |
+| **OS** | Windows 10, macOS 10.15, Ubuntu 20.04 | Latest versions |
+
+### Step 1: Clone the Repository
 
 ```bash
-# Clone the repository (Open the case file)
+# Clone the SANDIEGO repository
 git clone https://github.com/thumpersecure/Spin.git
-cd Spin
 
-# Install dependencies (Get your equipment)
+# Navigate into the project directory
+cd Spin
+```
+
+### Step 2: Install Dependencies
+
+```bash
+# Install all required packages
 npm install
 
-# Start the browser (Begin the investigation)
+# This will automatically:
+# - Install Electron 35.7.5
+# - Install electron-builder for packaging
+# - Install electron-store for settings persistence
+# - Configure app dependencies
+```
+
+**Troubleshooting Installation:**
+
+If you encounter permission errors on Linux/macOS:
+```bash
+sudo chown -R $(whoami) ~/.npm
+npm install
+```
+
+If you encounter network errors:
+```bash
+npm install --registry https://registry.npmjs.org/
+```
+
+### Step 3: Start the Browser
+
+```bash
+# Production mode (recommended)
 npm start
 
-# For development (Training mode)
+# Development mode (with DevTools)
 npm run dev
 ```
 
-### Building - Forging Your Badge
-
-```bash
-# Build for current platform
-npm run build
-
-# Platform-specific builds
-npm run build:win    # Windows Division
-npm run build:mac    # macOS Division
-npm run build:linux  # Linux Division
-```
-
 ---
 
-## Tor Setup - Going Dark
+## Tor Setup (Optional but Recommended)
 
-For Extreme Privacy Mode to work, you need Tor running in the background:
+For full anonymity, you'll need the Tor daemon running on your system.
 
-### Linux/macOS
+### Linux (Debian/Ubuntu)
+
 ```bash
-# Install Tor (Get your disguise kit)
-sudo apt install tor  # Debian/Ubuntu
-brew install tor      # macOS
+# Install Tor
+sudo apt update
+sudo apt install tor
 
-# Start Tor (Put on the disguise)
+# Start Tor service
+sudo systemctl start tor
+
+# Enable Tor to start on boot (optional)
+sudo systemctl enable tor
+
+# Verify Tor is running on port 9050
+sudo netstat -tlnp | grep 9050
+```
+
+### Linux (Fedora/RHEL)
+
+```bash
+# Install Tor
+sudo dnf install tor
+
+# Start Tor service
+sudo systemctl start tor
+```
+
+### Linux (Arch)
+
+```bash
+# Install Tor
+sudo pacman -S tor
+
+# Start Tor service
+sudo systemctl start tor
+```
+
+### macOS
+
+```bash
+# Install via Homebrew
+brew install tor
+
+# Start Tor
+brew services start tor
+
+# Or run manually
 tor
 ```
 
 ### Windows
-Download Tor Expert Bundle from https://www.torproject.org/
 
-Tor should be running on `localhost:9050` (default SOCKS5 proxy).
+1. Download the **Tor Expert Bundle** from [torproject.org](https://www.torproject.org/download/tor/)
+2. Extract to a folder (e.g., `C:\Tor`)
+3. Open Command Prompt as Administrator
+4. Navigate to the Tor folder and run:
+   ```cmd
+   tor.exe
+   ```
+5. Keep the window open while using SANDIEGO
 
-*"When Tracey goes dark, nobody follows"*
+**Verify Tor is Running:**
+```bash
+# Should show something listening on port 9050
+# Linux/macOS
+lsof -i :9050
 
----
-
-## Usage - Working the Case
-
-### Quick Start - First Day on the Job
-
-1. Launch the browser - *"Good morning, Detective"*
-2. The default search engine is DuckDuckGo - *privacy first*
-3. Use the bookmarks panel (book icon) to access OSINT tools
-4. Use the dorks toolbar (magnifying glass) for advanced searches
-
-### Extreme Privacy Mode - Going Undercover
-
-1. Click the shield icon in the toolbar
-2. Click "Enable Extreme Privacy Mode"
-3. Ensure Tor is running on port 9050
-4. All traffic will now route through Tor
-5. Google services are blocked (searches redirect to DuckDuckGo)
-
-*"Tracey is now invisible"*
-
-### Investigation Workflow - Working the Beat
-
-1. Enable auto-screenshot in settings (optional)
-2. Browse and investigate - *follow the clues*
-3. Use the investigation log to add notes
-4. Extract metadata from pages of interest
-5. Take manual screenshots when needed
-6. Export your investigation as HTML report
-
-*"Document everything. Trust no one."*
-
-### Reverse Image Search - Finding Faces
-
-1. Right-click on an image (or use context menu)
-2. Select reverse image search engine
-3. A new tab opens with the search results
-
-*"A face never lies, but it can hide"*
+# Windows (PowerShell)
+netstat -an | findstr 9050
+```
 
 ---
 
-## Project Structure - The Precinct Layout
+## Building for Distribution
+
+### Build for Current Platform
+
+```bash
+npm run build
+```
+
+### Platform-Specific Builds
+
+```bash
+# Windows (NSIS installer)
+npm run build:win
+
+# macOS (DMG)
+npm run build:mac
+
+# Linux (AppImage + DEB)
+npm run build:linux
+```
+
+### Build Output
+
+Built packages will be in the `dist/` directory:
+
+| Platform | Output |
+|----------|--------|
+| Windows | `SANDIEGO Browser Setup x.x.x.exe` |
+| macOS | `SANDIEGO Browser-x.x.x.dmg` |
+| Linux | `SANDIEGO Browser-x.x.x.AppImage`, `.deb` |
+
+---
+
+## Usage
+
+### First Launch
+
+1. **Start SANDIEGO** — Run `npm start` or launch the built application
+2. **Enable Privacy Features** — Click the shield icon and configure your privacy settings
+3. **Connect to Tor** (optional) — Toggle "Tor Proxy" in Privacy settings (ensure Tor is running)
+4. **Browse Securely** — Use the search bar or OSINT tools panel
+
+### Privacy Dashboard
+
+Access via the shield icon in the toolbar:
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Tor Proxy** | Route traffic through Tor network | Off |
+| **Block Trackers** | Block 50+ known tracking domains | On |
+| **Block Fingerprinting** | Randomize browser fingerprint | On |
+| **Block Third-Party Cookies** | Prevent cross-site tracking | On |
+| **Block WebRTC** | Prevent IP leaks via WebRTC | On |
+| **Spoof User Agent** | Use Firefox user agent | On |
+| **Do Not Track** | Send DNT/GPC headers | On |
+| **HTTPS Upgrade** | Auto-upgrade HTTP to HTTPS | On |
+| **Clear on Exit** | Delete all data when closing | Off |
+
+### Using Phone Intelligence
+
+1. Click the **Extensions** button (puzzle piece icon)
+2. Select the **Phone Intel** tab
+3. Enter a phone number
+4. Select the country
+5. Choose your search engine (DuckDuckGo recommended for privacy)
+6. Click **Generate Format Variations** to see all formats
+7. Click **Smart OSINT Search** to search all formats at once
+
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl/Cmd + T` | New tab |
+| `Ctrl/Cmd + W` | Close tab |
+| `Ctrl/Cmd + L` | Focus URL bar |
+| `Ctrl/Cmd + R` | Reload page |
+| `Ctrl/Cmd + D` | Bookmark page |
+| `Ctrl/Cmd + +` | Zoom in |
+| `Ctrl/Cmd + -` | Zoom out |
+| `Ctrl/Cmd + 0` | Reset zoom |
+| `F12` | Toggle DevTools |
+| `Escape` | Close side panel |
+
+---
+
+## Security Features
+
+### Electron Security Hardening
+
+SANDIEGO implements all recommended Electron security practices:
+
+- **Context Isolation** — Renderer process isolated from Node.js
+- **Sandbox Mode** — Enabled for all browser views
+- **Node Integration Disabled** — No direct Node.js access from renderer
+- **Web Security Enabled** — Same-origin policy enforced
+- **Remote Module Disabled** — All remote module events blocked
+- **File Protocol Blocked** — No `file://` URL navigation from web content
+- **JavaScript URL Blocked** — No `javascript:` URL execution
+
+### Input Validation
+
+- Phone numbers limited to 30 characters
+- Search URLs validated against trusted hosts only
+- IPC channel whitelist for event listeners
+- URL processing with protocol validation
+
+### Privacy by Design
+
+- No telemetry or analytics
+- No external API calls (except user-initiated searches)
+- All settings stored locally with electron-store
+- Optional auto-clear on exit
+
+---
+
+## Project Structure
 
 ```
-spin-detective-browser/
+Spin/
 ├── src/
 │   ├── main/
-│   │   └── main.js          # The Chief's Office (Electron main process)
+│   │   └── main.js              # Electron main process
 │   ├── renderer/
-│   │   ├── index.html       # The Bullpen (Main browser UI)
-│   │   ├── styles.css       # The Uniform (Styling)
-│   │   ├── renderer.js      # The Beat (Browser logic)
-│   │   ├── devportal.html   # The Two-Way Wrist Radio
-│   │   └── investigation.html # The Evidence Room
+│   │   ├── index.html           # Main browser UI
+│   │   ├── styles.css           # Carmen Sandiego theme
+│   │   └── renderer.js          # UI logic and state
 │   ├── preload/
-│   │   ├── preload.js       # The Badge (Main preload script)
-│   │   ├── webview-preload.js
-│   │   └── devportal-preload.js
-│   ├── plugins/
-│   │   ├── plugin-manager.js  # The Gadget Lab
-│   │   └── hunchly-integration.js
-│   └── data/
-│       └── osint-bookmarks.js # The Case Files
+│   │   ├── preload.js           # Secure IPC bridge
+│   │   └── webview-preload.js   # Minimal webview exposure
+│   └── extensions/
+│       └── phone-intel.js       # Phone intelligence module
 ├── assets/
-│   └── icons/
+│   └── icons/                   # Application icons
 ├── package.json
 └── README.md
 ```
 
 ---
 
-## Security Considerations - Rules of the Beat
+## Security Considerations
 
-- **For investigations only**: This browser is designed for legitimate OSINT research
-- **Tor is not invincible**: Additional OPSEC measures may be needed for sensitive work
-- **WebRTC is disabled**: Some video conferencing may not work
-- **Fingerprinting protection**: May break some websites
-- **Always verify**: Use multiple sources - *never trust a single witness*
+### For Investigators
+
+- **Use Tor** for sensitive investigations
+- **Enable all privacy features** for maximum protection
+- **Clear data on exit** for sensitive sessions
+- **Verify HTTPS** before entering any credentials
+- **Use multiple sources** — never trust a single result
+
+### Limitations
+
+- **Tor is not invincible** — Sophisticated adversaries may still track you
+- **JavaScript can detect Tor** — Some sites block Tor exit nodes
+- **WebRTC is disabled** — Video conferencing may not work
+- **Fingerprinting protection may break sites** — Some features rely on accurate data
+
+### Legal Notice
+
+This tool is intended for:
+- Legitimate OSINT research
+- Journalism and fact-checking
+- Security research (with authorization)
+- Law enforcement (with proper warrants)
+- Personal privacy protection
+
+**Users are responsible for complying with all applicable laws and regulations.**
 
 ---
 
-## Contributing - Joining the Squad
+## Contributing
 
-Contributions are welcome! We're always looking for good detectives to join the force.
+We welcome contributions from the OSINT community!
 
-### Adding OSINT Bookmarks
-Edit `src/data/osint-bookmarks.js` to add new resources to the case files.
+### How to Contribute
 
-### Creating Plugins
-See `src/plugins/hunchly-integration.js` for an example plugin implementation.
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Development Setup
+
+```bash
+# Clone your fork
+git clone https://github.com/YOUR_USERNAME/Spin.git
+cd Spin
+
+# Install dependencies
+npm install
+
+# Run in development mode
+npm run dev
+```
+
+### Code Style
+
+- Use ES6+ features
+- Follow existing code patterns
+- Add comments for complex logic
+- Test security-sensitive changes thoroughly
 
 ---
 
 ## License
 
-MIT License - see LICENSE file for details.
-
-*"Justice is blind, but detectives see everything"*
+MIT License — see [LICENSE](LICENSE) file for details.
 
 ---
 
-## Acknowledgments - The Hall of Fame
+## Acknowledgments
 
-- [OSINT Framework](https://osintframework.com/) - Michael Bazzell
-- [Awesome OSINT](https://github.com/jivoi/awesome-osint) - jivoi
-- [Hunchly](https://hunch.ly/) - Inspiration for investigation features
-- [Kali Linux](https://www.kali.org/) - OSINT tools reference
-- [Electron](https://www.electronjs.org/) - Framework
-- **Dick Tracy** - The original two-way wrist radio detective
-
----
-
-## Disclaimer - The Fine Print
-
-This tool is intended for legitimate OSINT research, journalism, security research, and lawful investigations. Users are responsible for complying with applicable laws and regulations.
-
-The developers are not responsible for misuse of this software.
-
-*"With great power comes great responsibility"* - but that's from a different comic.
+- **[Carmen Sandiego](https://en.wikipedia.org/wiki/Carmen_Sandiego)** — The legendary thief who inspired our globe-trotting theme
+- **[OSINT Framework](https://osintframework.com/)** — Comprehensive OSINT resource collection
+- **[Awesome OSINT](https://github.com/jivoi/awesome-osint)** — Curated list of OSINT resources
+- **[xTELENUMSINT](https://github.com/thumpersecure/xtelenumsint)** — Phone intelligence inspiration
+- **[Tor Project](https://www.torproject.org/)** — Privacy network infrastructure
+- **[Electron](https://www.electronjs.org/)** — Cross-platform framework
+- **[DuckDuckGo](https://duckduckgo.com/)** — Privacy-respecting search
 
 ---
+
+<div align="center">
 
 ```
-    ╔═══════════════════════════════════════════════════════════╗
-    ║                                                           ║
-    ║   "The criminal mind leaves traces everywhere.           ║
-    ║    A good detective knows where to look."                ║
-    ║                                                           ║
-    ║                    - Chester Gould, Dick Tracy Creator    ║
-    ║                                                           ║
-    ╚═══════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║   "Where in the World is Carmen Sandiego?"                        ║
+║                                                                   ║
+║   She's everywhere... and nowhere.                                ║
+║   Just like you should be when investigating online.              ║
+║                                                                   ║
+║                           🌍 🔴 🕵️                                 ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
 ```
 
-**SPIN Detective Browser - Tracey Edition**
-*"Calling all cars... the investigation begins."*
+**SANDIEGO Browser — Carmen Sandiego Edition**
+
+*"The world is your investigation. Stay invisible."*
+
+---
+
+Made with ❤️ by the SANDIEGO Team
+
+[Report Bug](https://github.com/thumpersecure/Spin/issues) | [Request Feature](https://github.com/thumpersecure/Spin/issues)
+
+</div>

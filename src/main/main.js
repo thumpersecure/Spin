@@ -818,10 +818,15 @@ function setupIpcHandlers() {
 
   ipcMain.handle('phone-intel-generate-formats', (event, phoneNumber, countryCode) => {
     try {
+      // Input validation
+      if (!phoneNumber || typeof phoneNumber !== 'string' || phoneNumber.length > 30) {
+        return null;
+      }
       const generator = new PhoneFormatGenerator(phoneNumber, countryCode);
+      const formats = generator.generateFormats();
       return {
-        formats: generator.generateFormats(),
-        searchQueries: generator.generateSearchQueries(generator.generateFormats()),
+        formats,
+        searchQueries: generator.generateSearchQueries(formats),
         smartQuery: generator.generateSmartQuery()
       };
     } catch (err) {
@@ -831,7 +836,18 @@ function setupIpcHandlers() {
   });
 
   ipcMain.handle('phone-intel-open-search', async (event, searchUrl) => {
-    // Create a new tab with the search URL
+    // Validate URL - only allow trusted search engines
+    if (!searchUrl || typeof searchUrl !== 'string') return null;
+    try {
+      const url = new URL(searchUrl);
+      const allowedHosts = ['www.google.com', 'google.com', 'duckduckgo.com', 'www.duckduckgo.com'];
+      if (!allowedHosts.includes(url.hostname)) {
+        console.warn(`Blocked search URL with untrusted host: ${url.hostname}`);
+        return null;
+      }
+    } catch {
+      return null;
+    }
     const tabId = state.generateTabId();
     createTab(tabId, searchUrl);
     notifyRenderer('tab-created', { tabId, url: searchUrl });
@@ -840,6 +856,13 @@ function setupIpcHandlers() {
 
   ipcMain.handle('phone-intel-batch-search', async (event, phoneNumber, countryCode, searchEngine) => {
     try {
+      // Input validation
+      if (!phoneNumber || typeof phoneNumber !== 'string' || phoneNumber.length > 30) {
+        return null;
+      }
+      if (searchEngine !== 'duckduckgo' && searchEngine !== 'google') {
+        searchEngine = 'duckduckgo'; // Default to privacy-respecting search
+      }
       const generator = new PhoneFormatGenerator(phoneNumber, countryCode);
       const smartQuery = generator.generateSmartQuery();
 
@@ -890,13 +913,30 @@ app.on('window-all-closed', () => {
   }
 });
 
-// Security: prevent file:// navigation from web content
+// Security: Comprehensive web content security
 app.on('web-contents-created', (event, contents) => {
-  contents.on('will-navigate', (event, url) => {
-    if (url.startsWith('file://')) {
-      event.preventDefault();
+  // Prevent file:// navigation
+  contents.on('will-navigate', (navEvent, url) => {
+    if (url.startsWith('file://') || url.startsWith('javascript:')) {
+      navEvent.preventDefault();
     }
   });
+
+  // Block new window creation to untrusted origins
+  contents.setWindowOpenHandler(({ url }) => {
+    // Only allow http/https URLs
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return { action: 'deny' };
+    }
+    return { action: 'allow' };
+  });
+
+  // Disable remote module (deprecated but ensure it's off)
+  contents.on('remote-require', (event) => event.preventDefault());
+  contents.on('remote-get-builtin', (event) => event.preventDefault());
+  contents.on('remote-get-global', (event) => event.preventDefault());
+  contents.on('remote-get-current-window', (event) => event.preventDefault());
+  contents.on('remote-get-current-web-contents', (event) => event.preventDefault());
 });
 
 // Error handling
