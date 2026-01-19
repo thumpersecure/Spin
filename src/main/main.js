@@ -1,6 +1,6 @@
 /**
  * SANDIEGO Browser - OSINT Investigation Suite
- * Version: 3.1.0
+ * Version: 3.2.0
  *
  * A privacy-first browser engineered for Open Source Intelligence gathering.
  * Built for investigators, researchers, and privacy-conscious users.
@@ -8,10 +8,10 @@
  * Platform Support: Windows 11, macOS (Intel/ARM), Debian/Ubuntu Linux
  */
 
-const { app, BrowserWindow, BrowserView, ipcMain, session, Menu, nativeTheme, shell } = require('electron');
+const { app, BrowserWindow, BrowserView, ipcMain, session, Menu, nativeTheme, shell, dialog, clipboard, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { execSync, spawn } = require('child_process');
 const Store = require('electron-store');
 const { PhoneFormatGenerator, PhoneIntelReport, COUNTRY_CODES } = require('../extensions/phone-intel');
 
@@ -24,8 +24,11 @@ const Platform = {
   isMac: process.platform === 'darwin',
   isLinux: process.platform === 'linux',
 
-  // Detailed OS info
+  // Detailed OS info with caching
+  _infoCache: null,
   get info() {
+    if (this._infoCache) return this._infoCache;
+
     const info = {
       platform: process.platform,
       arch: process.arch,
@@ -35,11 +38,13 @@ const Platform = {
       isUbuntu: false,
       isFedora: false,
       isArch: false,
-      macVersion: null
+      macVersion: null,
+      electronVersion: process.versions.electron,
+      chromeVersion: process.versions.chrome,
+      nodeVersion: process.versions.node
     };
 
     if (this.isWindows) {
-      // Detect Windows 11 (build >= 22000)
       try {
         const version = info.version.split('.');
         const build = parseInt(version[2] || 0);
@@ -48,14 +53,13 @@ const Platform = {
     }
 
     if (this.isLinux) {
-      // Detect Linux distribution
       try {
         if (fs.existsSync('/etc/os-release')) {
           const osRelease = fs.readFileSync('/etc/os-release', 'utf8');
-          info.isDebian = osRelease.includes('debian') || osRelease.includes('Debian');
-          info.isUbuntu = osRelease.includes('ubuntu') || osRelease.includes('Ubuntu');
-          info.isFedora = osRelease.includes('fedora') || osRelease.includes('Fedora');
-          info.isArch = osRelease.includes('arch') || osRelease.includes('Arch');
+          info.isDebian = /debian/i.test(osRelease);
+          info.isUbuntu = /ubuntu/i.test(osRelease);
+          info.isFedora = /fedora/i.test(osRelease);
+          info.isArch = /arch/i.test(osRelease);
         }
       } catch (e) { /* ignore */ }
     }
@@ -64,6 +68,7 @@ const Platform = {
       info.macVersion = info.version;
     }
 
+    this._infoCache = info;
     return info;
   },
 
@@ -86,7 +91,6 @@ const Platform = {
         path.join(process.env.HOME || '', 'Applications/Tor Browser.app/Contents/MacOS/Tor/tor')
       ];
     }
-    // Linux (Debian, Ubuntu, Fedora, Arch)
     return [
       '/usr/bin/tor',
       '/usr/sbin/tor',
@@ -95,45 +99,41 @@ const Platform = {
     ];
   },
 
-  // Check if Tor is running
+  // Check if Tor is running with timeout
   isTorRunning() {
     try {
-      if (this.isWindows) {
-        execSync('netstat -an | findstr ":9050"', { stdio: 'pipe' });
-        return true;
-      } else {
-        execSync('lsof -i :9050 2>/dev/null || ss -tlnp 2>/dev/null | grep :9050', { stdio: 'pipe' });
-        return true;
-      }
+      const cmd = this.isWindows
+        ? 'netstat -an | findstr ":9050"'
+        : 'lsof -i :9050 2>/dev/null || ss -tlnp 2>/dev/null | grep :9050';
+      execSync(cmd, { stdio: 'pipe', timeout: 5000 });
+      return true;
     } catch (e) {
       return false;
     }
   },
 
-  // Platform-specific user agents (blend in with common browsers)
+  // Platform-specific user agents
   get userAgents() {
+    const year = new Date().getFullYear();
     if (this.isWindows) {
       return {
-        firefox: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
-        chrome: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        firefox: `Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0`,
+        chrome: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36`
       };
     }
     if (this.isMac) {
       return {
-        firefox: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.2; rv:121.0) Gecko/20100101 Firefox/121.0',
-        safari: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15'
+        firefox: `Mozilla/5.0 (Macintosh; Intel Mac OS X 14.3; rv:122.0) Gecko/20100101 Firefox/122.0`,
+        safari: `Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15`
       };
     }
-    // Linux
     return {
-      firefox: 'Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0',
-      chrome: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      firefox: `Mozilla/5.0 (X11; Linux x86_64; rv:122.0) Gecko/20100101 Firefox/122.0`,
+      chrome: `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36`
     };
   },
 
-  // Get appropriate user agent for blending in
   get defaultUserAgent() {
-    // Firefox is preferred for privacy - most common on each platform
     return this.userAgents.firefox;
   },
 
@@ -145,11 +145,9 @@ const Platform = {
     if (this.isMac) {
       return path.join(process.env.HOME || '', 'Library', 'Application Support', 'SANDIEGO');
     }
-    // Linux - follow XDG spec
     return path.join(process.env.XDG_CONFIG_HOME || path.join(process.env.HOME || '', '.config'), 'sandiego');
   },
 
-  // Platform-specific cache paths
   get cachePath() {
     if (this.isWindows) {
       return path.join(process.env.LOCALAPPDATA || '', 'SANDIEGO', 'Cache');
@@ -157,8 +155,14 @@ const Platform = {
     if (this.isMac) {
       return path.join(process.env.HOME || '', 'Library', 'Caches', 'SANDIEGO');
     }
-    // Linux - follow XDG spec
     return path.join(process.env.XDG_CACHE_HOME || path.join(process.env.HOME || '', '.cache'), 'sandiego');
+  },
+
+  get downloadPath() {
+    if (this.isWindows) {
+      return path.join(process.env.USERPROFILE || '', 'Downloads');
+    }
+    return path.join(process.env.HOME || '', 'Downloads');
   }
 };
 
@@ -167,7 +171,7 @@ const Platform = {
 // ============================================
 
 const CONFIG = {
-  version: '3.1.0',
+  version: '3.2.0',
   name: 'SANDIEGO Browser',
   codename: 'OSINT Investigation Suite',
 
@@ -176,34 +180,31 @@ const CONFIG = {
     height: 900,
     minWidth: 800,
     minHeight: 600,
-    // macOS specific: show traffic lights
     titleBarStyle: Platform.isMac ? 'hiddenInset' : 'default',
-    // Windows 11: use native frame for snap layouts
     frame: Platform.isWindows ? false : false,
-    // Windows 11 specific rounded corners
     roundedCorners: Platform.isWindows,
   },
 
   layout: {
-    // Adjust title bar height for each platform
     titleBarHeight: Platform.isMac ? 28 : (Platform.isWindows ? 32 : 36),
     tabBarHeight: 38,
     navBarHeight: 44,
     panelWidth: 340,
-    // macOS traffic light positioning
     trafficLightPosition: Platform.isMac ? { x: 12, y: 12 } : null
   },
 
   privacy: {
-    // Tor proxy - uses socks5h for DNS resolution through Tor
     torProxy: 'socks5h://127.0.0.1:9050',
-    // Platform-specific user agent
     defaultUserAgent: Platform.defaultUserAgent,
-    // Alternative user agents for rotation
     userAgentPool: Object.values(Platform.userAgents)
   },
 
-  // Platform info for renderer
+  network: {
+    requestTimeout: 30000,
+    maxRetries: 3,
+    retryDelay: 1000
+  },
+
   platform: {
     os: process.platform,
     arch: process.arch,
@@ -214,36 +215,113 @@ const CONFIG = {
   }
 };
 
-// Tracker domains to block - comprehensive OSINT-aware list
+// Comprehensive tracker domains list
 const TRACKER_DOMAINS = new Set([
   // Google
   'google-analytics.com', 'googletagmanager.com', 'googlesyndication.com',
   'doubleclick.net', 'googleadservices.com', 'google.com/pagead',
+  'googletagservices.com', 'googleoptimize.com', 'googlevideo.com',
   // Meta/Facebook
   'facebook.net', 'connect.facebook.net', 'pixel.facebook.com',
+  'facebook.com/tr', 'fbcdn.net/signals',
   // Twitter/X
   'analytics.twitter.com', 'ads.twitter.com', 'static.ads-twitter.com',
+  'syndication.twitter.com', 't.co/i/adsct',
   // TikTok
-  'analytics.tiktok.com', 'ads.tiktok.com',
+  'analytics.tiktok.com', 'ads.tiktok.com', 'analytics-sg.tiktok.com',
   // Microsoft
-  'bat.bing.com', 'clarity.ms', 'c.bing.com',
+  'bat.bing.com', 'clarity.ms', 'c.bing.com', 'c.msn.com',
   // LinkedIn
-  'ads.linkedin.com', 'px.ads.linkedin.com',
+  'ads.linkedin.com', 'px.ads.linkedin.com', 'snap.licdn.com',
   // Analytics Platforms
   'hotjar.com', 'mouseflow.com', 'fullstory.com', 'logrocket.com',
   'mixpanel.com', 'amplitude.com', 'segment.io', 'segment.com', 'heap.io',
-  'optimizely.com', 'crazyegg.com', 'luckyorange.com',
+  'optimizely.com', 'crazyegg.com', 'luckyorange.com', 'inspectlet.com',
+  'smartlook.com', 'usefathom.com',
   // APM/Error Tracking
   'newrelic.com', 'nr-data.net', 'sentry.io', 'bugsnag.com', 'raygun.com',
+  'rollbar.com', 'track-js.com',
   // Ad Networks
   'adroll.com', 'criteo.com', 'outbrain.com', 'taboola.com', 'revcontent.com',
   'scorecardresearch.com', 'quantserve.com', 'comscore.com',
   'rubiconproject.com', 'pubmatic.com', 'openx.net', 'appnexus.com',
   'casalemedia.com', 'moatads.com', 'omtrdc.net', 'bidswitch.net',
   'demdex.net', 'krxd.net', 'bluekai.com', 'exelator.com',
+  'adsrvr.org', 'adnxs.com', 'rlcdn.com', 'crwdcntrl.net',
   // CDN Tracking
-  'cdn.mxpnl.com', 'cdn.heapanalytics.com'
+  'cdn.mxpnl.com', 'cdn.heapanalytics.com', 'cdn.segment.com'
 ]);
+
+// Known malicious domain patterns (for warning)
+const SUSPICIOUS_PATTERNS = [
+  /^[a-z0-9]{20,}\.(com|net|org)$/i,  // Random long domain
+  /\.(tk|ml|ga|cf|gq)$/i,              // Free TLD often abused
+  /bit\.ly|tinyurl|t\.co/i             // URL shorteners (warn only)
+];
+
+// ============================================
+// Utility Functions
+// ============================================
+
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+function safelyParseUrl(input) {
+  if (!input || typeof input !== 'string') return null;
+  try {
+    return new URL(input);
+  } catch (e) {
+    return null;
+  }
+}
+
+function getBaseDomain(hostname) {
+  if (!hostname) return '';
+  const parts = hostname.split('.');
+  // Handle two-letter TLDs with known second-level domains (co.uk, com.au, etc.)
+  const twoLevelTlds = ['co.uk', 'com.au', 'co.nz', 'com.br', 'co.jp', 'com.mx', 'org.uk', 'net.au'];
+  const lastTwo = parts.slice(-2).join('.');
+  if (twoLevelTlds.includes(lastTwo) && parts.length > 2) {
+    return parts.slice(-3).join('.');
+  }
+  if (parts.length <= 2) return hostname;
+  return parts.slice(-2).join('.');
+}
+
+function isTrackerDomain(hostname) {
+  if (!hostname) return false;
+  for (const tracker of TRACKER_DOMAINS) {
+    if (hostname === tracker || hostname.endsWith(`.${tracker}`)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isSuspiciousDomain(hostname) {
+  if (!hostname) return false;
+  return SUSPICIOUS_PATTERNS.some(pattern => pattern.test(hostname));
+}
 
 // ============================================
 // Application State Manager
@@ -264,14 +342,17 @@ class AppState {
           doNotTrack: true,
           spoofUserAgent: true,
           httpsUpgrade: true,
-          clearOnExit: false
+          clearOnExit: false,
+          warnSuspiciousDomains: true
         },
         appearance: {
-          theme: 'dark', // Always dark for OSINT work
+          theme: 'dark',
           accentColor: 'red'
         },
         bookmarks: [],
         history: [],
+        downloads: [],
+        sessions: [],
         platform: Platform.info
       }
     });
@@ -283,7 +364,19 @@ class AppState {
     this.panelOpen = false;
     this.panelWidth = 0;
     this.privacyApplied = false;
+    this.torAvailable = false;
+    this.isOnline = true;
+    this.downloads = new Map();
+    this.certificateErrors = new Map();
+    this._initNetworkMonitoring();
+  }
+
+  _initNetworkMonitoring() {
+    // Check Tor availability on startup
     this.torAvailable = Platform.isTorRunning();
+
+    // Monitor network status
+    this.isOnline = net.isOnline();
   }
 
   get privacy() {
@@ -301,10 +394,55 @@ class AppState {
     return `tab-${++this.tabCounter}-${Date.now()}`;
   }
 
-  // Refresh Tor status
   refreshTorStatus() {
     this.torAvailable = Platform.isTorRunning();
     return this.torAvailable;
+  }
+
+  // Session management
+  saveSession() {
+    const sessionData = [];
+    for (const [tabId, tab] of this.tabs) {
+      if (tab.url && !tab.url.startsWith('about:')) {
+        sessionData.push({
+          id: tabId,
+          url: tab.url,
+          title: tab.title,
+          isActive: tabId === this.activeTabId
+        });
+      }
+    }
+    this.store.set('sessions', sessionData);
+    return sessionData;
+  }
+
+  getLastSession() {
+    return this.store.get('sessions', []);
+  }
+
+  // History management
+  addToHistory(url, title) {
+    if (!url || url.startsWith('about:') || url.startsWith('view-source:')) return;
+    const history = this.store.get('history', []);
+    const entry = {
+      url,
+      title: title || url,
+      timestamp: Date.now()
+    };
+    // Remove duplicate if exists
+    const filtered = history.filter(h => h.url !== url);
+    filtered.unshift(entry);
+    // Keep last 1000 entries
+    this.store.set('history', filtered.slice(0, 1000));
+  }
+
+  getHistory(limit = 100) {
+    const history = this.store.get('history', []);
+    return history.slice(0, limit);
+  }
+
+  clearHistory() {
+    this.store.set('history', []);
   }
 }
 
@@ -326,27 +464,26 @@ function createMainWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      spellcheck: true
+      spellcheck: true,
+      enableWebSQL: false,
+      webgl: true,
+      experimentalFeatures: false
     },
     show: false
   };
 
   // Platform-specific window configuration
   if (Platform.isMac) {
-    // macOS: Hidden inset title bar with traffic lights
     windowConfig.titleBarStyle = 'hiddenInset';
     windowConfig.trafficLightPosition = CONFIG.layout.trafficLightPosition;
     windowConfig.vibrancy = 'under-window';
     windowConfig.visualEffectState = 'active';
   } else if (Platform.isWindows) {
-    // Windows: Frameless with custom controls
     windowConfig.frame = false;
-    // Windows 11 rounded corners
     if (Platform.info.isWindows11) {
       windowConfig.backgroundMaterial = 'none';
     }
   } else {
-    // Linux: Frameless (works well on GNOME, KDE, XFCE)
     windowConfig.frame = false;
   }
 
@@ -358,62 +495,73 @@ function createMainWindow() {
     state.mainWindow.show();
     applyPrivacySettings();
 
-    // Send platform info to renderer
     notifyRenderer('platform-info', CONFIG.platform);
+    notifyRenderer('network-status', { online: state.isOnline });
 
-    // Check Tor availability and notify
     if (state.torAvailable) {
       notifyRenderer('notification', {
         type: 'info',
         message: 'Tor service detected. Enable in Privacy settings.'
       });
     }
+
+    // Restore last session if available
+    const lastSession = state.getLastSession();
+    if (lastSession.length > 0) {
+      notifyRenderer('session-available', { tabCount: lastSession.length });
+    }
   });
 
+  // Window event handlers with proper error handling
   state.mainWindow.on('resize', debounce(() => {
-    updateAllTabBounds();
+    try {
+      updateAllTabBounds();
+    } catch (err) {
+      console.error('Error updating tab bounds:', err);
+    }
   }, 16));
 
   state.mainWindow.on('closed', () => {
     state.mainWindow = null;
   });
 
-  state.mainWindow.on('close', async () => {
-    if (state.privacy.clearOnExit) {
-      await clearBrowsingData();
+  state.mainWindow.on('close', async (event) => {
+    try {
+      // Save session before closing
+      state.saveSession();
+
+      if (state.privacy.clearOnExit) {
+        await clearBrowsingData();
+      }
+    } catch (err) {
+      console.error('Error during window close:', err);
     }
   });
 
-  // macOS specific: handle window state
-  if (Platform.isMac) {
-    state.mainWindow.on('enter-full-screen', () => {
-      notifyRenderer('fullscreen-change', true);
-    });
-    state.mainWindow.on('leave-full-screen', () => {
-      notifyRenderer('fullscreen-change', false);
-    });
-  }
+  // Fullscreen handling
+  state.mainWindow.on('enter-full-screen', () => {
+    notifyRenderer('fullscreen-change', true);
+  });
+
+  state.mainWindow.on('leave-full-screen', () => {
+    notifyRenderer('fullscreen-change', false);
+  });
+
+  // Focus handling
+  state.mainWindow.on('focus', () => {
+    notifyRenderer('window-focus', true);
+  });
+
+  state.mainWindow.on('blur', () => {
+    notifyRenderer('window-focus', false);
+  });
 
   setupApplicationMenu();
-}
-
-// Debounce utility
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
 }
 
 function setupApplicationMenu() {
   const template = [];
 
-  // macOS app menu
   if (Platform.isMac) {
     template.push({
       label: app.name,
@@ -433,7 +581,6 @@ function setupApplicationMenu() {
     });
   }
 
-  // File menu
   template.push({
     label: 'File',
     submenu: [
@@ -442,11 +589,12 @@ function setupApplicationMenu() {
       { type: 'separator' },
       { label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: () => createMainWindow() },
       { type: 'separator' },
+      { label: 'Restore Last Session', click: () => restoreLastSession() },
+      { type: 'separator' },
       ...(Platform.isMac ? [] : [{ role: 'quit' }])
     ]
   });
 
-  // Edit menu
   template.push({
     label: 'Edit',
     submenu: [
@@ -476,7 +624,6 @@ function setupApplicationMenu() {
     ]
   });
 
-  // View menu
   template.push({
     label: 'View',
     submenu: [
@@ -493,7 +640,6 @@ function setupApplicationMenu() {
     ]
   });
 
-  // OSINT menu (unique to this browser)
   template.push({
     label: 'OSINT',
     submenu: [
@@ -503,11 +649,13 @@ function setupApplicationMenu() {
       { label: 'Capture Screenshot', accelerator: 'CmdOrCtrl+Shift+S', click: () => captureScreenshot() },
       { label: 'View Page Source', accelerator: 'CmdOrCtrl+U', click: () => viewPageSource() },
       { type: 'separator' },
+      { label: 'Copy Page as Markdown', click: () => copyPageAsMarkdown() },
+      { label: 'Export Page as PDF', click: () => exportPageAsPDF() },
+      { type: 'separator' },
       { label: 'Clear All Data', click: () => clearBrowsingData() }
     ]
   });
 
-  // Privacy menu
   template.push({
     label: 'Privacy',
     submenu: [
@@ -516,11 +664,11 @@ function setupApplicationMenu() {
       { label: 'Toggle Tor', accelerator: 'CmdOrCtrl+Shift+T', click: () => toggleTor() },
       { label: 'Check Tor Status', click: () => checkTorAndNotify() },
       { type: 'separator' },
-      { label: 'Clear Browsing Data', click: () => clearBrowsingData() }
+      { label: 'Clear Browsing Data', click: () => clearBrowsingData() },
+      { label: 'Clear History', click: () => state.clearHistory() }
     ]
   });
 
-  // Window menu (primarily macOS)
   if (Platform.isMac) {
     template.push({
       label: 'Window',
@@ -535,7 +683,6 @@ function setupApplicationMenu() {
     });
   }
 
-  // Help menu
   template.push({
     label: 'Help',
     submenu: [
@@ -560,11 +707,19 @@ function setupApplicationMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-// Helper functions for menu actions
+// ============================================
+// Menu Action Handlers
+// ============================================
+
 function createNewTabFromMenu() {
-  const tabId = state.generateTabId();
-  createTab(tabId, null);
-  notifyRenderer('tab-created', { tabId, url: '' });
+  try {
+    const tabId = state.generateTabId();
+    createTab(tabId, null);
+    notifyRenderer('tab-created', { tabId, url: '' });
+  } catch (err) {
+    console.error('Error creating new tab:', err);
+    notifyRenderer('notification', { type: 'error', message: 'Failed to create new tab' });
+  }
 }
 
 function closeActiveTab() {
@@ -574,19 +729,27 @@ function closeActiveTab() {
 }
 
 function checkTorAndNotify() {
-  const available = state.refreshTorStatus();
-  notifyRenderer('notification', {
-    type: available ? 'success' : 'warning',
-    message: available ? 'Tor service is running and ready.' : 'Tor service not detected. Please start Tor.'
-  });
-  notifyRenderer('tor-status', { available });
+  try {
+    const available = state.refreshTorStatus();
+    notifyRenderer('notification', {
+      type: available ? 'success' : 'warning',
+      message: available ? 'Tor service is running and ready.' : 'Tor service not detected. Please start Tor.'
+    });
+    notifyRenderer('tor-status', { available });
+  } catch (err) {
+    console.error('Error checking Tor:', err);
+  }
 }
 
 function toggleTor() {
-  const current = state.privacy.torEnabled;
-  state.setPrivacy('torEnabled', !current);
-  applyTorProxy();
-  notifyRenderer('privacy-updated', state.privacy);
+  try {
+    const current = state.privacy.torEnabled;
+    state.setPrivacy('torEnabled', !current);
+    applyTorProxy();
+    notifyRenderer('privacy-updated', state.privacy);
+  } catch (err) {
+    console.error('Error toggling Tor:', err);
+  }
 }
 
 async function captureScreenshot() {
@@ -600,17 +763,94 @@ async function captureScreenshot() {
     notifyRenderer('screenshot-captured', { dataUrl });
   } catch (err) {
     console.error('Screenshot error:', err);
+    notifyRenderer('notification', { type: 'error', message: 'Failed to capture screenshot' });
   }
 }
 
 function viewPageSource() {
   if (!state.activeTabId) return;
   const tab = state.tabs.get(state.activeTabId);
-  if (tab && tab.url) {
-    const sourceUrl = `view-source:${tab.url}`;
-    const tabId = state.generateTabId();
-    createTab(tabId, sourceUrl);
-    notifyRenderer('tab-created', { tabId, url: sourceUrl });
+  if (tab && tab.url && !tab.url.startsWith('view-source:')) {
+    try {
+      const sourceUrl = `view-source:${tab.url}`;
+      const tabId = state.generateTabId();
+      createTab(tabId, sourceUrl);
+      notifyRenderer('tab-created', { tabId, url: sourceUrl });
+    } catch (err) {
+      console.error('Error viewing source:', err);
+    }
+  }
+}
+
+async function copyPageAsMarkdown() {
+  if (!state.activeTabId) return;
+  const tab = state.tabs.get(state.activeTabId);
+  if (!tab) return;
+
+  try {
+    const markdown = await tab.view.webContents.executeJavaScript(`
+      (function() {
+        const title = document.title;
+        const url = window.location.href;
+        const description = document.querySelector('meta[name="description"]')?.content || '';
+        const h1 = document.querySelector('h1')?.textContent || '';
+        return '# ' + title + '\\n\\n' +
+               '**URL:** ' + url + '\\n\\n' +
+               (description ? '**Description:** ' + description + '\\n\\n' : '') +
+               (h1 && h1 !== title ? '## ' + h1 + '\\n\\n' : '');
+      })()
+    `);
+    clipboard.writeText(markdown);
+    notifyRenderer('notification', { type: 'success', message: 'Page copied as Markdown' });
+  } catch (err) {
+    console.error('Error copying as Markdown:', err);
+    notifyRenderer('notification', { type: 'error', message: 'Failed to copy page' });
+  }
+}
+
+async function exportPageAsPDF() {
+  if (!state.activeTabId) return;
+  const tab = state.tabs.get(state.activeTabId);
+  if (!tab) return;
+
+  try {
+    const { filePath } = await dialog.showSaveDialog(state.mainWindow, {
+      defaultPath: path.join(Platform.downloadPath, `${tab.title || 'page'}.pdf`),
+      filters: [{ name: 'PDF', extensions: ['pdf'] }]
+    });
+
+    if (filePath) {
+      const data = await tab.view.webContents.printToPDF({
+        printBackground: true,
+        pageSize: 'A4'
+      });
+      fs.writeFileSync(filePath, data);
+      notifyRenderer('notification', { type: 'success', message: 'PDF exported successfully' });
+    }
+  } catch (err) {
+    console.error('Error exporting PDF:', err);
+    notifyRenderer('notification', { type: 'error', message: 'Failed to export PDF' });
+  }
+}
+
+function restoreLastSession() {
+  try {
+    const session = state.getLastSession();
+    if (session.length === 0) {
+      notifyRenderer('notification', { type: 'info', message: 'No previous session found' });
+      return;
+    }
+
+    session.forEach(tabData => {
+      const tabId = state.generateTabId();
+      createTab(tabId, tabData.url);
+      notifyRenderer('tab-created', { tabId, url: tabData.url });
+    });
+
+    notifyRenderer('notification', { type: 'success', message: `Restored ${session.length} tabs` });
+  } catch (err) {
+    console.error('Error restoring session:', err);
+    notifyRenderer('notification', { type: 'error', message: 'Failed to restore session' });
   }
 }
 
@@ -621,47 +861,56 @@ function viewPageSource() {
 function createTab(tabId, url = null) {
   if (!state.mainWindow) return null;
 
-  const view = new BrowserView({
-    webPreferences: {
-      preload: path.join(__dirname, '../preload/webview-preload.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: true,
-      webSecurity: true,
-      allowRunningInsecureContent: false,
-      // Platform-specific preferences
-      spellcheck: true,
-      enableWebSQL: false
+  try {
+    const view = new BrowserView({
+      webPreferences: {
+        preload: path.join(__dirname, '../preload/webview-preload.js'),
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: true,
+        webSecurity: true,
+        allowRunningInsecureContent: false,
+        spellcheck: true,
+        enableWebSQL: false,
+        webgl: true
+      }
+    });
+
+    const tabData = {
+      view,
+      url: url || '',
+      title: 'New Tab',
+      favicon: null,
+      loading: false,
+      canGoBack: false,
+      canGoForward: false,
+      zoomLevel: 0,
+      createdAt: Date.now(),
+      lastAccessed: Date.now()
+    };
+
+    state.tabs.set(tabId, tabData);
+    state.mainWindow.addBrowserView(view);
+
+    updateTabBounds(tabId);
+    applyPrivacyToView(view);
+    setupViewEventHandlers(tabId, view);
+
+    if (url) {
+      navigateTab(tabId, url);
     }
-  });
 
-  const tabData = {
-    view,
-    url: url || '',
-    title: 'New Tab',
-    favicon: null,
-    loading: false,
-    canGoBack: false,
-    canGoForward: false
-  };
-
-  state.tabs.set(tabId, tabData);
-  state.mainWindow.addBrowserView(view);
-
-  updateTabBounds(tabId);
-  applyPrivacyToView(view);
-  setupViewEventHandlers(tabId, view);
-
-  if (url) {
-    navigateTab(tabId, url);
+    return tabId;
+  } catch (err) {
+    console.error('Error creating tab:', err);
+    return null;
   }
-
-  return tabId;
 }
 
 function setupViewEventHandlers(tabId, view) {
   const wc = view.webContents;
 
+  // Loading events
   wc.on('did-start-loading', () => {
     const tab = state.tabs.get(tabId);
     if (tab) {
@@ -678,7 +927,29 @@ function setupViewEventHandlers(tabId, view) {
     }
   });
 
+  // Navigation events
   wc.on('did-navigate', (event, url) => {
+    const tab = state.tabs.get(tabId);
+    if (tab) {
+      tab.url = url;
+      tab.canGoBack = wc.canGoBack();
+      tab.canGoForward = wc.canGoForward();
+      tab.lastAccessed = Date.now();
+
+      // Add to history
+      state.addToHistory(url, tab.title);
+
+      notifyRenderer('tab-navigated', {
+        tabId,
+        url,
+        canGoBack: tab.canGoBack,
+        canGoForward: tab.canGoForward
+      });
+    }
+  });
+
+  wc.on('did-navigate-in-page', (event, url, isMainFrame) => {
+    if (!isMainFrame) return;
     const tab = state.tabs.get(tabId);
     if (tab) {
       tab.url = url;
@@ -693,14 +964,7 @@ function setupViewEventHandlers(tabId, view) {
     }
   });
 
-  wc.on('did-navigate-in-page', (event, url) => {
-    const tab = state.tabs.get(tabId);
-    if (tab) {
-      tab.url = url;
-      notifyRenderer('tab-navigated', { tabId, url });
-    }
-  });
-
+  // Title update
   wc.on('page-title-updated', (event, title) => {
     const tab = state.tabs.get(tabId);
     if (tab) {
@@ -709,6 +973,7 @@ function setupViewEventHandlers(tabId, view) {
     }
   });
 
+  // Favicon update
   wc.on('page-favicon-updated', (event, favicons) => {
     const tab = state.tabs.get(tabId);
     if (tab && favicons && favicons.length > 0) {
@@ -717,24 +982,96 @@ function setupViewEventHandlers(tabId, view) {
     }
   });
 
-  wc.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-    if (errorCode !== -3) { // -3 is aborted, not an error
-      notifyRenderer('tab-error', {
-        tabId,
-        error: errorDescription,
-        url: validatedURL,
-        code: errorCode
-      });
-    }
+  // Error handling
+  wc.on('did-fail-load', (event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+    if (!isMainFrame) return;
+    if (errorCode === -3) return; // -3 is aborted, not an error
+
+    console.error(`Tab ${tabId} load error: ${errorCode} - ${errorDescription} for ${validatedURL}`);
+    notifyRenderer('tab-error', {
+      tabId,
+      error: errorDescription,
+      url: validatedURL,
+      code: errorCode
+    });
   });
 
-  wc.setWindowOpenHandler(({ url }) => {
+  // Crash handling
+  wc.on('render-process-gone', (event, details) => {
+    console.error(`Tab ${tabId} crashed:`, details);
+    notifyRenderer('tab-crashed', {
+      tabId,
+      reason: details.reason,
+      exitCode: details.exitCode
+    });
+  });
+
+  // Unresponsive handling
+  wc.on('unresponsive', () => {
+    notifyRenderer('tab-unresponsive', { tabId });
+  });
+
+  wc.on('responsive', () => {
+    notifyRenderer('tab-responsive', { tabId });
+  });
+
+  // Certificate error handling
+  wc.on('certificate-error', (event, url, error, certificate, callback) => {
+    event.preventDefault();
+
+    // Store the error for this URL
+    state.certificateErrors.set(url, { error, certificate });
+
+    notifyRenderer('certificate-error', {
+      tabId,
+      url,
+      error,
+      issuer: certificate.issuerName,
+      subject: certificate.subjectName
+    });
+
+    // Block by default for security
+    callback(false);
+  });
+
+  // New window handling
+  wc.setWindowOpenHandler(({ url, frameName, features }) => {
+    // Validate URL
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return { action: 'deny' };
+    }
+
+    // Check for suspicious domains
+    const parsedUrl = safelyParseUrl(url);
+    if (parsedUrl && state.privacy.warnSuspiciousDomains && isSuspiciousDomain(parsedUrl.hostname)) {
+      notifyRenderer('notification', {
+        type: 'warning',
+        message: `Blocked suspicious popup: ${parsedUrl.hostname}`
+      });
+      return { action: 'deny' };
+    }
+
     const newTabId = state.generateTabId();
     createTab(newTabId, url);
     notifyRenderer('tab-created', { tabId: newTabId, url });
     return { action: 'deny' };
   });
 
+  // Context menu
+  wc.on('context-menu', (event, params) => {
+    notifyRenderer('context-menu', {
+      tabId,
+      x: params.x,
+      y: params.y,
+      linkURL: params.linkURL,
+      srcURL: params.srcURL,
+      selectionText: params.selectionText,
+      isEditable: params.isEditable,
+      mediaType: params.mediaType
+    });
+  });
+
+  // Apply fingerprint protection
   if (state.privacy.blockFingerprinting) {
     applyFingerprintProtection(wc);
   }
@@ -744,18 +1081,22 @@ function updateTabBounds(tabId) {
   const tab = state.tabs.get(tabId);
   if (!tab || !state.mainWindow) return;
 
-  const bounds = state.mainWindow.getContentBounds();
-  const { titleBarHeight, tabBarHeight, navBarHeight } = CONFIG.layout;
+  try {
+    const bounds = state.mainWindow.getContentBounds();
+    const { titleBarHeight, tabBarHeight, navBarHeight } = CONFIG.layout;
 
-  const topOffset = titleBarHeight + tabBarHeight + navBarHeight;
-  const leftOffset = state.panelOpen ? state.panelWidth : 0;
+    const topOffset = titleBarHeight + tabBarHeight + navBarHeight;
+    const leftOffset = state.panelOpen ? state.panelWidth : 0;
 
-  tab.view.setBounds({
-    x: leftOffset,
-    y: topOffset,
-    width: Math.max(1, bounds.width - leftOffset),
-    height: Math.max(1, bounds.height - topOffset)
-  });
+    tab.view.setBounds({
+      x: leftOffset,
+      y: topOffset,
+      width: Math.max(1, bounds.width - leftOffset),
+      height: Math.max(1, bounds.height - topOffset)
+    });
+  } catch (err) {
+    console.error('Error updating tab bounds:', err);
+  }
 }
 
 function updateAllTabBounds() {
@@ -770,45 +1111,57 @@ function showTab(tabId) {
   const tab = state.tabs.get(tabId);
   if (!tab || !state.mainWindow) return;
 
-  // Hide other views by setting zero bounds
-  for (const [id, t] of state.tabs) {
-    if (id !== tabId) {
-      t.view.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+  try {
+    // Hide other views
+    for (const [id, t] of state.tabs) {
+      if (id !== tabId) {
+        t.view.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+      }
     }
+
+    state.activeTabId = tabId;
+    tab.lastAccessed = Date.now();
+    updateTabBounds(tabId);
+
+    if (tab.view.webContents && !tab.view.webContents.isDestroyed()) {
+      tab.view.webContents.focus();
+    }
+
+    notifyRenderer('tab-activated', {
+      tabId,
+      url: tab.url,
+      title: tab.title,
+      canGoBack: tab.canGoBack,
+      canGoForward: tab.canGoForward
+    });
+  } catch (err) {
+    console.error('Error showing tab:', err);
   }
-
-  state.activeTabId = tabId;
-  updateTabBounds(tabId);
-  tab.view.webContents.focus();
-
-  notifyRenderer('tab-activated', {
-    tabId,
-    url: tab.url,
-    title: tab.title,
-    canGoBack: tab.canGoBack,
-    canGoForward: tab.canGoForward
-  });
 }
 
 function closeTab(tabId) {
   const tab = state.tabs.get(tabId);
   if (!tab || !state.mainWindow) return;
 
-  state.mainWindow.removeBrowserView(tab.view);
+  try {
+    state.mainWindow.removeBrowserView(tab.view);
 
-  if (tab.view.webContents && !tab.view.webContents.isDestroyed()) {
-    tab.view.webContents.destroy();
-  }
-
-  state.tabs.delete(tabId);
-
-  if (state.activeTabId === tabId) {
-    const remaining = Array.from(state.tabs.keys());
-    if (remaining.length > 0) {
-      showTab(remaining[remaining.length - 1]);
-    } else {
-      state.activeTabId = null;
+    if (tab.view.webContents && !tab.view.webContents.isDestroyed()) {
+      tab.view.webContents.destroy();
     }
+
+    state.tabs.delete(tabId);
+
+    if (state.activeTabId === tabId) {
+      const remaining = Array.from(state.tabs.keys());
+      if (remaining.length > 0) {
+        showTab(remaining[remaining.length - 1]);
+      } else {
+        state.activeTabId = null;
+      }
+    }
+  } catch (err) {
+    console.error('Error closing tab:', err);
   }
 }
 
@@ -816,21 +1169,39 @@ function navigateTab(tabId, url) {
   const tab = state.tabs.get(tabId);
   if (!tab) return;
 
-  let processedUrl = processUrl(url);
+  try {
+    let processedUrl = processUrl(url);
 
-  if (state.privacy.httpsUpgrade && processedUrl.startsWith('http://')) {
-    try {
-      const urlObj = new URL(processedUrl);
-      if (urlObj.hostname !== 'localhost' && !urlObj.hostname.startsWith('127.')) {
+    // HTTPS upgrade
+    if (state.privacy.httpsUpgrade && processedUrl.startsWith('http://')) {
+      const urlObj = safelyParseUrl(processedUrl);
+      if (urlObj && urlObj.hostname !== 'localhost' && !urlObj.hostname.startsWith('127.')) {
         processedUrl = processedUrl.replace('http://', 'https://');
       }
-    } catch (e) { /* ignore invalid URLs */ }
-  }
+    }
 
-  tab.url = processedUrl;
-  tab.view.webContents.loadURL(processedUrl).catch(err => {
-    console.error(`Navigation error: ${err.message}`);
-  });
+    // Warn about suspicious domains
+    const parsedUrl = safelyParseUrl(processedUrl);
+    if (parsedUrl && state.privacy.warnSuspiciousDomains && isSuspiciousDomain(parsedUrl.hostname)) {
+      notifyRenderer('notification', {
+        type: 'warning',
+        message: `Navigating to potentially suspicious domain: ${parsedUrl.hostname}`
+      });
+    }
+
+    tab.url = processedUrl;
+    tab.view.webContents.loadURL(processedUrl).catch(err => {
+      console.error(`Navigation error: ${err.message}`);
+      notifyRenderer('tab-error', {
+        tabId,
+        error: err.message,
+        url: processedUrl,
+        code: -1
+      });
+    });
+  } catch (err) {
+    console.error('Error navigating tab:', err);
+  }
 }
 
 function processUrl(input) {
@@ -838,19 +1209,33 @@ function processUrl(input) {
   input = input.trim();
 
   // Direct protocol URLs
-  if (input.startsWith('http://') || input.startsWith('https://') ||
-      input.startsWith('file://') || input.startsWith('view-source:')) {
+  if (/^(https?|file|view-source|about):/.test(input)) {
     return input;
   }
 
-  // Localhost
-  if (input.startsWith('localhost') || input.match(/^127\.\d+\.\d+\.\d+/)) {
+  // Localhost variations
+  if (/^localhost(:\d+)?/.test(input) || /^127\.\d+\.\d+\.\d+(:\d+)?/.test(input)) {
     return `http://${input}`;
   }
 
-  // Looks like a domain
-  if (input.includes('.') && !input.includes(' ')) {
-    return `https://${input}`;
+  // IP address
+  if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?/.test(input)) {
+    return `http://${input}`;
+  }
+
+  // Looks like a domain (contains dot, no spaces)
+  if (input.includes('.') && !input.includes(' ') && /^[a-zA-Z0-9]/.test(input)) {
+    // Handle www prefix
+    if (input.startsWith('www.')) {
+      return `https://${input}`;
+    }
+    // Check if it looks like a valid domain
+    const parts = input.split('/')[0].split('.');
+    const tld = parts[parts.length - 1].toLowerCase();
+    const validTlds = ['com', 'org', 'net', 'io', 'co', 'gov', 'edu', 'info', 'biz', 'uk', 'de', 'fr', 'jp', 'au', 'ca'];
+    if (validTlds.includes(tld) || tld.length === 2) {
+      return `https://${input}`;
+    }
   }
 
   // Search query - use DuckDuckGo for privacy
@@ -866,86 +1251,90 @@ function applyPrivacySettings() {
   state.privacyApplied = true;
 
   const ses = session.defaultSession;
-  const privacy = state.privacy;
 
-  // Block trackers
-  if (privacy.blockTrackers) {
-    ses.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
-      try {
-        const url = new URL(details.url);
-        const hostname = url.hostname;
-
-        for (const tracker of TRACKER_DOMAINS) {
-          if (hostname === tracker || hostname.endsWith(`.${tracker}`)) {
-            callback({ cancel: true });
-            return;
-          }
-        }
-      } catch (e) {
-        // Invalid URL, allow through
-      }
-      callback({ cancel: false });
-    });
-  }
-
-  // Block third-party cookies
-  if (privacy.blockThirdPartyCookies) {
-    ses.webRequest.onHeadersReceived((details, callback) => {
-      if (!state.privacy.blockThirdPartyCookies) {
-        callback({ responseHeaders: details.responseHeaders });
+  // Request interception for tracker blocking
+  ses.webRequest.onBeforeRequest({ urls: ['*://*/*'] }, (details, callback) => {
+    try {
+      const url = safelyParseUrl(details.url);
+      if (!url) {
+        callback({ cancel: false });
         return;
       }
 
-      try {
-        const requestUrl = new URL(details.url);
-        const requestDomain = getBaseDomain(requestUrl.hostname);
+      const hostname = url.hostname;
+
+      // Block trackers if enabled
+      if (state.privacy.blockTrackers && isTrackerDomain(hostname)) {
+        callback({ cancel: true });
+        return;
+      }
+
+      callback({ cancel: false });
+    } catch (e) {
+      callback({ cancel: false });
+    }
+  });
+
+  // Response header modification
+  ses.webRequest.onHeadersReceived((details, callback) => {
+    try {
+      const responseHeaders = { ...details.responseHeaders };
+
+      // Block third-party cookies
+      if (state.privacy.blockThirdPartyCookies) {
+        const requestUrl = safelyParseUrl(details.url);
+        const requestDomain = requestUrl ? getBaseDomain(requestUrl.hostname) : '';
         let isThirdParty = false;
 
         if (details.referrer) {
-          try {
-            const referrerUrl = new URL(details.referrer);
-            const referrerDomain = getBaseDomain(referrerUrl.hostname);
-            isThirdParty = requestDomain !== referrerDomain;
-          } catch (e) {
-            // Ignore
-          }
+          const referrerUrl = safelyParseUrl(details.referrer);
+          const referrerDomain = referrerUrl ? getBaseDomain(referrerUrl.hostname) : '';
+          isThirdParty = requestDomain && referrerDomain && requestDomain !== referrerDomain;
         }
 
-        if (isThirdParty && details.responseHeaders) {
-          const filtered = {};
-          for (const [key, value] of Object.entries(details.responseHeaders)) {
-            if (key.toLowerCase() !== 'set-cookie') {
-              filtered[key] = value;
-            }
-          }
-          callback({ responseHeaders: filtered });
-        } else {
-          callback({ responseHeaders: details.responseHeaders });
+        if (isThirdParty) {
+          delete responseHeaders['set-cookie'];
+          delete responseHeaders['Set-Cookie'];
         }
-      } catch (e) {
-        callback({ responseHeaders: details.responseHeaders });
       }
-    });
-  }
 
-  // Add privacy headers
-  ses.webRequest.onBeforeSendHeaders((details, callback) => {
-    const headers = { ...details.requestHeaders };
-    const currentPrivacy = state.privacy;
+      // Add security headers
+      responseHeaders['X-Content-Type-Options'] = ['nosniff'];
+      responseHeaders['X-Frame-Options'] = ['SAMEORIGIN'];
 
-    if (currentPrivacy.doNotTrack) {
-      headers['DNT'] = '1';
-      headers['Sec-GPC'] = '1';
+      callback({ responseHeaders });
+    } catch (e) {
+      callback({ responseHeaders: details.responseHeaders });
     }
-
-    if (currentPrivacy.spoofUserAgent) {
-      headers['User-Agent'] = CONFIG.privacy.defaultUserAgent;
-    }
-
-    callback({ requestHeaders: headers });
   });
 
-  // Configure Tor proxy if enabled
+  // Request header modification
+  ses.webRequest.onBeforeSendHeaders((details, callback) => {
+    try {
+      const headers = { ...details.requestHeaders };
+      const currentPrivacy = state.privacy;
+
+      // Add privacy headers
+      if (currentPrivacy.doNotTrack) {
+        headers['DNT'] = '1';
+        headers['Sec-GPC'] = '1';
+      }
+
+      // Spoof user agent
+      if (currentPrivacy.spoofUserAgent) {
+        headers['User-Agent'] = CONFIG.privacy.defaultUserAgent;
+      }
+
+      // Remove tracking headers
+      delete headers['X-Client-Data'];
+
+      callback({ requestHeaders: headers });
+    } catch (e) {
+      callback({ requestHeaders: details.requestHeaders });
+    }
+  });
+
+  // Apply Tor proxy if enabled
   applyTorProxy();
 }
 
@@ -954,16 +1343,14 @@ function applyTorProxy() {
   const privacy = state.privacy;
 
   if (privacy.torEnabled) {
-    // Check if Tor is actually running first
     if (!Platform.isTorRunning()) {
-      notifyRenderer('notification', {
-        type: 'error',
-        message: Platform.isWindows
-          ? 'Tor not running. Start tor.exe from your Tor installation.'
-          : Platform.isMac
-            ? 'Tor not running. Run: brew services start tor'
-            : 'Tor not running. Run: sudo systemctl start tor'
-      });
+      const torMessage = Platform.isWindows
+        ? 'Tor not running. Start tor.exe from your Tor installation.'
+        : Platform.isMac
+          ? 'Tor not running. Run: brew services start tor'
+          : 'Tor not running. Run: sudo systemctl start tor';
+
+      notifyRenderer('notification', { type: 'error', message: torMessage });
       state.setPrivacy('torEnabled', false);
       notifyRenderer('privacy-updated', state.privacy);
       return;
@@ -979,10 +1366,7 @@ function applyTorProxy() {
     }).catch(err => {
       console.error('Tor proxy error:', err);
       state.setPrivacy('torEnabled', false);
-      notifyRenderer('notification', {
-        type: 'error',
-        message: 'Failed to connect to Tor proxy.'
-      });
+      notifyRenderer('notification', { type: 'error', message: 'Failed to connect to Tor proxy.' });
     });
   } else {
     ses.setProxy({ proxyRules: '' }).catch(() => {});
@@ -990,100 +1374,133 @@ function applyTorProxy() {
 }
 
 function applyPrivacyToView(view) {
-  const privacy = state.privacy;
-
-  if (privacy.blockWebRTC) {
-    view.webContents.setWebRTCIPHandlingPolicy('disable_non_proxied_udp');
+  try {
+    if (state.privacy.blockWebRTC) {
+      view.webContents.setWebRTCIPHandlingPolicy('disable_non_proxied_udp');
+    }
+  } catch (err) {
+    console.error('Error applying privacy to view:', err);
   }
 }
 
 function applyFingerprintProtection(webContents) {
   webContents.on('dom-ready', () => {
-    // Platform-aware fingerprint protection
     const platformMask = Platform.isWindows ? 'Win32' : (Platform.isMac ? 'MacIntel' : 'Linux x86_64');
 
     webContents.executeJavaScript(`
       (function() {
         'use strict';
 
-        // Canvas fingerprint protection - add subtle noise
+        // Canvas fingerprint protection
         const origToDataURL = HTMLCanvasElement.prototype.toDataURL;
-        HTMLCanvasElement.prototype.toDataURL = function(type) {
+        const origToBlob = HTMLCanvasElement.prototype.toBlob;
+        const origGetImageData = CanvasRenderingContext2D.prototype.getImageData;
+
+        function addNoise(imageData) {
+          const data = imageData.data;
+          for (let i = 0; i < data.length; i += 4) {
+            data[i] = data[i] ^ (Math.random() * 2 | 0);
+          }
+          return imageData;
+        }
+
+        HTMLCanvasElement.prototype.toDataURL = function() {
           const ctx = this.getContext('2d');
-          if (ctx) {
+          if (ctx && this.width > 0 && this.height > 0) {
             try {
-              const imageData = ctx.getImageData(0, 0, this.width, this.height);
-              const data = imageData.data;
-              for (let i = 0; i < data.length; i += 4) {
-                data[i] = data[i] ^ (Math.random() * 2 | 0);
-              }
+              const imageData = origGetImageData.call(ctx, 0, 0, this.width, this.height);
+              addNoise(imageData);
               ctx.putImageData(imageData, 0, 0);
             } catch(e) {}
           }
           return origToDataURL.apply(this, arguments);
         };
 
-        // WebGL fingerprint protection
-        const origGetParameter = WebGLRenderingContext.prototype.getParameter;
-        WebGLRenderingContext.prototype.getParameter = function(param) {
-          if (param === 37445) return 'Intel Inc.';
-          if (param === 37446) return 'Intel Iris OpenGL Engine';
-          return origGetParameter.apply(this, arguments);
+        HTMLCanvasElement.prototype.toBlob = function(callback, type, quality) {
+          const ctx = this.getContext('2d');
+          if (ctx && this.width > 0 && this.height > 0) {
+            try {
+              const imageData = origGetImageData.call(ctx, 0, 0, this.width, this.height);
+              addNoise(imageData);
+              ctx.putImageData(imageData, 0, 0);
+            } catch(e) {}
+          }
+          return origToBlob.apply(this, arguments);
         };
 
-        // WebGL2 fingerprint protection
-        if (typeof WebGL2RenderingContext !== 'undefined') {
-          const origGetParameter2 = WebGL2RenderingContext.prototype.getParameter;
-          WebGL2RenderingContext.prototype.getParameter = function(param) {
-            if (param === 37445) return 'Intel Inc.';
-            if (param === 37446) return 'Intel Iris OpenGL Engine';
-            return origGetParameter2.apply(this, arguments);
+        // WebGL fingerprint protection
+        const glParams = {
+          37445: 'Intel Inc.',
+          37446: 'Intel Iris OpenGL Engine',
+          7936: 'WebKit',
+          7937: 'WebKit WebGL'
+        };
+
+        function interceptGetParameter(proto) {
+          const orig = proto.getParameter;
+          proto.getParameter = function(param) {
+            if (glParams[param]) return glParams[param];
+            return orig.apply(this, arguments);
           };
         }
 
-        // Screen property standardization (common resolution)
-        try {
-          Object.defineProperty(screen, 'width', { value: 1920, configurable: true });
-          Object.defineProperty(screen, 'height', { value: 1080, configurable: true });
-          Object.defineProperty(screen, 'availWidth', { value: 1920, configurable: true });
-          Object.defineProperty(screen, 'availHeight', { value: 1040, configurable: true });
-          Object.defineProperty(screen, 'colorDepth', { value: 24, configurable: true });
-          Object.defineProperty(screen, 'pixelDepth', { value: 24, configurable: true });
-        } catch(e) {}
+        if (typeof WebGLRenderingContext !== 'undefined') {
+          interceptGetParameter(WebGLRenderingContext.prototype);
+        }
+        if (typeof WebGL2RenderingContext !== 'undefined') {
+          interceptGetParameter(WebGL2RenderingContext.prototype);
+        }
 
-        // Platform mask
-        try {
-          Object.defineProperty(navigator, 'platform', { value: '${platformMask}', configurable: true });
-        } catch(e) {}
+        // Screen property standardization
+        const screenProps = {
+          width: 1920,
+          height: 1080,
+          availWidth: 1920,
+          availHeight: 1040,
+          colorDepth: 24,
+          pixelDepth: 24
+        };
 
-        // Remove battery API (privacy leak)
+        Object.keys(screenProps).forEach(prop => {
+          try {
+            Object.defineProperty(screen, prop, { value: screenProps[prop], configurable: true });
+          } catch(e) {}
+        });
+
+        // Navigator properties
+        const navProps = {
+          platform: '${platformMask}',
+          hardwareConcurrency: 4,
+          deviceMemory: 8,
+          maxTouchPoints: 0,
+          webdriver: false
+        };
+
+        Object.keys(navProps).forEach(prop => {
+          try {
+            Object.defineProperty(navigator, prop, { value: navProps[prop], configurable: true });
+          } catch(e) {}
+        });
+
+        // Remove battery API
         if (navigator.getBattery) {
           Object.defineProperty(navigator, 'getBattery', { value: undefined, configurable: true });
         }
 
-        // Spoof hardware concurrency (common value)
-        try {
-          Object.defineProperty(navigator, 'hardwareConcurrency', { value: 4, configurable: true });
-        } catch(e) {}
+        // Timezone spoofing (UTC)
+        const origDateGetTimezoneOffset = Date.prototype.getTimezoneOffset;
+        Date.prototype.getTimezoneOffset = function() { return 0; };
 
-        // Spoof device memory (common value)
-        try {
-          Object.defineProperty(navigator, 'deviceMemory', { value: 8, configurable: true });
-        } catch(e) {}
-
-        // Hide automation indicators
-        try {
-          Object.defineProperty(navigator, 'webdriver', { value: false, configurable: true });
-        } catch(e) {}
+        const origIntlDateTimeFormat = Intl.DateTimeFormat;
+        Intl.DateTimeFormat = function(locale, options) {
+          options = options || {};
+          options.timeZone = options.timeZone || 'UTC';
+          return new origIntlDateTimeFormat(locale, options);
+        };
+        Object.setPrototypeOf(Intl.DateTimeFormat, origIntlDateTimeFormat);
       })();
     `).catch(() => {});
   });
-}
-
-function getBaseDomain(hostname) {
-  const parts = hostname.split('.');
-  if (parts.length <= 2) return hostname;
-  return parts.slice(-2).join('.');
 }
 
 async function clearBrowsingData() {
@@ -1093,12 +1510,11 @@ async function clearBrowsingData() {
     await ses.clearStorageData({
       storages: ['cookies', 'localstorage', 'sessionstorage', 'indexdb', 'websql', 'serviceworkers', 'cachestorage']
     });
-    notifyRenderer('notification', {
-      type: 'success',
-      message: 'All browsing data cleared.'
-    });
+    state.clearHistory();
+    notifyRenderer('notification', { type: 'success', message: 'All browsing data cleared.' });
   } catch (err) {
     console.error('Clear data error:', err);
+    notifyRenderer('notification', { type: 'error', message: 'Failed to clear browsing data' });
   }
 }
 
@@ -1109,11 +1525,15 @@ async function clearBrowsingData() {
 function reloadActiveTab(ignoreCache = false) {
   if (!state.activeTabId) return;
   const tab = state.tabs.get(state.activeTabId);
-  if (tab) {
-    if (ignoreCache) {
-      tab.view.webContents.reloadIgnoringCache();
-    } else {
-      tab.view.webContents.reload();
+  if (tab && tab.view.webContents && !tab.view.webContents.isDestroyed()) {
+    try {
+      if (ignoreCache) {
+        tab.view.webContents.reloadIgnoringCache();
+      } else {
+        tab.view.webContents.reload();
+      }
+    } catch (err) {
+      console.error('Error reloading tab:', err);
     }
   }
 }
@@ -1121,12 +1541,20 @@ function reloadActiveTab(ignoreCache = false) {
 function zoomActiveTab(delta, reset = false) {
   if (!state.activeTabId) return;
   const tab = state.tabs.get(state.activeTabId);
-  if (tab) {
-    if (reset) {
-      tab.view.webContents.setZoomLevel(0);
-    } else {
-      const current = tab.view.webContents.getZoomLevel();
-      tab.view.webContents.setZoomLevel(Math.max(-5, Math.min(5, current + delta)));
+  if (tab && tab.view.webContents && !tab.view.webContents.isDestroyed()) {
+    try {
+      if (reset) {
+        tab.view.webContents.setZoomLevel(0);
+        tab.zoomLevel = 0;
+      } else {
+        const current = tab.view.webContents.getZoomLevel();
+        const newLevel = Math.max(-5, Math.min(5, current + delta));
+        tab.view.webContents.setZoomLevel(newLevel);
+        tab.zoomLevel = newLevel;
+      }
+      notifyRenderer('zoom-changed', { tabId: state.activeTabId, level: tab.zoomLevel });
+    } catch (err) {
+      console.error('Error zooming tab:', err);
     }
   }
 }
@@ -1134,8 +1562,12 @@ function zoomActiveTab(delta, reset = false) {
 function toggleDevTools() {
   if (!state.activeTabId) return;
   const tab = state.tabs.get(state.activeTabId);
-  if (tab) {
-    tab.view.webContents.toggleDevTools();
+  if (tab && tab.view.webContents && !tab.view.webContents.isDestroyed()) {
+    try {
+      tab.view.webContents.toggleDevTools();
+    } catch (err) {
+      console.error('Error toggling DevTools:', err);
+    }
   }
 }
 
@@ -1144,55 +1576,99 @@ function toggleDevTools() {
 // ============================================
 
 function setupIpcHandlers() {
-  // Platform info
+  // Platform & System info
   ipcMain.handle('get-platform-info', () => CONFIG.platform);
   ipcMain.handle('check-tor-status', () => ({ available: state.refreshTorStatus() }));
+  ipcMain.handle('get-network-status', () => ({ online: state.isOnline }));
+  ipcMain.handle('get-app-version', () => CONFIG.version);
 
   // Window controls
-  ipcMain.on('window-minimize', () => state.mainWindow?.minimize());
-  ipcMain.on('window-maximize', () => {
-    if (state.mainWindow?.isMaximized()) {
-      state.mainWindow.unmaximize();
-    } else {
-      state.mainWindow?.maximize();
-    }
+  ipcMain.on('window-minimize', () => {
+    try { state.mainWindow?.minimize(); } catch (e) {}
   });
-  ipcMain.on('window-close', () => state.mainWindow?.close());
+  ipcMain.on('window-maximize', () => {
+    try {
+      if (state.mainWindow?.isMaximized()) {
+        state.mainWindow.unmaximize();
+      } else {
+        state.mainWindow?.maximize();
+      }
+    } catch (e) {}
+  });
+  ipcMain.on('window-close', () => {
+    try { state.mainWindow?.close(); } catch (e) {}
+  });
 
   // Tab management
   ipcMain.handle('create-tab', (event, url) => {
-    const tabId = state.generateTabId();
-    createTab(tabId, url);
-    return tabId;
+    try {
+      const tabId = state.generateTabId();
+      createTab(tabId, url);
+      return tabId;
+    } catch (err) {
+      console.error('Error in create-tab handler:', err);
+      return null;
+    }
   });
 
-  ipcMain.on('show-tab', (event, tabId) => showTab(tabId));
-  ipcMain.on('close-tab', (event, tabId) => closeTab(tabId));
-  ipcMain.on('navigate', (event, tabId, url) => navigateTab(tabId, url));
+  ipcMain.on('show-tab', (event, tabId) => {
+    if (tabId && typeof tabId === 'string') {
+      showTab(tabId);
+    }
+  });
+
+  ipcMain.on('close-tab', (event, tabId) => {
+    if (tabId && typeof tabId === 'string') {
+      closeTab(tabId);
+    }
+  });
+
+  ipcMain.on('navigate', (event, tabId, url) => {
+    if (tabId && typeof tabId === 'string' && url && typeof url === 'string') {
+      navigateTab(tabId, url);
+    }
+  });
 
   ipcMain.on('go-back', (event, tabId) => {
-    const tab = state.tabs.get(tabId);
-    if (tab && tab.view.webContents.canGoBack()) {
-      tab.view.webContents.goBack();
-    }
+    try {
+      const tab = state.tabs.get(tabId);
+      if (tab && tab.view.webContents && tab.view.webContents.canGoBack()) {
+        tab.view.webContents.goBack();
+      }
+    } catch (e) {}
   });
 
   ipcMain.on('go-forward', (event, tabId) => {
-    const tab = state.tabs.get(tabId);
-    if (tab && tab.view.webContents.canGoForward()) {
-      tab.view.webContents.goForward();
-    }
+    try {
+      const tab = state.tabs.get(tabId);
+      if (tab && tab.view.webContents && tab.view.webContents.canGoForward()) {
+        tab.view.webContents.goForward();
+      }
+    } catch (e) {}
   });
 
   ipcMain.on('reload', (event, tabId) => {
-    const tab = state.tabs.get(tabId);
-    if (tab) tab.view.webContents.reload();
+    try {
+      const tab = state.tabs.get(tabId);
+      if (tab && tab.view.webContents && !tab.view.webContents.isDestroyed()) {
+        tab.view.webContents.reload();
+      }
+    } catch (e) {}
+  });
+
+  ipcMain.on('stop-loading', (event, tabId) => {
+    try {
+      const tab = state.tabs.get(tabId);
+      if (tab && tab.view.webContents && !tab.view.webContents.isDestroyed()) {
+        tab.view.webContents.stop();
+      }
+    } catch (e) {}
   });
 
   // Panel management
   ipcMain.on('panel-toggle', (event, open, width) => {
-    state.panelOpen = open;
-    state.panelWidth = width || CONFIG.layout.panelWidth;
+    state.panelOpen = Boolean(open);
+    state.panelWidth = typeof width === 'number' ? width : CONFIG.layout.panelWidth;
     updateAllTabBounds();
   });
 
@@ -1200,37 +1676,64 @@ function setupIpcHandlers() {
   ipcMain.handle('get-privacy-settings', () => state.privacy);
 
   ipcMain.handle('set-privacy-setting', (event, key, value) => {
-    const privacy = state.setPrivacy(key, value);
-
-    if (key === 'torEnabled') {
-      applyTorProxy();
+    if (typeof key !== 'string') return state.privacy;
+    try {
+      const privacy = state.setPrivacy(key, Boolean(value));
+      if (key === 'torEnabled') {
+        applyTorProxy();
+      }
+      notifyRenderer('privacy-updated', privacy);
+      return privacy;
+    } catch (err) {
+      console.error('Error setting privacy:', err);
+      return state.privacy;
     }
-
-    notifyRenderer('privacy-updated', privacy);
-    return privacy;
   });
 
   // Bookmarks
   ipcMain.handle('get-bookmarks', () => state.store.get('bookmarks', []));
 
   ipcMain.handle('add-bookmark', (event, bookmark) => {
-    const bookmarks = state.store.get('bookmarks', []);
-    if (!bookmarks.some(b => b.url === bookmark.url)) {
-      bookmarks.push({
-        ...bookmark,
-        id: `bm-${Date.now()}`,
-        createdAt: Date.now()
-      });
-      state.store.set('bookmarks', bookmarks);
+    try {
+      if (!bookmark || !bookmark.url || typeof bookmark.url !== 'string') return [];
+      const bookmarks = state.store.get('bookmarks', []);
+      if (!bookmarks.some(b => b.url === bookmark.url)) {
+        bookmarks.push({
+          title: String(bookmark.title || bookmark.url).slice(0, 200),
+          url: bookmark.url.slice(0, 2000),
+          id: `bm-${Date.now()}`,
+          createdAt: Date.now()
+        });
+        state.store.set('bookmarks', bookmarks);
+      }
+      return bookmarks;
+    } catch (err) {
+      console.error('Error adding bookmark:', err);
+      return [];
     }
-    return bookmarks;
   });
 
   ipcMain.handle('remove-bookmark', (event, url) => {
-    let bookmarks = state.store.get('bookmarks', []);
-    bookmarks = bookmarks.filter(b => b.url !== url);
-    state.store.set('bookmarks', bookmarks);
-    return bookmarks;
+    try {
+      if (!url || typeof url !== 'string') return [];
+      let bookmarks = state.store.get('bookmarks', []);
+      bookmarks = bookmarks.filter(b => b.url !== url);
+      state.store.set('bookmarks', bookmarks);
+      return bookmarks;
+    } catch (err) {
+      console.error('Error removing bookmark:', err);
+      return [];
+    }
+  });
+
+  // History
+  ipcMain.handle('get-history', (event, limit) => {
+    return state.getHistory(typeof limit === 'number' ? limit : 100);
+  });
+
+  ipcMain.handle('clear-history', () => {
+    state.clearHistory();
+    return true;
   });
 
   // Clear data
@@ -1243,7 +1746,7 @@ function setupIpcHandlers() {
   ipcMain.handle('capture-screenshot', async () => {
     if (!state.activeTabId) return null;
     const tab = state.tabs.get(state.activeTabId);
-    if (!tab) return null;
+    if (!tab || !tab.view.webContents || tab.view.webContents.isDestroyed()) return null;
 
     try {
       const image = await tab.view.webContents.capturePage();
@@ -1254,11 +1757,11 @@ function setupIpcHandlers() {
     }
   });
 
-  // Get page info
+  // Page info
   ipcMain.handle('get-page-info', async () => {
     if (!state.activeTabId) return null;
     const tab = state.tabs.get(state.activeTabId);
-    if (!tab) return null;
+    if (!tab || !tab.view.webContents || tab.view.webContents.isDestroyed()) return null;
 
     try {
       return await tab.view.webContents.executeJavaScript(`
@@ -1281,17 +1784,18 @@ function setupIpcHandlers() {
     }
   });
 
-  // ============================================
-  // Phone Intelligence IPC Handlers
-  // ============================================
-
-  ipcMain.handle('phone-intel-get-countries', () => {
-    return COUNTRY_CODES;
+  // Session management
+  ipcMain.handle('get-last-session', () => state.getLastSession());
+  ipcMain.handle('restore-session', () => {
+    restoreLastSession();
+    return true;
   });
+
+  // Phone Intelligence IPC Handlers
+  ipcMain.handle('phone-intel-get-countries', () => COUNTRY_CODES);
 
   ipcMain.handle('phone-intel-generate-formats', (event, phoneNumber, countryCode) => {
     try {
-      // Input validation
       if (!phoneNumber || typeof phoneNumber !== 'string' || phoneNumber.length > 30) {
         return null;
       }
@@ -1309,32 +1813,30 @@ function setupIpcHandlers() {
   });
 
   ipcMain.handle('phone-intel-open-search', async (event, searchUrl) => {
-    // Validate URL - only allow trusted search engines
     if (!searchUrl || typeof searchUrl !== 'string') return null;
     try {
-      const url = new URL(searchUrl);
+      const url = safelyParseUrl(searchUrl);
       const allowedHosts = ['www.google.com', 'google.com', 'duckduckgo.com', 'www.duckduckgo.com'];
-      if (!allowedHosts.includes(url.hostname)) {
-        console.warn(`Blocked search URL with untrusted host: ${url.hostname}`);
+      if (!url || !allowedHosts.includes(url.hostname)) {
+        console.warn(`Blocked search URL with untrusted host: ${url?.hostname}`);
         return null;
       }
-    } catch {
+      const tabId = state.generateTabId();
+      createTab(tabId, searchUrl);
+      notifyRenderer('tab-created', { tabId, url: searchUrl });
+      return tabId;
+    } catch (e) {
       return null;
     }
-    const tabId = state.generateTabId();
-    createTab(tabId, searchUrl);
-    notifyRenderer('tab-created', { tabId, url: searchUrl });
-    return tabId;
   });
 
   ipcMain.handle('phone-intel-batch-search', async (event, phoneNumber, countryCode, searchEngine) => {
     try {
-      // Input validation
       if (!phoneNumber || typeof phoneNumber !== 'string' || phoneNumber.length > 30) {
         return null;
       }
       if (searchEngine !== 'duckduckgo' && searchEngine !== 'google') {
-        searchEngine = 'duckduckgo'; // Default to privacy-respecting search
+        searchEngine = 'duckduckgo';
       }
       const generator = new PhoneFormatGenerator(phoneNumber, countryCode);
       const smartQuery = generator.generateSmartQuery();
@@ -1360,8 +1862,12 @@ function setupIpcHandlers() {
 // ============================================
 
 function notifyRenderer(channel, data) {
-  if (state.mainWindow && !state.mainWindow.isDestroyed()) {
-    state.mainWindow.webContents.send(channel, data);
+  try {
+    if (state.mainWindow && !state.mainWindow.isDestroyed()) {
+      state.mainWindow.webContents.send(channel, data);
+    }
+  } catch (err) {
+    console.error('Error notifying renderer:', err);
   }
 }
 
@@ -1372,6 +1878,19 @@ function notifyRenderer(channel, data) {
 // Set app user model ID for Windows
 if (Platform.isWindows) {
   app.setAppUserModelId('com.sandiego.browser');
+}
+
+// Handle single instance
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (state.mainWindow) {
+      if (state.mainWindow.isMinimized()) state.mainWindow.restore();
+      state.mainWindow.focus();
+    }
+  });
 }
 
 app.whenReady().then(() => {
@@ -1394,25 +1913,33 @@ app.on('window-all-closed', () => {
   }
 });
 
+// Cleanup before quit
+app.on('before-quit', () => {
+  try {
+    state.saveSession();
+  } catch (err) {
+    console.error('Error saving session before quit:', err);
+  }
+});
+
 // Security: Comprehensive web content security
 app.on('web-contents-created', (event, contents) => {
-  // Prevent file:// and javascript: navigation
+  // Prevent dangerous navigation
   contents.on('will-navigate', (navEvent, url) => {
-    if (url.startsWith('file://') || url.startsWith('javascript:') || url.startsWith('data:')) {
+    if (/^(file|javascript|data):/.test(url)) {
       navEvent.preventDefault();
     }
   });
 
   // Block new window creation to untrusted origins
   contents.setWindowOpenHandler(({ url }) => {
-    // Only allow http/https URLs
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       return { action: 'deny' };
     }
     return { action: 'allow' };
   });
 
-  // Disable remote module (deprecated but ensure it's off)
+  // Disable remote module
   contents.on('remote-require', (event) => event.preventDefault());
   contents.on('remote-get-builtin', (event) => event.preventDefault());
   contents.on('remote-get-global', (event) => event.preventDefault());
