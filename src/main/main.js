@@ -1,60 +1,248 @@
 /**
- * SANDIEGO Browser - Carmen Sandiego Edition
- * Version: 3.0.0-sandiego
- * "Where in the World Will You Search?"
+ * SANDIEGO Browser - OSINT Investigation Suite
+ * Version: 3.1.0
  *
- * A robust OSINT-focused web browser with built-in privacy protection
+ * A privacy-first browser engineered for Open Source Intelligence gathering.
+ * Built for investigators, researchers, and privacy-conscious users.
+ *
+ * Platform Support: Windows 11, macOS (Intel/ARM), Debian/Ubuntu Linux
  */
 
-const { app, BrowserWindow, BrowserView, ipcMain, session, Menu } = require('electron');
+const { app, BrowserWindow, BrowserView, ipcMain, session, Menu, nativeTheme, shell } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const { execSync } = require('child_process');
 const Store = require('electron-store');
 const { PhoneFormatGenerator, PhoneIntelReport, COUNTRY_CODES } = require('../extensions/phone-intel');
+
+// ============================================
+// Platform Detection & Configuration
+// ============================================
+
+const Platform = {
+  isWindows: process.platform === 'win32',
+  isMac: process.platform === 'darwin',
+  isLinux: process.platform === 'linux',
+
+  // Detailed OS info
+  get info() {
+    const info = {
+      platform: process.platform,
+      arch: process.arch,
+      version: process.getSystemVersion ? process.getSystemVersion() : 'unknown',
+      isWindows11: false,
+      isDebian: false,
+      isUbuntu: false,
+      isFedora: false,
+      isArch: false,
+      macVersion: null
+    };
+
+    if (this.isWindows) {
+      // Detect Windows 11 (build >= 22000)
+      try {
+        const version = info.version.split('.');
+        const build = parseInt(version[2] || 0);
+        info.isWindows11 = build >= 22000;
+      } catch (e) { /* ignore */ }
+    }
+
+    if (this.isLinux) {
+      // Detect Linux distribution
+      try {
+        if (fs.existsSync('/etc/os-release')) {
+          const osRelease = fs.readFileSync('/etc/os-release', 'utf8');
+          info.isDebian = osRelease.includes('debian') || osRelease.includes('Debian');
+          info.isUbuntu = osRelease.includes('ubuntu') || osRelease.includes('Ubuntu');
+          info.isFedora = osRelease.includes('fedora') || osRelease.includes('Fedora');
+          info.isArch = osRelease.includes('arch') || osRelease.includes('Arch');
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    if (this.isMac) {
+      info.macVersion = info.version;
+    }
+
+    return info;
+  },
+
+  // Platform-specific Tor paths
+  get torPaths() {
+    if (this.isWindows) {
+      return [
+        'C:\\Tor\\tor.exe',
+        'C:\\Program Files\\Tor\\tor.exe',
+        'C:\\Program Files (x86)\\Tor Browser\\Browser\\TorBrowser\\Tor\\tor.exe',
+        path.join(process.env.LOCALAPPDATA || '', 'Tor Browser\\Browser\\TorBrowser\\Tor\\tor.exe'),
+        path.join(process.env.PROGRAMFILES || '', 'Tor Browser\\Browser\\TorBrowser\\Tor\\tor.exe')
+      ];
+    }
+    if (this.isMac) {
+      return [
+        '/usr/local/bin/tor',
+        '/opt/homebrew/bin/tor',
+        '/Applications/Tor Browser.app/Contents/MacOS/Tor/tor',
+        path.join(process.env.HOME || '', 'Applications/Tor Browser.app/Contents/MacOS/Tor/tor')
+      ];
+    }
+    // Linux (Debian, Ubuntu, Fedora, Arch)
+    return [
+      '/usr/bin/tor',
+      '/usr/sbin/tor',
+      '/usr/local/bin/tor',
+      '/snap/bin/tor'
+    ];
+  },
+
+  // Check if Tor is running
+  isTorRunning() {
+    try {
+      if (this.isWindows) {
+        execSync('netstat -an | findstr ":9050"', { stdio: 'pipe' });
+        return true;
+      } else {
+        execSync('lsof -i :9050 2>/dev/null || ss -tlnp 2>/dev/null | grep :9050', { stdio: 'pipe' });
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+  },
+
+  // Platform-specific user agents (blend in with common browsers)
+  get userAgents() {
+    if (this.isWindows) {
+      return {
+        firefox: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+        chrome: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      };
+    }
+    if (this.isMac) {
+      return {
+        firefox: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.2; rv:121.0) Gecko/20100101 Firefox/121.0',
+        safari: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15'
+      };
+    }
+    // Linux
+    return {
+      firefox: 'Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0',
+      chrome: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    };
+  },
+
+  // Get appropriate user agent for blending in
+  get defaultUserAgent() {
+    // Firefox is preferred for privacy - most common on each platform
+    return this.userAgents.firefox;
+  },
+
+  // Platform-specific config paths
+  get configPath() {
+    if (this.isWindows) {
+      return path.join(process.env.APPDATA || '', 'SANDIEGO');
+    }
+    if (this.isMac) {
+      return path.join(process.env.HOME || '', 'Library', 'Application Support', 'SANDIEGO');
+    }
+    // Linux - follow XDG spec
+    return path.join(process.env.XDG_CONFIG_HOME || path.join(process.env.HOME || '', '.config'), 'sandiego');
+  },
+
+  // Platform-specific cache paths
+  get cachePath() {
+    if (this.isWindows) {
+      return path.join(process.env.LOCALAPPDATA || '', 'SANDIEGO', 'Cache');
+    }
+    if (this.isMac) {
+      return path.join(process.env.HOME || '', 'Library', 'Caches', 'SANDIEGO');
+    }
+    // Linux - follow XDG spec
+    return path.join(process.env.XDG_CACHE_HOME || path.join(process.env.HOME || '', '.cache'), 'sandiego');
+  }
+};
 
 // ============================================
 // Configuration & Constants
 // ============================================
 
 const CONFIG = {
-  version: '3.0.0-sandiego',
+  version: '3.1.0',
   name: 'SANDIEGO Browser',
+  codename: 'OSINT Investigation Suite',
+
   window: {
     width: 1400,
     height: 900,
     minWidth: 800,
-    minHeight: 600
+    minHeight: 600,
+    // macOS specific: show traffic lights
+    titleBarStyle: Platform.isMac ? 'hiddenInset' : 'default',
+    // Windows 11: use native frame for snap layouts
+    frame: Platform.isWindows ? false : false,
+    // Windows 11 specific rounded corners
+    roundedCorners: Platform.isWindows,
   },
+
   layout: {
-    titleBarHeight: 36,
+    // Adjust title bar height for each platform
+    titleBarHeight: Platform.isMac ? 28 : (Platform.isWindows ? 32 : 36),
     tabBarHeight: 38,
     navBarHeight: 44,
-    panelWidth: 340
+    panelWidth: 340,
+    // macOS traffic light positioning
+    trafficLightPosition: Platform.isMac ? { x: 12, y: 12 } : null
   },
+
   privacy: {
+    // Tor proxy - uses socks5h for DNS resolution through Tor
     torProxy: 'socks5h://127.0.0.1:9050',
-    defaultUserAgent: 'Mozilla/5.0 (Windows NT 10.0; rv:115.0) Gecko/20100101 Firefox/115.0'
+    // Platform-specific user agent
+    defaultUserAgent: Platform.defaultUserAgent,
+    // Alternative user agents for rotation
+    userAgentPool: Object.values(Platform.userAgents)
+  },
+
+  // Platform info for renderer
+  platform: {
+    os: process.platform,
+    arch: process.arch,
+    isWindows: Platform.isWindows,
+    isMac: Platform.isMac,
+    isLinux: Platform.isLinux,
+    info: Platform.info
   }
 };
 
-// Tracker domains to block - comprehensive list
+// Tracker domains to block - comprehensive OSINT-aware list
 const TRACKER_DOMAINS = new Set([
+  // Google
   'google-analytics.com', 'googletagmanager.com', 'googlesyndication.com',
-  'doubleclick.net', 'googleadservices.com',
-  'facebook.net', 'connect.facebook.net',
-  'analytics.twitter.com', 'ads.twitter.com',
+  'doubleclick.net', 'googleadservices.com', 'google.com/pagead',
+  // Meta/Facebook
+  'facebook.net', 'connect.facebook.net', 'pixel.facebook.com',
+  // Twitter/X
+  'analytics.twitter.com', 'ads.twitter.com', 'static.ads-twitter.com',
+  // TikTok
   'analytics.tiktok.com', 'ads.tiktok.com',
-  'pixel.advertising.com', 'ads.linkedin.com',
-  'bat.bing.com', 'clarity.ms',
-  'hotjar.com', 'mouseflow.com', 'fullstory.com',
-  'mixpanel.com', 'amplitude.com', 'segment.io', 'segment.com',
-  'optimizely.com', 'crazyegg.com',
-  'newrelic.com', 'nr-data.net',
-  'sentry.io', 'bugsnag.com',
-  'adroll.com', 'criteo.com', 'outbrain.com', 'taboola.com',
+  // Microsoft
+  'bat.bing.com', 'clarity.ms', 'c.bing.com',
+  // LinkedIn
+  'ads.linkedin.com', 'px.ads.linkedin.com',
+  // Analytics Platforms
+  'hotjar.com', 'mouseflow.com', 'fullstory.com', 'logrocket.com',
+  'mixpanel.com', 'amplitude.com', 'segment.io', 'segment.com', 'heap.io',
+  'optimizely.com', 'crazyegg.com', 'luckyorange.com',
+  // APM/Error Tracking
+  'newrelic.com', 'nr-data.net', 'sentry.io', 'bugsnag.com', 'raygun.com',
+  // Ad Networks
+  'adroll.com', 'criteo.com', 'outbrain.com', 'taboola.com', 'revcontent.com',
   'scorecardresearch.com', 'quantserve.com', 'comscore.com',
-  'rubiconproject.com', 'pubmatic.com', 'openx.net',
-  'casalemedia.com', 'moatads.com', 'omtrdc.net',
-  'demdex.net', 'krxd.net', 'bluekai.com'
+  'rubiconproject.com', 'pubmatic.com', 'openx.net', 'appnexus.com',
+  'casalemedia.com', 'moatads.com', 'omtrdc.net', 'bidswitch.net',
+  'demdex.net', 'krxd.net', 'bluekai.com', 'exelator.com',
+  // CDN Tracking
+  'cdn.mxpnl.com', 'cdn.heapanalytics.com'
 ]);
 
 // ============================================
@@ -65,6 +253,7 @@ class AppState {
   constructor() {
     this.store = new Store({
       name: 'sandiego-config',
+      cwd: Platform.configPath,
       defaults: {
         privacy: {
           torEnabled: false,
@@ -77,8 +266,13 @@ class AppState {
           httpsUpgrade: true,
           clearOnExit: false
         },
+        appearance: {
+          theme: 'dark', // Always dark for OSINT work
+          accentColor: 'red'
+        },
         bookmarks: [],
-        history: []
+        history: [],
+        platform: Platform.info
       }
     });
 
@@ -89,6 +283,7 @@ class AppState {
     this.panelOpen = false;
     this.panelWidth = 0;
     this.privacyApplied = false;
+    this.torAvailable = Platform.isTorRunning();
   }
 
   get privacy() {
@@ -105,6 +300,12 @@ class AppState {
   generateTabId() {
     return `tab-${++this.tabCounter}-${Date.now()}`;
   }
+
+  // Refresh Tor status
+  refreshTorStatus() {
+    this.torAvailable = Platform.isTorRunning();
+    return this.torAvailable;
+  }
 }
 
 const state = new AppState();
@@ -114,27 +315,59 @@ const state = new AppState();
 // ============================================
 
 function createMainWindow() {
-  state.mainWindow = new BrowserWindow({
+  const windowConfig = {
     width: CONFIG.window.width,
     height: CONFIG.window.height,
     minWidth: CONFIG.window.minWidth,
     minHeight: CONFIG.window.minHeight,
-    frame: false,
     backgroundColor: '#0D0D0F',
     webPreferences: {
       preload: path.join(__dirname, '../preload/preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
+      sandbox: true,
+      spellcheck: true
     },
     show: false
-  });
+  };
+
+  // Platform-specific window configuration
+  if (Platform.isMac) {
+    // macOS: Hidden inset title bar with traffic lights
+    windowConfig.titleBarStyle = 'hiddenInset';
+    windowConfig.trafficLightPosition = CONFIG.layout.trafficLightPosition;
+    windowConfig.vibrancy = 'under-window';
+    windowConfig.visualEffectState = 'active';
+  } else if (Platform.isWindows) {
+    // Windows: Frameless with custom controls
+    windowConfig.frame = false;
+    // Windows 11 rounded corners
+    if (Platform.info.isWindows11) {
+      windowConfig.backgroundMaterial = 'none';
+    }
+  } else {
+    // Linux: Frameless (works well on GNOME, KDE, XFCE)
+    windowConfig.frame = false;
+  }
+
+  state.mainWindow = new BrowserWindow(windowConfig);
 
   state.mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
 
   state.mainWindow.once('ready-to-show', () => {
     state.mainWindow.show();
     applyPrivacySettings();
+
+    // Send platform info to renderer
+    notifyRenderer('platform-info', CONFIG.platform);
+
+    // Check Tor availability and notify
+    if (state.torAvailable) {
+      notifyRenderer('notification', {
+        type: 'info',
+        message: 'Tor service detected. Enable in Privacy settings.'
+      });
+    }
   });
 
   state.mainWindow.on('resize', debounce(() => {
@@ -150,6 +383,16 @@ function createMainWindow() {
       await clearBrowsingData();
     }
   });
+
+  // macOS specific: handle window state
+  if (Platform.isMac) {
+    state.mainWindow.on('enter-full-screen', () => {
+      notifyRenderer('fullscreen-change', true);
+    });
+    state.mainWindow.on('leave-full-screen', () => {
+      notifyRenderer('fullscreen-change', false);
+    });
+  }
 
   setupApplicationMenu();
 }
@@ -168,13 +411,18 @@ function debounce(func, wait) {
 }
 
 function setupApplicationMenu() {
-  const isMac = process.platform === 'darwin';
+  const template = [];
 
-  const template = [
-    ...(isMac ? [{
+  // macOS app menu
+  if (Platform.isMac) {
+    template.push({
       label: app.name,
       submenu: [
         { label: 'About SANDIEGO', role: 'about' },
+        { type: 'separator' },
+        { label: 'Check for Tor...', click: () => checkTorAndNotify() },
+        { type: 'separator' },
+        { role: 'services' },
         { type: 'separator' },
         { role: 'hide' },
         { role: 'hideOthers' },
@@ -182,34 +430,188 @@ function setupApplicationMenu() {
         { type: 'separator' },
         { role: 'quit' }
       ]
-    }] : []),
-    {
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
+    });
+  }
+
+  // File menu
+  template.push({
+    label: 'File',
+    submenu: [
+      { label: 'New Tab', accelerator: 'CmdOrCtrl+T', click: () => createNewTabFromMenu() },
+      { label: 'Close Tab', accelerator: 'CmdOrCtrl+W', click: () => closeActiveTab() },
+      { type: 'separator' },
+      { label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: () => createMainWindow() },
+      { type: 'separator' },
+      ...(Platform.isMac ? [] : [{ role: 'quit' }])
+    ]
+  });
+
+  // Edit menu
+  template.push({
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      ...(Platform.isMac ? [
+        { role: 'pasteAndMatchStyle' },
+        { role: 'delete' },
+        { role: 'selectAll' },
         { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
+        {
+          label: 'Speech',
+          submenu: [
+            { role: 'startSpeaking' },
+            { role: 'stopSpeaking' }
+          ]
+        }
+      ] : [
+        { role: 'delete' },
+        { type: 'separator' },
         { role: 'selectAll' }
-      ]
-    },
-    {
-      label: 'View',
+      ])
+    ]
+  });
+
+  // View menu
+  template.push({
+    label: 'View',
+    submenu: [
+      { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: () => reloadActiveTab() },
+      { label: 'Force Reload', accelerator: 'CmdOrCtrl+Shift+R', click: () => reloadActiveTab(true) },
+      { type: 'separator' },
+      { label: 'Zoom In', accelerator: 'CmdOrCtrl+Plus', click: () => zoomActiveTab(0.5) },
+      { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', click: () => zoomActiveTab(-0.5) },
+      { label: 'Reset Zoom', accelerator: 'CmdOrCtrl+0', click: () => zoomActiveTab(0, true) },
+      { type: 'separator' },
+      { label: 'Toggle DevTools', accelerator: Platform.isMac ? 'Cmd+Option+I' : 'F12', click: () => toggleDevTools() },
+      { type: 'separator' },
+      { role: 'togglefullscreen' }
+    ]
+  });
+
+  // OSINT menu (unique to this browser)
+  template.push({
+    label: 'OSINT',
+    submenu: [
+      { label: 'Phone Intelligence...', accelerator: 'CmdOrCtrl+Shift+P', click: () => notifyRenderer('open-panel', 'phone-intel') },
+      { label: 'OSINT Bookmarks', accelerator: 'CmdOrCtrl+Shift+B', click: () => notifyRenderer('open-panel', 'bookmarks') },
+      { type: 'separator' },
+      { label: 'Capture Screenshot', accelerator: 'CmdOrCtrl+Shift+S', click: () => captureScreenshot() },
+      { label: 'View Page Source', accelerator: 'CmdOrCtrl+U', click: () => viewPageSource() },
+      { type: 'separator' },
+      { label: 'Clear All Data', click: () => clearBrowsingData() }
+    ]
+  });
+
+  // Privacy menu
+  template.push({
+    label: 'Privacy',
+    submenu: [
+      { label: 'Privacy Dashboard...', accelerator: 'CmdOrCtrl+Shift+D', click: () => notifyRenderer('open-panel', 'privacy') },
+      { type: 'separator' },
+      { label: 'Toggle Tor', accelerator: 'CmdOrCtrl+Shift+T', click: () => toggleTor() },
+      { label: 'Check Tor Status', click: () => checkTorAndNotify() },
+      { type: 'separator' },
+      { label: 'Clear Browsing Data', click: () => clearBrowsingData() }
+    ]
+  });
+
+  // Window menu (primarily macOS)
+  if (Platform.isMac) {
+    template.push({
+      label: 'Window',
       submenu: [
-        { label: 'Reload', accelerator: 'CmdOrCtrl+R', click: () => reloadActiveTab() },
+        { role: 'minimize' },
+        { role: 'zoom' },
         { type: 'separator' },
-        { label: 'Zoom In', accelerator: 'CmdOrCtrl+Plus', click: () => zoomActiveTab(0.5) },
-        { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', click: () => zoomActiveTab(-0.5) },
-        { label: 'Reset Zoom', accelerator: 'CmdOrCtrl+0', click: () => zoomActiveTab(0, true) },
+        { role: 'front' },
         { type: 'separator' },
-        { label: 'Toggle DevTools', accelerator: 'F12', click: () => toggleDevTools() }
+        { role: 'window' }
       ]
-    }
-  ];
+    });
+  }
+
+  // Help menu
+  template.push({
+    label: 'Help',
+    submenu: [
+      {
+        label: 'OSINT Resources',
+        click: async () => {
+          await shell.openExternal('https://osintframework.com/');
+        }
+      },
+      {
+        label: 'Report Issue',
+        click: async () => {
+          await shell.openExternal('https://github.com/thumpersecure/Spin/issues');
+        }
+      },
+      { type: 'separator' },
+      { label: `SANDIEGO v${CONFIG.version}`, enabled: false },
+      { label: `Platform: ${Platform.info.platform} ${Platform.info.arch}`, enabled: false }
+    ]
+  });
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+// Helper functions for menu actions
+function createNewTabFromMenu() {
+  const tabId = state.generateTabId();
+  createTab(tabId, null);
+  notifyRenderer('tab-created', { tabId, url: '' });
+}
+
+function closeActiveTab() {
+  if (state.activeTabId) {
+    closeTab(state.activeTabId);
+  }
+}
+
+function checkTorAndNotify() {
+  const available = state.refreshTorStatus();
+  notifyRenderer('notification', {
+    type: available ? 'success' : 'warning',
+    message: available ? 'Tor service is running and ready.' : 'Tor service not detected. Please start Tor.'
+  });
+  notifyRenderer('tor-status', { available });
+}
+
+function toggleTor() {
+  const current = state.privacy.torEnabled;
+  state.setPrivacy('torEnabled', !current);
+  applyTorProxy();
+  notifyRenderer('privacy-updated', state.privacy);
+}
+
+async function captureScreenshot() {
+  if (!state.activeTabId) return;
+  const tab = state.tabs.get(state.activeTabId);
+  if (!tab) return;
+
+  try {
+    const image = await tab.view.webContents.capturePage();
+    const dataUrl = image.toDataURL();
+    notifyRenderer('screenshot-captured', { dataUrl });
+  } catch (err) {
+    console.error('Screenshot error:', err);
+  }
+}
+
+function viewPageSource() {
+  if (!state.activeTabId) return;
+  const tab = state.tabs.get(state.activeTabId);
+  if (tab && tab.url) {
+    const sourceUrl = `view-source:${tab.url}`;
+    const tabId = state.generateTabId();
+    createTab(tabId, sourceUrl);
+    notifyRenderer('tab-created', { tabId, url: sourceUrl });
+  }
 }
 
 // ============================================
@@ -226,7 +628,10 @@ function createTab(tabId, url = null) {
       nodeIntegration: false,
       sandbox: true,
       webSecurity: true,
-      allowRunningInsecureContent: false
+      allowRunningInsecureContent: false,
+      // Platform-specific preferences
+      spellcheck: true,
+      enableWebSQL: false
     }
   });
 
@@ -313,7 +718,7 @@ function setupViewEventHandlers(tabId, view) {
   });
 
   wc.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-    if (errorCode !== -3) {
+    if (errorCode !== -3) { // -3 is aborted, not an error
       notifyRenderer('tab-error', {
         tabId,
         error: errorDescription,
@@ -414,10 +819,12 @@ function navigateTab(tabId, url) {
   let processedUrl = processUrl(url);
 
   if (state.privacy.httpsUpgrade && processedUrl.startsWith('http://')) {
-    const urlObj = new URL(processedUrl);
-    if (urlObj.hostname !== 'localhost' && !urlObj.hostname.startsWith('127.')) {
-      processedUrl = processedUrl.replace('http://', 'https://');
-    }
+    try {
+      const urlObj = new URL(processedUrl);
+      if (urlObj.hostname !== 'localhost' && !urlObj.hostname.startsWith('127.')) {
+        processedUrl = processedUrl.replace('http://', 'https://');
+      }
+    } catch (e) { /* ignore invalid URLs */ }
   }
 
   tab.url = processedUrl;
@@ -430,18 +837,23 @@ function processUrl(input) {
   if (!input || typeof input !== 'string') return 'about:blank';
   input = input.trim();
 
-  if (input.startsWith('http://') || input.startsWith('https://') || input.startsWith('file://')) {
+  // Direct protocol URLs
+  if (input.startsWith('http://') || input.startsWith('https://') ||
+      input.startsWith('file://') || input.startsWith('view-source:')) {
     return input;
   }
 
+  // Localhost
   if (input.startsWith('localhost') || input.match(/^127\.\d+\.\d+\.\d+/)) {
     return `http://${input}`;
   }
 
+  // Looks like a domain
   if (input.includes('.') && !input.includes(' ')) {
     return `https://${input}`;
   }
 
+  // Search query - use DuckDuckGo for privacy
   return `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
 }
 
@@ -542,14 +954,34 @@ function applyTorProxy() {
   const privacy = state.privacy;
 
   if (privacy.torEnabled) {
+    // Check if Tor is actually running first
+    if (!Platform.isTorRunning()) {
+      notifyRenderer('notification', {
+        type: 'error',
+        message: Platform.isWindows
+          ? 'Tor not running. Start tor.exe from your Tor installation.'
+          : Platform.isMac
+            ? 'Tor not running. Run: brew services start tor'
+            : 'Tor not running. Run: sudo systemctl start tor'
+      });
+      state.setPrivacy('torEnabled', false);
+      notifyRenderer('privacy-updated', state.privacy);
+      return;
+    }
+
     ses.setProxy({ proxyRules: CONFIG.privacy.torProxy }).then(() => {
       console.log('Tor proxy enabled');
       notifyRenderer('privacy-updated', { ...privacy, torConnected: true });
+      notifyRenderer('notification', {
+        type: 'success',
+        message: 'Connected to Tor network. Your traffic is now anonymized.'
+      });
     }).catch(err => {
       console.error('Tor proxy error:', err);
+      state.setPrivacy('torEnabled', false);
       notifyRenderer('notification', {
         type: 'error',
-        message: 'Failed to connect to Tor. Ensure Tor service is running.'
+        message: 'Failed to connect to Tor proxy.'
       });
     });
   } else {
@@ -567,11 +999,14 @@ function applyPrivacyToView(view) {
 
 function applyFingerprintProtection(webContents) {
   webContents.on('dom-ready', () => {
+    // Platform-aware fingerprint protection
+    const platformMask = Platform.isWindows ? 'Win32' : (Platform.isMac ? 'MacIntel' : 'Linux x86_64');
+
     webContents.executeJavaScript(`
       (function() {
         'use strict';
 
-        // Canvas fingerprint protection
+        // Canvas fingerprint protection - add subtle noise
         const origToDataURL = HTMLCanvasElement.prototype.toDataURL;
         HTMLCanvasElement.prototype.toDataURL = function(type) {
           const ctx = this.getContext('2d');
@@ -596,7 +1031,17 @@ function applyFingerprintProtection(webContents) {
           return origGetParameter.apply(this, arguments);
         };
 
-        // Screen property standardization
+        // WebGL2 fingerprint protection
+        if (typeof WebGL2RenderingContext !== 'undefined') {
+          const origGetParameter2 = WebGL2RenderingContext.prototype.getParameter;
+          WebGL2RenderingContext.prototype.getParameter = function(param) {
+            if (param === 37445) return 'Intel Inc.';
+            if (param === 37446) return 'Intel Iris OpenGL Engine';
+            return origGetParameter2.apply(this, arguments);
+          };
+        }
+
+        // Screen property standardization (common resolution)
         try {
           Object.defineProperty(screen, 'width', { value: 1920, configurable: true });
           Object.defineProperty(screen, 'height', { value: 1080, configurable: true });
@@ -606,10 +1051,30 @@ function applyFingerprintProtection(webContents) {
           Object.defineProperty(screen, 'pixelDepth', { value: 24, configurable: true });
         } catch(e) {}
 
-        // Remove battery API
+        // Platform mask
+        try {
+          Object.defineProperty(navigator, 'platform', { value: '${platformMask}', configurable: true });
+        } catch(e) {}
+
+        // Remove battery API (privacy leak)
         if (navigator.getBattery) {
-          delete navigator.getBattery;
+          Object.defineProperty(navigator, 'getBattery', { value: undefined, configurable: true });
         }
+
+        // Spoof hardware concurrency (common value)
+        try {
+          Object.defineProperty(navigator, 'hardwareConcurrency', { value: 4, configurable: true });
+        } catch(e) {}
+
+        // Spoof device memory (common value)
+        try {
+          Object.defineProperty(navigator, 'deviceMemory', { value: 8, configurable: true });
+        } catch(e) {}
+
+        // Hide automation indicators
+        try {
+          Object.defineProperty(navigator, 'webdriver', { value: false, configurable: true });
+        } catch(e) {}
       })();
     `).catch(() => {});
   });
@@ -626,7 +1091,11 @@ async function clearBrowsingData() {
   try {
     await ses.clearCache();
     await ses.clearStorageData({
-      storages: ['cookies', 'localstorage', 'sessionstorage', 'indexdb', 'websql', 'serviceworkers']
+      storages: ['cookies', 'localstorage', 'sessionstorage', 'indexdb', 'websql', 'serviceworkers', 'cachestorage']
+    });
+    notifyRenderer('notification', {
+      type: 'success',
+      message: 'All browsing data cleared.'
     });
   } catch (err) {
     console.error('Clear data error:', err);
@@ -675,6 +1144,10 @@ function toggleDevTools() {
 // ============================================
 
 function setupIpcHandlers() {
+  // Platform info
+  ipcMain.handle('get-platform-info', () => CONFIG.platform);
+  ipcMain.handle('check-tor-status', () => ({ available: state.refreshTorStatus() }));
+
   // Window controls
   ipcMain.on('window-minimize', () => state.mainWindow?.minimize());
   ipcMain.on('window-maximize', () => {
@@ -896,7 +1369,15 @@ function notifyRenderer(channel, data) {
 // Application Lifecycle
 // ============================================
 
+// Set app user model ID for Windows
+if (Platform.isWindows) {
+  app.setAppUserModelId('com.sandiego.browser');
+}
+
 app.whenReady().then(() => {
+  // Force dark mode for OSINT work
+  nativeTheme.themeSource = 'dark';
+
   setupIpcHandlers();
   createMainWindow();
 
@@ -908,16 +1389,16 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  if (!Platform.isMac) {
     app.quit();
   }
 });
 
 // Security: Comprehensive web content security
 app.on('web-contents-created', (event, contents) => {
-  // Prevent file:// navigation
+  // Prevent file:// and javascript: navigation
   contents.on('will-navigate', (navEvent, url) => {
-    if (url.startsWith('file://') || url.startsWith('javascript:')) {
+    if (url.startsWith('file://') || url.startsWith('javascript:') || url.startsWith('data:')) {
       navEvent.preventDefault();
     }
   });
