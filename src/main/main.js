@@ -19,7 +19,9 @@
 const { app, BrowserWindow, BrowserView, ipcMain, session, Menu, nativeTheme, shell, dialog, clipboard, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { exec } = require('child_process');
+const { promisify } = require('util');
+const execAsync = promisify(exec);
 const Store = require('electron-store');
 const { PhoneFormatGenerator, PhoneIntelReport, COUNTRY_CODES } = require('../extensions/phone-intel');
 const { AIResearchAssistant } = require('../extensions/ai-research-assistant');
@@ -117,13 +119,13 @@ const Platform = {
     ];
   },
 
-  // Check if Tor is running with timeout
-  isTorRunning() {
+  // Check if Tor is running with timeout (async to avoid blocking main thread)
+  async isTorRunning() {
     try {
       const cmd = this.isWindows
         ? 'netstat -an | findstr ":9050"'
         : 'lsof -i :9050 2>/dev/null || ss -tlnp 2>/dev/null | grep :9050';
-      execSync(cmd, { stdio: 'pipe', timeout: 5000 });
+      await execAsync(cmd, { timeout: 5000 });
       return true;
     } catch (e) {
       return false;
@@ -391,9 +393,9 @@ class AppState {
     this._initNetworkMonitoring();
   }
 
-  _initNetworkMonitoring() {
-    // Check Tor availability on startup
-    this.torAvailable = Platform.isTorRunning();
+  async _initNetworkMonitoring() {
+    // Check Tor availability on startup (async to avoid blocking)
+    this.torAvailable = await Platform.isTorRunning();
 
     // Monitor network status
     this.isOnline = net.isOnline();
@@ -414,8 +416,8 @@ class AppState {
     return `tab-${++this.tabCounter}-${Date.now()}`;
   }
 
-  refreshTorStatus() {
-    this.torAvailable = Platform.isTorRunning();
+  async refreshTorStatus() {
+    this.torAvailable = await Platform.isTorRunning();
     return this.torAvailable;
   }
 
@@ -1060,8 +1062,21 @@ function setupViewEventHandlers(tabId, view) {
   wc.on('certificate-error', (event, url, error, certificate, callback) => {
     event.preventDefault();
 
+    // Check if webContents is still valid before proceeding
+    const tab = state.tabs.get(tabId);
+    if (!tab || wc.isDestroyed()) {
+      callback(false);
+      return;
+    }
+
     // Generate a unique ID for this certificate error so the renderer can respond via IPC
     const requestId = `${tabId}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
+
+    // Initialize pending cert decisions set if needed
+    if (!tab.pendingCertDecisions) {
+      tab.pendingCertDecisions = new Set();
+    }
+    tab.pendingCertDecisions.add(requestId);
 
     // Store the error for this URL (including requestId for potential lookups)
     state.certificateErrors.set(url, { error, certificate, requestId, timestamp: Date.now() });
@@ -1082,9 +1097,19 @@ function setupViewEventHandlers(tabId, view) {
     let decided = false;
 
     const decisionHandler = (ipcEvent, decision) => {
+      if (decided) return;
       decided = true;
-      // Ensure we only handle this once
-      callback(!!decision);
+
+      // Clean up tracking
+      const currentTab = state.tabs.get(tabId);
+      if (currentTab && currentTab.pendingCertDecisions) {
+        currentTab.pendingCertDecisions.delete(requestId);
+      }
+
+      // Only call callback if webContents still exists
+      if (!wc.isDestroyed()) {
+        callback(!!decision);
+      }
     };
 
     ipcMain.once(decisionChannel, decisionHandler);
@@ -1092,11 +1117,20 @@ function setupViewEventHandlers(tabId, view) {
     // Security: if the renderer never responds, block by default after a timeout
     const DECISION_TIMEOUT_MS = 30000;
     setTimeout(() => {
-      if (decided) {
-        return;
+      if (decided) return;
+      decided = true;
+
+      // Clean up tracking and listener
+      const currentTab = state.tabs.get(tabId);
+      if (currentTab && currentTab.pendingCertDecisions) {
+        currentTab.pendingCertDecisions.delete(requestId);
       }
-      // No decision received in time; block navigation
-      callback(false);
+      ipcMain.removeAllListeners(decisionChannel);
+
+      // No decision received in time; block navigation (if still valid)
+      if (!wc.isDestroyed()) {
+        callback(false);
+      }
     }, DECISION_TIMEOUT_MS);
   });
 
@@ -1213,7 +1247,17 @@ function closeTab(tabId) {
     state.mainWindow.removeBrowserView(tab.view);
 
     if (tab.view.webContents && !tab.view.webContents.isDestroyed()) {
+      // Remove all event listeners before destroying to prevent memory leaks
+      tab.view.webContents.removeAllListeners();
       tab.view.webContents.destroy();
+    }
+
+    // Clean up any pending certificate decision handlers for this tab
+    if (tab.pendingCertDecisions) {
+      for (const requestId of tab.pendingCertDecisions) {
+        ipcMain.removeAllListeners(`certificate-error-decision-${requestId}`);
+      }
+      tab.pendingCertDecisions.clear();
     }
 
     state.tabs.delete(tabId);
@@ -1484,12 +1528,13 @@ function applyPrivacySettings() {
   applyTorProxy();
 }
 
-function applyTorProxy() {
+async function applyTorProxy() {
   const ses = session.defaultSession;
   const privacy = state.privacy;
 
   if (privacy.torEnabled) {
-    if (!Platform.isTorRunning()) {
+    const torRunning = await Platform.isTorRunning();
+    if (!torRunning) {
       const torMessage = Platform.isWindows
         ? 'Tor not running. Start tor.exe from your Tor installation.'
         : Platform.isMac
@@ -1502,18 +1547,19 @@ function applyTorProxy() {
       return;
     }
 
-    ses.setProxy({ proxyRules: CONFIG.privacy.torProxy }).then(() => {
+    try {
+      await ses.setProxy({ proxyRules: CONFIG.privacy.torProxy });
       console.log('Tor proxy enabled');
       notifyRenderer('privacy-updated', { ...privacy, torConnected: true });
       notifyRenderer('notification', {
         type: 'success',
         message: 'Connected to Tor network. Your traffic is now anonymized.'
       });
-    }).catch(err => {
+    } catch (err) {
       console.error('Tor proxy error:', err);
       state.setPrivacy('torEnabled', false);
       notifyRenderer('notification', { type: 'error', message: 'Failed to connect to Tor proxy.' });
-    });
+    }
   } else {
     ses.setProxy({ proxyRules: '' }).catch(() => {});
   }
@@ -2377,6 +2423,31 @@ app.on('before-quit', () => {
     state.saveSession();
   } catch (err) {
     console.error('Error saving session before quit:', err);
+  }
+
+  // Clean up all BrowserViews and their listeners to prevent memory leaks
+  try {
+    for (const [tabId, tab] of state.tabs) {
+      if (tab.view && tab.view.webContents && !tab.view.webContents.isDestroyed()) {
+        tab.view.webContents.removeAllListeners();
+        tab.view.webContents.destroy();
+      }
+      // Clean up pending certificate decisions
+      if (tab.pendingCertDecisions) {
+        for (const requestId of tab.pendingCertDecisions) {
+          ipcMain.removeAllListeners(`certificate-error-decision-${requestId}`);
+        }
+      }
+    }
+    state.tabs.clear();
+
+    // Shutdown AI modules
+    aiResearchAssistant.shutdown();
+    aiPrivacyShield.shutdown();
+    aiResearchTools.shutdown();
+    aiCognitiveTools.shutdown();
+  } catch (err) {
+    console.error('Error cleaning up before quit:', err);
   }
 });
 

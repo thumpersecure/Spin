@@ -212,11 +212,34 @@ const OPSEC_LEVELS = {
 // Site Risk Scorer
 // ============================================
 
+// Maximum cache sizes to prevent memory exhaustion
+const MAX_RISK_CACHE = 1000;
+const MAX_DOMAIN_REPUTATIONS = 500;
+
 class SiteRiskScorer {
   constructor() {
     this.riskCache = new Map();
     this.cacheMaxAge = 10 * 60 * 1000; // 10 minutes
     this.domainReputations = new Map();
+  }
+
+  // Prevent unbounded cache growth
+  _enforceCacheLimits() {
+    if (this.riskCache.size > MAX_RISK_CACHE) {
+      // Remove oldest entries
+      const entriesToRemove = this.riskCache.size - MAX_RISK_CACHE + 100;
+      const keys = Array.from(this.riskCache.keys()).slice(0, entriesToRemove);
+      for (const key of keys) {
+        this.riskCache.delete(key);
+      }
+    }
+    if (this.domainReputations.size > MAX_DOMAIN_REPUTATIONS) {
+      const entriesToRemove = this.domainReputations.size - MAX_DOMAIN_REPUTATIONS + 50;
+      const keys = Array.from(this.domainReputations.keys()).slice(0, entriesToRemove);
+      for (const key of keys) {
+        this.domainReputations.delete(key);
+      }
+    }
   }
 
   async analyzeUrl(url) {
@@ -240,6 +263,9 @@ class SiteRiskScorer {
         risk,
         timestamp: Date.now()
       });
+
+      // Prevent memory exhaustion
+      this._enforceCacheLimits();
 
       return risk;
     } catch (e) {

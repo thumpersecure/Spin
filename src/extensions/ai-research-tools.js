@@ -155,10 +155,27 @@ const ENTITY_TYPES = {
 // Entity Extractor
 // ============================================
 
+// Maximum entries to prevent memory exhaustion
+const MAX_EXTRACTED_ENTITIES = 5000;
+const MAX_SNAPSHOTS = 500;
+const MAX_ENTITY_TABS = 1000;
+
 class EntityExtractor {
   constructor() {
     this.extractedEntities = new Map();
     this.entityCounter = 0;
+  }
+
+  // Prevent unbounded Map growth
+  _enforceEntityLimit() {
+    if (this.extractedEntities.size > MAX_EXTRACTED_ENTITIES) {
+      // Remove oldest entries (first inserted)
+      const entriesToRemove = this.extractedEntities.size - MAX_EXTRACTED_ENTITIES + 100;
+      const keys = Array.from(this.extractedEntities.keys()).slice(0, entriesToRemove);
+      for (const key of keys) {
+        this.extractedEntities.delete(key);
+      }
+    }
   }
 
   extractFromText(text, sourceInfo = {}) {
@@ -216,6 +233,9 @@ class EntityExtractor {
         }
       }
     }
+
+    // Prevent memory exhaustion from unbounded growth
+    this._enforceEntityLimit();
 
     return {
       entities: entities.sort((a, b) => a.position - b.position),
@@ -642,6 +662,18 @@ class CrossReferenceAlert {
     this.alertListeners = [];
   }
 
+  // Prevent unbounded Map growth
+  _enforceTabLimits() {
+    if (this.entityToTabs.size > MAX_ENTITY_TABS) {
+      // Remove oldest entries
+      const entriesToRemove = this.entityToTabs.size - MAX_ENTITY_TABS + 50;
+      const keys = Array.from(this.entityToTabs.keys()).slice(0, entriesToRemove);
+      for (const key of keys) {
+        this.entityToTabs.delete(key);
+      }
+    }
+  }
+
   registerTab(tabId, entities) {
     // Clear previous entities for this tab
     this.unregisterTab(tabId);
@@ -666,6 +698,9 @@ class CrossReferenceAlert {
     }
 
     this.tabEntities.set(tabId, entitySet);
+
+    // Prevent memory exhaustion
+    this._enforceTabLimits();
   }
 
   unregisterTab(tabId) {
