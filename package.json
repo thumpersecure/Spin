@@ -1,7 +1,7 @@
 {
   "name": "sandiego-browser",
-  "version": "3.0.0-sandiego",
-  "description": "SANDIEGO Browser - Carmen Sandiego Edition: Privacy-focused OSINT browser with Tor integration and robust investigation tools. Where in the World Will You Search?",
+  "version": "3.1.0",
+  "description": "SANDIEGO Browser - The OSINT Investigation Suite. A privacy-first browser with Tor integration, anti-fingerprinting, and comprehensive intelligence tools.",
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
@@ -22,8 +22,8 @@
     "security",
     "electron",
     "chromium",
-    "sandiego",
-    "carmen-sandiego"
+    "intelligence",
+    "research"
   ],
   "author": "SANDIEGO Team",
   "license": "MIT",
@@ -46,20 +46,30 @@
     ],
     "mac": {
       "category": "public.app-category.productivity",
-      "target": "dmg",
-      "icon": "assets/icon.icns"
+      "target": ["dmg", "zip"],
+      "icon": "assets/icon.icns",
+      "darkModeSupport": true,
+      "hardenedRuntime": true
     },
     "win": {
-      "target": "nsis",
+      "target": ["nsis", "portable"],
       "icon": "assets/icon.ico"
     },
     "linux": {
       "target": [
         "AppImage",
-        "deb"
+        "deb",
+        "rpm"
       ],
       "category": "Network",
-      "icon": "assets/icon.png"
+      "icon": "assets/icon.png",
+      "desktop": {
+        "StartupWMClass": "sandiego-browser"
+      }
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }

@@ -1,396 +1,453 @@
-# SANDIEGO Browser
+# SANDIEGO
 
 ```
-███████╗ █████╗ ███╗   ██╗██████╗ ██╗███████╗ ██████╗  ██████╗
-██╔════╝██╔══██╗████╗  ██║██╔══██╗██║██╔════╝██╔════╝ ██╔═══██╗
-███████╗███████║██╔██╗ ██║██║  ██║██║█████╗  ██║  ███╗██║   ██║
-╚════██║██╔══██║██║╚██╗██║██║  ██║██║██╔══╝  ██║   ██║██║   ██║
-███████║██║  ██║██║ ╚████║██████╔╝██║███████╗╚██████╔╝╚██████╔╝
-╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝╚══════╝ ╚═════╝  ╚═════╝
+   ▄████████    ▄████████ ███▄▄▄▄   ████████▄   ▄█     ▄████████    ▄██████▄   ▄██████▄
+  ███    ███   ███    ███ ███▀▀▀██▄ ███   ▀███ ███    ███    ███   ███    ███ ███    ███
+  ███    █▀    ███    ███ ███   ███ ███    ███ ███▌   ███    █▀    ███    █▀  ███    ███
+  ███          ███    ███ ███   ███ ███    ███ ███▌  ▄███▄▄▄      ▄███        ███    ███
+▀███████████ ▀███████████ ███   ███ ███    ███ ███▌ ▀▀███▀▀▀     ▀▀███ ████▄  ███    ███
+         ███   ███    ███ ███   ███ ███    ███ ███    ███    █▄    ███    ███ ███    ███
+   ▄█    ███   ███    ███ ███   ███ ███   ▄███ ███    ███    ███   ███    ███ ███    ███
+ ▄████████▀    ███    █▀   ▀█   █▀  ████████▀  █▀     ██████████    ████████▀  ▀██████▀
 
-        ╔══════════════════════════════════════════════════════╗
-        ║     🌎  "Where in the World Will You Search?"  🔍    ║
-        ║                                                      ║
-        ║            The Carmen Sandiego Edition               ║
-        ║        Privacy-First OSINT Investigation Browser     ║
-        ╚══════════════════════════════════════════════════════╝
+              ╔═══════════════════════════════════════════════════════╗
+              ║                                                       ║
+              ║   T H E   O S I N T   I N V E S T I G A T I O N       ║
+              ║                     S U I T E                         ║
+              ║                                                       ║
+              ║         "Where in the World Will You Search?"         ║
+              ║                                                       ║
+              ╚═══════════════════════════════════════════════════════╝
 
-                           Version 3.0.0
+                              [ Version 3.1.0 ]
 ```
 
 <div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
-[![Electron](https://img.shields.io/badge/Electron-35.7.5-blue.svg)](https://electronjs.org/)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-brightgreen.svg)](#installation)
-[![Security](https://img.shields.io/badge/Security-Hardened-red.svg)](#security-features)
+[![License: MIT](https://img.shields.io/badge/License-MIT-crimson.svg)](https://opensource.org/licenses/MIT)
+[![Electron](https://img.shields.io/badge/Electron-35.7.5-47848F.svg)](https://electronjs.org/)
+[![Platform](https://img.shields.io/badge/Platform-Win%20%7C%20macOS%20%7C%20Linux-181818.svg)](#platform-installation)
+[![OSINT](https://img.shields.io/badge/Purpose-OSINT-C41E3A.svg)](#osint-capabilities)
 
-**A privacy-focused, Chromium-based OSINT browser with built-in Tor integration, anti-fingerprinting protection, and comprehensive investigation tools.**
+*A privacy-first browser engineered for Open Source Intelligence gathering.*
 
-[Features](#-features) | [Installation](#-installation) | [Usage](#-usage) | [Security](#-security-features) | [Contributing](#-contributing)
+---
+
+[The Case](#the-case) | [Installation](#installation) | [OSINT Tools](#osint-capabilities) | [Privacy](#privacy-arsenal) | [Platform Guide](#platform-installation)
 
 </div>
 
 ---
 
-## The Mission Briefing
+## The Case
 
-Good morning, Agent.
+In the shadows of the digital world, information hides in plain sight. To find it, you need the right tools—and the discipline to leave no trace.
 
-Your mission, should you choose to accept it, is to navigate the digital world without leaving a trace. **SANDIEGO Browser** is your trusted companion for Open Source Intelligence (OSINT) investigations—a browser that puts privacy first while providing powerful tools for legitimate research.
+**SANDIEGO** is an OSINT investigation browser built for those who hunt data, not those who are hunted by it. Every feature is designed with one purpose: *gather intelligence while remaining invisible*.
 
-Like the legendary Carmen Sandiego, you'll traverse the globe (digitally) while remaining one step ahead of those who would track your movements.
+Like the legendary Carmen Sandiego, you'll traverse continents of data, slipping through digital borders undetected. The question isn't whether the information exists—it's whether you can find it before the trail goes cold.
 
-**This browser will self-destruct in...** just kidding. But it *can* automatically clear all your data on exit.
-
----
-
-## The Dossier
-
-| Codename | SANDIEGO |
-|----------|----------|
-| **Version** | 3.0.0 - Carmen Sandiego Edition |
-| **Classification** | OSINT Investigation Tool |
-| **Status** | Active Duty |
-| **Engine** | Chromium (via Electron) |
-| **Framework** | Electron 35.7.5 |
+**Your mission:** Investigate. Analyze. Vanish.
 
 ---
 
-## Features
+## What Sets SANDIEGO Apart
 
-### The Invisible Cloak — Privacy & Anonymity
-
-Sometimes the best agent is the one nobody sees.
-
-#### Tor Integration (Built-in)
-- **One-Click Tor Activation** — Route all traffic through the Tor network
-- **DNS Leak Prevention** — Uses `socks5h://` protocol for DNS resolution through Tor
-- **No External Dependencies** — Just have Tor running on port 9050
-
-#### Anti-Fingerprinting Arsenal
-- **Canvas Fingerprint Randomization** — Adds noise to canvas data extraction
-- **WebGL Fingerprint Spoofing** — Reports generic Intel GPU info
-- **Screen Resolution Masking** — Reports standard 1920x1080 resolution
-- **Audio Fingerprint Protection** — Prevents audio-based tracking
-- **Battery API Removal** — Blocks battery status tracking
-
-#### Tracker Annihilation
-Blocks **50+ known tracking domains** including:
-- Google Analytics, Tag Manager, AdServices
-- Facebook Pixel, Connect
-- Twitter/X Analytics
-- TikTok Analytics
-- Hotjar, Mixpanel, Amplitude, Segment
-- Criteo, Outbrain, Taboola
-- And many more...
-
-#### Privacy Headers
-- **Do Not Track (DNT)** — Sends DNT header with every request
-- **Global Privacy Control (GPC)** — The new standard for privacy signals
-- **User Agent Spoofing** — Blend in with Firefox ESR users
-- **HTTPS Upgrade** — Automatic upgrade from HTTP to HTTPS
-- **WebRTC IP Leak Prevention** — No accidental IP exposure
-
----
-
-### OSINT Toolkit — Your Investigation Arsenal
-
-#### Pre-loaded OSINT Resources
-
-| Category | Tools |
-|----------|-------|
-| **Username Search** | Namechk, WhatsMyName, Sherlock, UserSearch |
-| **Email Lookup** | Hunter.io, Have I Been Pwned, Epieos, EmailRep |
-| **Domain & IP** | Shodan, Censys, SecurityTrails, DNSDumpster, crt.sh, VirusTotal |
-| **Image Analysis** | TinEye, Yandex Images, PimEyes, FotoForensics |
-| **Social Media** | Social Searcher, Social Blade |
-| **Archives** | Wayback Machine, Archive.org, CachedView |
-| **People Search** | Pipl, ThatsThem, Whitepages |
-| **Threat Intel** | VirusTotal, Hybrid Analysis, Any.run, AbuseIPDB |
-
-#### Phone Intelligence Module (xTELENUMSINT)
-
-Our integrated phone intelligence system transforms phone numbers into actionable OSINT:
-
-- **50+ Country Support** — Americas, Europe, Asia-Pacific, Middle East, Africa
-- **10 Format Variations** — Raw, E.164, International, Spaced, Dashed, US Format, Dotted, and more
-- **Smart OSINT Search** — Combines all formats into a single optimized query
-- **Pattern Recognition** — Extracts emails, usernames, names, locations, social profiles
-- **Intelligence Reports** — Comprehensive reports with relevance scoring
-
----
-
-### Browser Features
-
-#### Tab Management
-- Multi-tab browsing with BrowserView isolation
-- Per-tab security settings
-- Favicon and title tracking
-- Navigation history per tab
-
-#### Start Page
-- Quick access to popular OSINT tools
-- Integrated search via DuckDuckGo
-- Clean, distraction-free design
-
-#### Extensions Panel
-- Categorized OSINT bookmarks
-- Phone Intelligence tool
-- Privacy settings dashboard
-- Searchable interface
+| Feature | Purpose |
+|---------|---------|
+| **Built-in Tor** | Route traffic through the Tor network—no plugins required |
+| **Anti-Fingerprinting** | Canvas, WebGL, and hardware spoofing to blend with the crowd |
+| **Phone Intelligence** | Transform phone numbers into 10 searchable format variations |
+| **Tracker Annihilation** | Block 60+ tracking domains before they see you |
+| **OSINT Bookmarks** | Pre-loaded links to essential investigation resources |
+| **Cross-Platform** | Native experience on Windows 11, macOS, and Debian/Ubuntu |
 
 ---
 
 ## Installation
 
-### System Requirements
+### Prerequisites
 
-| Requirement | Minimum | Recommended |
-|-------------|---------|-------------|
-| **Node.js** | 18.x | 20.x or later |
-| **npm** | 8.x | 10.x or later |
-| **RAM** | 4 GB | 8 GB |
-| **Disk Space** | 500 MB | 1 GB |
-| **OS** | Windows 10, macOS 10.15, Ubuntu 20.04 | Latest versions |
+| Requirement | Version |
+|-------------|---------|
+| **Node.js** | 18.x or later |
+| **npm** | 8.x or later |
+| **Git** | Any recent version |
 
-### Step 1: Clone the Repository
+### Quick Start
 
 ```bash
-# Clone the SANDIEGO repository
+# Clone the repository
 git clone https://github.com/thumpersecure/Spin.git
-
-# Navigate into the project directory
 cd Spin
-```
 
-### Step 2: Install Dependencies
-
-```bash
-# Install all required packages
+# Install dependencies
 npm install
 
-# This will automatically:
-# - Install Electron 35.7.5
-# - Install electron-builder for packaging
-# - Install electron-store for settings persistence
-# - Configure app dependencies
-```
-
-**Troubleshooting Installation:**
-
-If you encounter permission errors on Linux/macOS:
-```bash
-sudo chown -R $(whoami) ~/.npm
-npm install
-```
-
-If you encounter network errors:
-```bash
-npm install --registry https://registry.npmjs.org/
-```
-
-### Step 3: Start the Browser
-
-```bash
-# Production mode (recommended)
+# Launch SANDIEGO
 npm start
-
-# Development mode (with DevTools)
-npm run dev
 ```
 
 ---
 
-## Tor Setup (Optional but Recommended)
+## Platform Installation
 
-For full anonymity, you'll need the Tor daemon running on your system.
+SANDIEGO is optimized for each operating system. Follow the guide for your platform.
 
-### Linux (Debian/Ubuntu)
+### Windows 11
+
+<details>
+<summary><strong>Click to expand Windows installation</strong></summary>
+
+#### Step 1: Install Node.js
+
+1. Download Node.js LTS from [nodejs.org](https://nodejs.org/)
+2. Run the installer
+3. Verify installation:
+   ```powershell
+   node --version
+   npm --version
+   ```
+
+#### Step 2: Install SANDIEGO
+
+```powershell
+# Clone repository
+git clone https://github.com/thumpersecure/Spin.git
+cd Spin
+
+# Install dependencies
+npm install
+
+# Run the browser
+npm start
+```
+
+#### Step 3: Install Tor (Optional)
+
+1. Download **Tor Expert Bundle** from [torproject.org/download/tor](https://www.torproject.org/download/tor/)
+2. Extract to `C:\Tor`
+3. Open PowerShell as Administrator:
+   ```powershell
+   cd C:\Tor
+   .\tor.exe
+   ```
+4. Keep the window open while using SANDIEGO with Tor enabled
+
+#### Building for Windows
+
+```powershell
+npm run build:win
+# Output: dist/SANDIEGO Browser Setup x.x.x.exe
+```
+
+#### Windows-Specific Features
+
+- Windows 11 Snap Layouts support
+- Native window controls
+- AppUserModelId for taskbar grouping
+- NSIS installer with custom install path option
+
+</details>
+
+### macOS (Intel & Apple Silicon)
+
+<details>
+<summary><strong>Click to expand macOS installation</strong></summary>
+
+#### Step 1: Install Prerequisites
+
+Using Homebrew (recommended):
+```bash
+# Install Homebrew if not present
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install Node.js
+brew install node
+
+# Verify
+node --version
+npm --version
+```
+
+#### Step 2: Install SANDIEGO
+
+```bash
+# Clone repository
+git clone https://github.com/thumpersecure/Spin.git
+cd Spin
+
+# Install dependencies
+npm install
+
+# Run the browser
+npm start
+```
+
+#### Step 3: Install Tor (Optional)
+
+```bash
+# Install Tor via Homebrew
+brew install tor
+
+# Start Tor service
+brew services start tor
+
+# Verify Tor is running
+lsof -i :9050
+```
+
+#### Building for macOS
+
+```bash
+npm run build:mac
+# Output: dist/SANDIEGO Browser-x.x.x.dmg
+```
+
+#### macOS-Specific Features
+
+- Native traffic light window controls
+- Hidden inset title bar
+- Dark mode support (forced dark for OSINT work)
+- Vibrancy effects
+- Full screen support with proper menu bar
+- Hardened runtime for notarization
+
+</details>
+
+### Debian / Ubuntu Linux
+
+<details>
+<summary><strong>Click to expand Debian/Ubuntu installation</strong></summary>
+
+#### Step 1: Install Node.js
+
+Using NodeSource repository (recommended for latest LTS):
+```bash
+# Update package list
+sudo apt update
+
+# Install curl if not present
+sudo apt install -y curl
+
+# Add NodeSource repository (Node.js 20.x LTS)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+
+# Install Node.js
+sudo apt install -y nodejs
+
+# Verify installation
+node --version
+npm --version
+```
+
+Alternative using apt (older version):
+```bash
+sudo apt update
+sudo apt install -y nodejs npm
+```
+
+#### Step 2: Install Build Dependencies
+
+```bash
+# Required for native modules
+sudo apt install -y build-essential
+
+# Required for Electron
+sudo apt install -y libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libdrm2 libgbm1 libxcb-dri3-0
+```
+
+#### Step 3: Install SANDIEGO
+
+```bash
+# Clone repository
+git clone https://github.com/thumpersecure/Spin.git
+cd Spin
+
+# Install dependencies
+npm install
+
+# Run the browser
+npm start
+```
+
+#### Step 4: Install Tor (Optional)
 
 ```bash
 # Install Tor
 sudo apt update
-sudo apt install tor
+sudo apt install -y tor
 
 # Start Tor service
 sudo systemctl start tor
 
-# Enable Tor to start on boot (optional)
+# Enable Tor on boot (optional)
 sudo systemctl enable tor
 
-# Verify Tor is running on port 9050
-sudo netstat -tlnp | grep 9050
+# Verify Tor is running
+ss -tlnp | grep 9050
 ```
 
-### Linux (Fedora/RHEL)
+#### Building for Debian/Ubuntu
 
 ```bash
+npm run build:linux
+# Output:
+#   dist/SANDIEGO Browser-x.x.x.AppImage
+#   dist/sandiego-browser_x.x.x_amd64.deb
+```
+
+Install the .deb package:
+```bash
+sudo dpkg -i dist/sandiego-browser_*.deb
+```
+
+#### Linux-Specific Features
+
+- AppImage for universal Linux support
+- .deb package for Debian-based systems
+- .rpm package for Fedora/RHEL (use `build:linux`)
+- XDG-compliant config path (`~/.config/sandiego`)
+- Proper desktop integration
+
+</details>
+
+### Other Linux Distributions
+
+<details>
+<summary><strong>Fedora / RHEL / Arch</strong></summary>
+
+#### Fedora / RHEL
+
+```bash
+# Install Node.js
+sudo dnf install -y nodejs npm
+
 # Install Tor
-sudo dnf install tor
-
-# Start Tor service
+sudo dnf install -y tor
 sudo systemctl start tor
+
+# Clone and run
+git clone https://github.com/thumpersecure/Spin.git
+cd Spin
+npm install
+npm start
 ```
 
-### Linux (Arch)
+#### Arch Linux
 
 ```bash
+# Install Node.js
+sudo pacman -S nodejs npm
+
 # Install Tor
 sudo pacman -S tor
-
-# Start Tor service
 sudo systemctl start tor
+
+# Clone and run
+git clone https://github.com/thumpersecure/Spin.git
+cd Spin
+npm install
+npm start
 ```
 
-### macOS
-
-```bash
-# Install via Homebrew
-brew install tor
-
-# Start Tor
-brew services start tor
-
-# Or run manually
-tor
-```
-
-### Windows
-
-1. Download the **Tor Expert Bundle** from [torproject.org](https://www.torproject.org/download/tor/)
-2. Extract to a folder (e.g., `C:\Tor`)
-3. Open Command Prompt as Administrator
-4. Navigate to the Tor folder and run:
-   ```cmd
-   tor.exe
-   ```
-5. Keep the window open while using SANDIEGO
-
-**Verify Tor is Running:**
-```bash
-# Should show something listening on port 9050
-# Linux/macOS
-lsof -i :9050
-
-# Windows (PowerShell)
-netstat -an | findstr 9050
-```
+</details>
 
 ---
 
-## Building for Distribution
+## OSINT Capabilities
 
-### Build for Current Platform
+### Phone Intelligence Module
 
-```bash
-npm run build
-```
+Transform any phone number into 10 searchable format variations, then execute smart OSINT searches across multiple formats simultaneously.
 
-### Platform-Specific Builds
+| Format | Example |
+|--------|---------|
+| Raw Digits | `2025551234` |
+| E.164 | `+12025551234` |
+| US Format | `(202) 555-1234` |
+| Dashed | `202-555-1234` |
+| Spaced | `202 555 1234` |
+| Dotted | `202.555.1234` |
+| International | `+1 2025551234` |
+| Zero-Prefixed | `02025551234` |
+| Double-Zero | `0012025551234` |
 
-```bash
-# Windows (NSIS installer)
-npm run build:win
+**Smart Search**: Combines all formats into a single OR query for maximum coverage.
 
-# macOS (DMG)
-npm run build:mac
+### Pre-loaded OSINT Resources
 
-# Linux (AppImage + DEB)
-npm run build:linux
-```
-
-### Build Output
-
-Built packages will be in the `dist/` directory:
-
-| Platform | Output |
-|----------|--------|
-| Windows | `SANDIEGO Browser Setup x.x.x.exe` |
-| macOS | `SANDIEGO Browser-x.x.x.dmg` |
-| Linux | `SANDIEGO Browser-x.x.x.AppImage`, `.deb` |
-
----
-
-## Usage
-
-### First Launch
-
-1. **Start SANDIEGO** — Run `npm start` or launch the built application
-2. **Enable Privacy Features** — Click the shield icon and configure your privacy settings
-3. **Connect to Tor** (optional) — Toggle "Tor Proxy" in Privacy settings (ensure Tor is running)
-4. **Browse Securely** — Use the search bar or OSINT tools panel
-
-### Privacy Dashboard
-
-Access via the shield icon in the toolbar:
-
-| Setting | Description | Default |
-|---------|-------------|---------|
-| **Tor Proxy** | Route traffic through Tor network | Off |
-| **Block Trackers** | Block 50+ known tracking domains | On |
-| **Block Fingerprinting** | Randomize browser fingerprint | On |
-| **Block Third-Party Cookies** | Prevent cross-site tracking | On |
-| **Block WebRTC** | Prevent IP leaks via WebRTC | On |
-| **Spoof User Agent** | Use Firefox user agent | On |
-| **Do Not Track** | Send DNT/GPC headers | On |
-| **HTTPS Upgrade** | Auto-upgrade HTTP to HTTPS | On |
-| **Clear on Exit** | Delete all data when closing | Off |
-
-### Using Phone Intelligence
-
-1. Click the **Extensions** button (puzzle piece icon)
-2. Select the **Phone Intel** tab
-3. Enter a phone number
-4. Select the country
-5. Choose your search engine (DuckDuckGo recommended for privacy)
-6. Click **Generate Format Variations** to see all formats
-7. Click **Smart OSINT Search** to search all formats at once
-
-### Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl/Cmd + T` | New tab |
-| `Ctrl/Cmd + W` | Close tab |
-| `Ctrl/Cmd + L` | Focus URL bar |
-| `Ctrl/Cmd + R` | Reload page |
-| `Ctrl/Cmd + D` | Bookmark page |
-| `Ctrl/Cmd + +` | Zoom in |
-| `Ctrl/Cmd + -` | Zoom out |
-| `Ctrl/Cmd + 0` | Reset zoom |
-| `F12` | Toggle DevTools |
-| `Escape` | Close side panel |
+| Category | Resources |
+|----------|-----------|
+| **Username** | Namechk, WhatsMyName, Sherlock, UserSearch |
+| **Email** | Hunter.io, Have I Been Pwned, Epieos, EmailRep |
+| **Domain/IP** | Shodan, Censys, SecurityTrails, DNSDumpster, crt.sh |
+| **Images** | TinEye, Yandex Images, PimEyes, FotoForensics |
+| **Social** | Social Searcher, Social Blade |
+| **Archives** | Wayback Machine, Archive.today, CachedView |
+| **Threat Intel** | VirusTotal, Hybrid Analysis, Any.run, AbuseIPDB |
 
 ---
 
-## Security Features
+## Privacy Arsenal
 
-### Electron Security Hardening
+### Tor Integration
 
-SANDIEGO implements all recommended Electron security practices:
+- One-click Tor activation
+- DNS resolution through Tor (`socks5h://`)
+- Automatic Tor detection on startup
+- Platform-specific Tor status guidance
 
-- **Context Isolation** — Renderer process isolated from Node.js
-- **Sandbox Mode** — Enabled for all browser views
-- **Node Integration Disabled** — No direct Node.js access from renderer
-- **Web Security Enabled** — Same-origin policy enforced
-- **Remote Module Disabled** — All remote module events blocked
-- **File Protocol Blocked** — No `file://` URL navigation from web content
-- **JavaScript URL Blocked** — No `javascript:` URL execution
+### Anti-Fingerprinting
 
-### Input Validation
+| Protection | Method |
+|------------|--------|
+| **Canvas** | Adds subtle noise to canvas data |
+| **WebGL** | Reports generic Intel GPU |
+| **Screen** | Standardizes to 1920x1080 |
+| **Platform** | Masks to match user agent |
+| **Hardware** | Reports 4 cores, 8GB RAM |
+| **Battery** | API completely removed |
+| **WebDriver** | Hidden from detection |
 
-- Phone numbers limited to 30 characters
-- Search URLs validated against trusted hosts only
-- IPC channel whitelist for event listeners
-- URL processing with protocol validation
+### Tracker Blocking
 
-### Privacy by Design
+Blocks 60+ tracking domains including:
+- Google Analytics, Tag Manager, AdServices
+- Facebook Pixel, Connect
+- Twitter/X Analytics
+- TikTok, LinkedIn, Microsoft trackers
+- Mixpanel, Amplitude, Segment, Hotjar
+- All major ad networks
 
-- No telemetry or analytics
-- No external API calls (except user-initiated searches)
-- All settings stored locally with electron-store
-- Optional auto-clear on exit
+### Additional Privacy Features
+
+- Third-party cookie blocking
+- WebRTC IP leak prevention
+- Do Not Track + Global Privacy Control headers
+- Platform-specific user agent spoofing
+- Automatic HTTPS upgrade
+- Optional clear-on-exit
+
+---
+
+## Keyboard Shortcuts
+
+| Action | Windows/Linux | macOS |
+|--------|---------------|-------|
+| New Tab | `Ctrl+T` | `Cmd+T` |
+| Close Tab | `Ctrl+W` | `Cmd+W` |
+| Reload | `Ctrl+R` | `Cmd+R` |
+| Force Reload | `Ctrl+Shift+R` | `Cmd+Shift+R` |
+| Zoom In | `Ctrl++` | `Cmd++` |
+| Zoom Out | `Ctrl+-` | `Cmd+-` |
+| Reset Zoom | `Ctrl+0` | `Cmd+0` |
+| DevTools | `F12` | `Cmd+Option+I` |
+| Phone Intel | `Ctrl+Shift+P` | `Cmd+Shift+P` |
+| OSINT Bookmarks | `Ctrl+Shift+B` | `Cmd+Shift+B` |
+| Toggle Tor | `Ctrl+Shift+T` | `Cmd+Shift+T` |
+| Screenshot | `Ctrl+Shift+S` | `Cmd+Shift+S` |
+| View Source | `Ctrl+U` | `Cmd+U` |
 
 ---
 
@@ -400,130 +457,108 @@ SANDIEGO implements all recommended Electron security practices:
 Spin/
 ├── src/
 │   ├── main/
-│   │   └── main.js              # Electron main process
+│   │   └── main.js              # Main process with platform detection
 │   ├── renderer/
-│   │   ├── index.html           # Main browser UI
-│   │   ├── styles.css           # Carmen Sandiego theme
-│   │   └── renderer.js          # UI logic and state
+│   │   ├── index.html           # Browser UI
+│   │   ├── styles.css           # Dark theme styles
+│   │   └── renderer.js          # UI logic
 │   ├── preload/
 │   │   ├── preload.js           # Secure IPC bridge
-│   │   └── webview-preload.js   # Minimal webview exposure
+│   │   └── webview-preload.js   # Minimal webview API
 │   └── extensions/
 │       └── phone-intel.js       # Phone intelligence module
-├── assets/
-│   └── icons/                   # Application icons
 ├── package.json
 └── README.md
 ```
 
 ---
 
-## Security Considerations
+## Security Architecture
 
-### For Investigators
+### Electron Security
 
-- **Use Tor** for sensitive investigations
-- **Enable all privacy features** for maximum protection
-- **Clear data on exit** for sensitive sessions
-- **Verify HTTPS** before entering any credentials
-- **Use multiple sources** — never trust a single result
+- **Context Isolation**: Renderer fully isolated from Node.js
+- **Sandbox Mode**: All browser views sandboxed
+- **No Node Integration**: Renderer has zero Node.js access
+- **Preload Whitelist**: Only approved IPC channels exposed
+- **No Remote Module**: All remote events blocked
 
-### Limitations
+### Input Validation
 
-- **Tor is not invincible** — Sophisticated adversaries may still track you
-- **JavaScript can detect Tor** — Some sites block Tor exit nodes
-- **WebRTC is disabled** — Video conferencing may not work
-- **Fingerprinting protection may break sites** — Some features rely on accurate data
+- Phone numbers limited to 30 characters
+- Search URLs validated against trusted hosts only
+- IPC channels whitelisted
+- URL protocols validated (no `file://`, `javascript:`, `data:`)
 
-### Legal Notice
+### Privacy by Design
 
-This tool is intended for:
+- No telemetry or analytics
+- No external API calls except user-initiated searches
+- All settings stored locally
+- Optional data purge on exit
+
+---
+
+## Legal Notice
+
+SANDIEGO is designed for:
 - Legitimate OSINT research
 - Journalism and fact-checking
-- Security research (with authorization)
-- Law enforcement (with proper warrants)
+- Security research with authorization
+- Law enforcement with proper warrants
 - Personal privacy protection
 
-**Users are responsible for complying with all applicable laws and regulations.**
+**Users are responsible for compliance with all applicable laws.**
 
 ---
 
 ## Contributing
 
-We welcome contributions from the OSINT community!
-
-### How to Contribute
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Development Setup
-
 ```bash
-# Clone your fork
-git clone https://github.com/YOUR_USERNAME/Spin.git
-cd Spin
+# Fork the repository
+# Create your feature branch
+git checkout -b feature/your-feature
 
-# Install dependencies
-npm install
+# Commit your changes
+git commit -m 'Add your feature'
 
-# Run in development mode
-npm run dev
+# Push to the branch
+git push origin feature/your-feature
+
+# Open a Pull Request
 ```
-
-### Code Style
-
-- Use ES6+ features
-- Follow existing code patterns
-- Add comments for complex logic
-- Test security-sensitive changes thoroughly
 
 ---
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgments
-
-- **[Carmen Sandiego](https://en.wikipedia.org/wiki/Carmen_Sandiego)** — The legendary thief who inspired our globe-trotting theme
-- **[OSINT Framework](https://osintframework.com/)** — Comprehensive OSINT resource collection
-- **[Awesome OSINT](https://github.com/jivoi/awesome-osint)** — Curated list of OSINT resources
-- **[xTELENUMSINT](https://github.com/thumpersecure/xtelenumsint)** — Phone intelligence inspiration
-- **[Tor Project](https://www.torproject.org/)** — Privacy network infrastructure
-- **[Electron](https://www.electronjs.org/)** — Cross-platform framework
-- **[DuckDuckGo](https://duckduckgo.com/)** — Privacy-respecting search
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
 <div align="center">
 
 ```
-╔═══════════════════════════════════════════════════════════════════╗
-║                                                                   ║
-║   "Where in the World is Carmen Sandiego?"                        ║
-║                                                                   ║
-║   She's everywhere... and nowhere.                                ║
-║   Just like you should be when investigating online.              ║
-║                                                                   ║
-║                           🌍 🔴 🕵️                                 ║
-║                                                                   ║
-╚═══════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║        The world is full of secrets waiting to be uncovered.         ║
+║                                                                       ║
+║           The question is: can you find them first?                  ║
+║                                                                       ║
+║                            🔴 🌍 🔍                                    ║
+║                                                                       ║
+║                          SANDIEGO                                     ║
+║                 The OSINT Investigation Suite                         ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
 ```
 
-**SANDIEGO Browser — Carmen Sandiego Edition**
-
-*"The world is your investigation. Stay invisible."*
+*"She travels the world, leaving only questions in her wake."*
 
 ---
 
-Made with ❤️ by the SANDIEGO Team
+**SANDIEGO** — Version 3.1.0
 
-[Report Bug](https://github.com/thumpersecure/Spin/issues) | [Request Feature](https://github.com/thumpersecure/Spin/issues)
+[Report Issue](https://github.com/thumpersecure/Spin/issues) | [OSINT Framework](https://osintframework.com/)
 
 </div>

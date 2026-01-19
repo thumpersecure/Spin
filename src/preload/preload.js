@@ -1,13 +1,24 @@
 /**
  * SANDIEGO Browser - Preload Script
- * Version: 3.0.0-sandiego
- * Secure bridge between renderer and main process
+ * Version: 3.1.0
+ *
+ * Secure bridge between renderer and main process.
+ * Implements context isolation for maximum security.
  */
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Expose secure API to renderer
+// ============================================
+// Secure API Exposure
+// ============================================
+
 contextBridge.exposeInMainWorld('sandiego', {
+  // ============================================
+  // Platform Information
+  // ============================================
+  getPlatformInfo: () => ipcRenderer.invoke('get-platform-info'),
+  checkTorStatus: () => ipcRenderer.invoke('check-tor-status'),
+
   // ============================================
   // Window Controls
   // ============================================
@@ -46,56 +57,13 @@ contextBridge.exposeInMainWorld('sandiego', {
   removeBookmark: (url) => ipcRenderer.invoke('remove-bookmark', url),
 
   // ============================================
-  // Tools
+  // OSINT Tools
   // ============================================
   captureScreenshot: () => ipcRenderer.invoke('capture-screenshot'),
   getPageInfo: () => ipcRenderer.invoke('get-page-info'),
 
   // ============================================
-  // Event Listeners
-  // ============================================
-  onTabLoading: (callback) => {
-    ipcRenderer.on('tab-loading', (event, data) => callback(data));
-  },
-
-  onTabNavigated: (callback) => {
-    ipcRenderer.on('tab-navigated', (event, data) => callback(data));
-  },
-
-  onTabTitleUpdated: (callback) => {
-    ipcRenderer.on('tab-title-updated', (event, data) => callback(data));
-  },
-
-  onTabFaviconUpdated: (callback) => {
-    ipcRenderer.on('tab-favicon-updated', (event, data) => callback(data));
-  },
-
-  onTabActivated: (callback) => {
-    ipcRenderer.on('tab-activated', (event, data) => callback(data));
-  },
-
-  onTabCreated: (callback) => {
-    ipcRenderer.on('tab-created', (event, data) => callback(data));
-  },
-
-  onTabError: (callback) => {
-    ipcRenderer.on('tab-error', (event, data) => callback(data));
-  },
-
-  onPrivacyUpdated: (callback) => {
-    ipcRenderer.on('privacy-updated', (event, data) => callback(data));
-  },
-
-  onNotification: (callback) => {
-    ipcRenderer.on('notification', (event, data) => callback(data));
-  },
-
-  onGoHome: (callback) => {
-    ipcRenderer.on('go-home', (event, data) => callback(data));
-  },
-
-  // ============================================
-  // Phone Intelligence
+  // Phone Intelligence Module
   // ============================================
   phoneIntel: {
     getCountries: () => ipcRenderer.invoke('phone-intel-get-countries'),
@@ -105,19 +73,44 @@ contextBridge.exposeInMainWorld('sandiego', {
   },
 
   // ============================================
+  // Event Listeners
+  // ============================================
+  on: (channel, callback) => {
+    const validChannels = [
+      'tab-loading', 'tab-navigated', 'tab-title-updated', 'tab-favicon-updated',
+      'tab-activated', 'tab-created', 'tab-error', 'privacy-updated', 'notification',
+      'go-home', 'platform-info', 'fullscreen-change', 'tor-status', 'open-panel',
+      'screenshot-captured'
+    ];
+    if (validChannels.includes(channel)) {
+      ipcRenderer.on(channel, (event, data) => callback(data));
+    }
+  },
+
+  // Legacy event listeners (for backward compatibility)
+  onTabLoading: (callback) => ipcRenderer.on('tab-loading', (_, data) => callback(data)),
+  onTabNavigated: (callback) => ipcRenderer.on('tab-navigated', (_, data) => callback(data)),
+  onTabTitleUpdated: (callback) => ipcRenderer.on('tab-title-updated', (_, data) => callback(data)),
+  onTabFaviconUpdated: (callback) => ipcRenderer.on('tab-favicon-updated', (_, data) => callback(data)),
+  onTabActivated: (callback) => ipcRenderer.on('tab-activated', (_, data) => callback(data)),
+  onTabCreated: (callback) => ipcRenderer.on('tab-created', (_, data) => callback(data)),
+  onTabError: (callback) => ipcRenderer.on('tab-error', (_, data) => callback(data)),
+  onPrivacyUpdated: (callback) => ipcRenderer.on('privacy-updated', (_, data) => callback(data)),
+  onNotification: (callback) => ipcRenderer.on('notification', (_, data) => callback(data)),
+  onGoHome: (callback) => ipcRenderer.on('go-home', (_, data) => callback(data)),
+
+  // ============================================
   // Cleanup
   // ============================================
   removeListener: (channel) => {
-    // Only allow removing listeners for known safe channels
     const allowedChannels = [
       'tab-loading', 'tab-navigated', 'tab-title-updated', 'tab-favicon-updated',
-      'tab-activated', 'tab-created', 'tab-error', 'privacy-updated', 'notification', 'go-home'
+      'tab-activated', 'tab-created', 'tab-error', 'privacy-updated', 'notification',
+      'go-home', 'platform-info', 'fullscreen-change', 'tor-status', 'open-panel',
+      'screenshot-captured'
     ];
     if (allowedChannels.includes(channel)) {
       ipcRenderer.removeAllListeners(channel);
     }
   }
 });
-
-// Log preload completion
-console.log('SANDIEGO preload script loaded');
