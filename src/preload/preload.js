@@ -91,6 +91,52 @@ const api = {
   },
 
   // ============================================
+  // AI Intelligence Module
+  // ============================================
+  ai: {
+    // Dashboard & Overview
+    getDashboard: () => ipcRenderer.invoke('ai-get-dashboard'),
+
+    // Site Risk Assessment
+    getRiskScore: (url) => ipcRenderer.invoke('ai-get-risk-score', url),
+    getSuggestions: (url, entities) => ipcRenderer.invoke('ai-get-suggestions', url, entities),
+
+    // Entity Extraction
+    extractEntities: (text) => ipcRenderer.invoke('ai-extract-entities', text),
+    processEntities: (tabId, entities) => ipcRenderer.invoke('ai-process-entities', tabId, entities),
+    getCrossRefs: () => ipcRenderer.invoke('ai-get-cross-refs'),
+
+    // Tab Grouping
+    getTabGroups: () => ipcRenderer.invoke('ai-get-tab-groups'),
+
+    // Focus Mode
+    focusStart: (minutes) => ipcRenderer.invoke('ai-focus-start', minutes),
+    focusStop: () => ipcRenderer.invoke('ai-focus-stop'),
+    focusStatus: () => ipcRenderer.invoke('ai-focus-status'),
+
+    // Smart Bookmarks
+    saveBookmark: (bookmark) => ipcRenderer.invoke('ai-bookmark-save', bookmark),
+    searchBookmarks: (query) => ipcRenderer.invoke('ai-bookmark-search', query),
+    getBookmarkTags: () => ipcRenderer.invoke('ai-bookmark-tags'),
+
+    // Session Context
+    getSessionSummary: () => ipcRenderer.invoke('ai-session-summary'),
+    addNote: (note) => ipcRenderer.invoke('ai-session-add-note', note),
+    setTopic: (topic) => ipcRenderer.invoke('ai-session-set-topic', topic),
+
+    // Timeline
+    getTimeline: (limit) => ipcRenderer.invoke('ai-get-timeline', limit),
+
+    // Intel Snapshot
+    createSnapshot: (includeScreenshot) => ipcRenderer.invoke('ai-create-snapshot', includeScreenshot),
+    exportSnapshot: (snapshot, format) => ipcRenderer.invoke('ai-export-snapshot', snapshot, format),
+
+    // Privacy Analysis
+    getFingerprint: () => ipcRenderer.invoke('ai-get-fingerprint'),
+    getOpsecMode: (riskScore) => ipcRenderer.invoke('ai-get-opsec-mode', riskScore)
+  },
+
+  // ============================================
   // Event Listeners
   // ============================================
   on: (channel, callback) => {
@@ -109,7 +155,9 @@ const api = {
       // Security events
       'certificate-error', 'context-menu',
       // OSINT events
-      'screenshot-captured'
+      'screenshot-captured',
+      // AI Intelligence events
+      'ai-page-analyzed', 'ai-cross-ref-alert', 'ai-focus-complete'
     ];
     if (validChannels.includes(channel)) {
       const listener = (event, data) => callback(data);

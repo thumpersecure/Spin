@@ -22,6 +22,7 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const Store = require('electron-store');
 const { PhoneFormatGenerator, PhoneIntelReport, COUNTRY_CODES } = require('../extensions/phone-intel');
+const { AIIntelligence, EntityExtractor } = require('../extensions/ai-intel');
 
 // ============================================
 // Platform Detection & Configuration
@@ -379,6 +380,10 @@ class AppState {
     this.downloads = new Map();
     this.certificateErrors = new Map();
     this._initNetworkMonitoring();
+
+    // Initialize AI Intelligence
+    this.ai = new AIIntelligence(this.store);
+    this.entityExtractor = new EntityExtractor();
   }
 
   _initNetworkMonitoring() {
@@ -970,6 +975,21 @@ function setupViewEventHandlers(tabId, view) {
       // Add to history
       state.addToHistory(url, tab.title);
 
+      // AI Processing - analyze page and get intelligence
+      try {
+        const aiResult = state.ai.onPageLoad(tabId, url, tab.title || '');
+        notifyRenderer('ai-page-analyzed', {
+          tabId,
+          url,
+          group: aiResult.group,
+          risk: aiResult.risk,
+          suggestions: aiResult.suggestions,
+          recommendedMode: aiResult.autoOpsecMode
+        });
+      } catch (e) {
+        // AI errors should not break navigation
+      }
+
       notifyRenderer('tab-navigated', {
         tabId,
         url,
@@ -1200,6 +1220,9 @@ function closeTab(tabId) {
   if (!tab || !state.mainWindow) return;
 
   try {
+    // AI cleanup
+    state.ai.onTabClose(tabId);
+
     state.mainWindow.removeBrowserView(tab.view);
 
     if (tab.view.webContents && !tab.view.webContents.isDestroyed()) {
@@ -1989,6 +2012,232 @@ function setupIpcHandlers() {
     } catch (err) {
       console.error('Batch search error:', err);
       return null;
+    }
+  });
+
+  // ============================================
+  // AI Intelligence IPC Handlers
+  // ============================================
+
+  // Get AI dashboard data
+  ipcMain.handle('ai-get-dashboard', () => {
+    try {
+      return state.ai.getDashboard(state.privacy);
+    } catch (err) {
+      console.error('AI dashboard error:', err);
+      return null;
+    }
+  });
+
+  // Get site risk score
+  ipcMain.handle('ai-get-risk-score', (event, url) => {
+    try {
+      return state.ai.riskScorer.calculateRisk(url);
+    } catch (err) {
+      return { score: 50, level: 'medium', factors: [], recommendation: 'Unable to analyze' };
+    }
+  });
+
+  // Get related link suggestions
+  ipcMain.handle('ai-get-suggestions', (event, url, entities) => {
+    try {
+      return state.ai.linkSuggester.getSuggestions(url, entities || []);
+    } catch (err) {
+      return [];
+    }
+  });
+
+  // Extract entities from text
+  ipcMain.handle('ai-extract-entities', (event, text) => {
+    try {
+      if (!text || typeof text !== 'string' || text.length > 100000) {
+        return [];
+      }
+      return state.entityExtractor.extract(text);
+    } catch (err) {
+      return [];
+    }
+  });
+
+  // Process entities for cross-referencing
+  ipcMain.handle('ai-process-entities', (event, tabId, entities) => {
+    try {
+      return state.ai.onEntitiesExtracted(tabId, entities);
+    } catch (err) {
+      return { crossRefs: [], stats: {} };
+    }
+  });
+
+  // Get tab groups
+  ipcMain.handle('ai-get-tab-groups', () => {
+    try {
+      return state.ai.tabGrouper.getGroups();
+    } catch (err) {
+      return [];
+    }
+  });
+
+  // Focus mode controls
+  ipcMain.handle('ai-focus-start', (event, durationMinutes) => {
+    try {
+      return state.ai.focusMode.start(durationMinutes || 25);
+    } catch (err) {
+      return { active: false };
+    }
+  });
+
+  ipcMain.handle('ai-focus-stop', () => {
+    try {
+      return state.ai.focusMode.stop();
+    } catch (err) {
+      return { active: false };
+    }
+  });
+
+  ipcMain.handle('ai-focus-status', () => {
+    try {
+      return state.ai.focusMode.getStatus();
+    } catch (err) {
+      return { active: false };
+    }
+  });
+
+  // Smart bookmarks
+  ipcMain.handle('ai-bookmark-save', (event, bookmark) => {
+    try {
+      return state.ai.smartBookmarks.save(bookmark);
+    } catch (err) {
+      return null;
+    }
+  });
+
+  ipcMain.handle('ai-bookmark-search', (event, query) => {
+    try {
+      return state.ai.smartBookmarks.search(query || '');
+    } catch (err) {
+      return [];
+    }
+  });
+
+  ipcMain.handle('ai-bookmark-tags', () => {
+    try {
+      return state.ai.smartBookmarks.getTagCloud();
+    } catch (err) {
+      return [];
+    }
+  });
+
+  // Session context
+  ipcMain.handle('ai-session-summary', () => {
+    try {
+      return state.ai.sessionMemory.getSummary();
+    } catch (err) {
+      return {};
+    }
+  });
+
+  ipcMain.handle('ai-session-add-note', (event, note) => {
+    try {
+      state.ai.sessionMemory.addNote(note);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  });
+
+  ipcMain.handle('ai-session-set-topic', (event, topic) => {
+    try {
+      state.ai.sessionMemory.setTopic(topic);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  });
+
+  // Timeline
+  ipcMain.handle('ai-get-timeline', (event, limit) => {
+    try {
+      return state.ai.timeline.getTimeline(limit || 50);
+    } catch (err) {
+      return [];
+    }
+  });
+
+  // Intel snapshot
+  ipcMain.handle('ai-create-snapshot', async (event, includeScreenshot) => {
+    try {
+      const tab = state.tabs.get(state.activeTabId);
+      if (!tab || !tab.view.webContents || tab.view.webContents.isDestroyed()) {
+        return null;
+      }
+
+      const wc = tab.view.webContents;
+      const pageData = {
+        url: wc.getURL(),
+        title: wc.getTitle(),
+        userAgent: wc.getUserAgent()
+      };
+
+      // Extract entities from page
+      try {
+        const text = await wc.executeJavaScript('document.body.innerText.substring(0, 50000)');
+        pageData.entities = state.entityExtractor.extract(text);
+      } catch (e) {
+        pageData.entities = [];
+      }
+
+      // Capture screenshot if requested
+      if (includeScreenshot) {
+        try {
+          const image = await wc.capturePage();
+          pageData.screenshot = image.toDataURL();
+        } catch (e) {}
+      }
+
+      const snapshot = state.ai.intelSnapshot.createSnapshot(pageData);
+      state.ai.timeline.addEvent('snapshot_created', { url: pageData.url });
+
+      return snapshot;
+    } catch (err) {
+      console.error('Snapshot error:', err);
+      return null;
+    }
+  });
+
+  // Export snapshot
+  ipcMain.handle('ai-export-snapshot', (event, snapshot, format) => {
+    try {
+      return state.ai.intelSnapshot.export(snapshot, format);
+    } catch (err) {
+      return null;
+    }
+  });
+
+  // Get fingerprint exposure
+  ipcMain.handle('ai-get-fingerprint', () => {
+    try {
+      return state.ai.fingerprintMeter.calculateExposure(state.privacy);
+    } catch (err) {
+      return { score: 50, level: 'medium', factors: [], protected: 50 };
+    }
+  });
+
+  // Get auto-opsec recommendation
+  ipcMain.handle('ai-get-opsec-mode', (event, riskScore) => {
+    try {
+      const modeName = state.ai.autoOpsec.getRecommendedMode(riskScore);
+      return state.ai.autoOpsec.getModeSettings(modeName);
+    } catch (err) {
+      return state.ai.autoOpsec.getModeSettings('standard');
+    }
+  });
+
+  // Get cross-references
+  ipcMain.handle('ai-get-cross-refs', () => {
+    try {
+      return state.ai.crossRef.getCrossReferences();
+    } catch (err) {
+      return [];
     }
   });
 }
