@@ -3,9 +3,6 @@
  * Handles loading, managing, and executing plugins
  */
 
-const fs = require('fs');
-const path = require('path');
-
 class PluginManager {
   constructor(store, mainWindow) {
     this.store = store;

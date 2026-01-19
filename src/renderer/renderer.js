@@ -282,7 +282,7 @@ function setupIPCListeners() {
     updateTabFavicon(tabId, favicon);
   });
 
-  window.sandiego.onTabActivated(({ tabId, url, title, canGoBack, canGoForward }) => {
+  window.sandiego.onTabActivated(({ tabId, url, title: _title, canGoBack, canGoForward }) => {
     if (AppState.activeTabId !== tabId) {
       setActiveTab(tabId);
     }
@@ -1329,7 +1329,7 @@ function showNotification(type, message, duration = 3000) {
   `;
 
   // Store timeout ID to allow clearing it when manually closed
-  let timeoutId = setTimeout(() => {
+  const timeoutId = setTimeout(() => {
     if (notification.parentNode) {
       notification.remove();
     }
@@ -1642,7 +1642,7 @@ function showCertificateDialog(tabId, url, error) {
     handleNavigation('back');
   });
 
-  dialog.querySelector('#proceedUnsafeBtn')?.addEventListener('click', async () => {
+  dialog.querySelector('#proceedUnsafeBtn')?.addEventListener('click', () => {
     dialog.remove();
     // Note: The main process has already blocked this. We'd need a dedicated
     // IPC call to proceed with the certificate error. For now, just notify.
