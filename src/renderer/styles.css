@@ -1,47 +1,58 @@
 /* ============================================
-   SANDIEGO Browser - OSINT Investigation Suite
-   Version: 3.2.0
-   Theme: Noir / International Investigation
+   CONSTANTINE Browser - OSINT Investigation Suite
+   Version: 4.1.1 - The Exorcist's Edge
+   "Between Heaven and Hell, intelligence prevails."
    ============================================ */
 
 /* CSS Custom Properties - Design Tokens */
 :root {
-  /* Primary Colors - Carmen's Signature */
-  --carmen-red: #C41E3A;
-  --carmen-red-dark: #9A1830;
-  --carmen-red-light: #E63950;
-  --carmen-red-glow: rgba(196, 30, 58, 0.4);
+  /* Primary Colors - Constantine's Amber Gold */
+  --constantine-gold: #D4A32D;
+  --constantine-gold-dark: #B8860B;
+  --constantine-gold-light: #F4C430;
+  --constantine-gold-glow: rgba(212, 163, 45, 0.4);
 
-  /* Background Hierarchy */
-  --bg-base: #0D0D0F;
-  --bg-elevated: #151518;
-  --bg-surface: #1C1C21;
-  --bg-overlay: #242429;
-  --bg-hover: #2D2D33;
-  --bg-active: #363640;
+  /* Supernatural Accents */
+  --hellfire: #E65C00;
+  --hellfire-glow: rgba(230, 92, 0, 0.35);
+  --celestial: #00CED1;
+  --celestial-glow: rgba(0, 206, 209, 0.3);
+  --sulfur: #FFD700;
+  --blood: #8B0000;
+  --holy: #F0E68C;
 
-  /* Text Hierarchy */
-  --text-primary: #F5F5F7;
-  --text-secondary: #A1A1A6;
-  --text-tertiary: #6E6E73;
-  --text-disabled: #48484A;
+  /* Background Hierarchy - Deep Noir Abyss */
+  --bg-base: #0A0A0C;
+  --bg-elevated: #121215;
+  --bg-surface: #1A1A1E;
+  --bg-overlay: #222226;
+  --bg-hover: #2A2A2F;
+  --bg-active: #333338;
 
-  /* Accent Colors */
-  --gold: #D4AF37;
-  --gold-light: #F0D060;
-  --success: #30D158;
-  --warning: #FF9F0A;
-  --info: #64D2FF;
-  --danger: #FF453A;
+  /* Text Hierarchy - Ethereal */
+  --text-primary: #E8E6E3;
+  --text-secondary: #9D9D9D;
+  --text-tertiary: #6B6B6B;
+  --text-disabled: #454545;
 
-  /* Borders & Shadows */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-default: rgba(255, 255, 255, 0.12);
-  --border-strong: rgba(255, 255, 255, 0.18);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px var(--carmen-red-glow);
+  /* Semantic Colors */
+  --gold: #D4A32D;
+  --gold-light: #F4C430;
+  --success: #32CD32;
+  --warning: #FF8C00;
+  --info: #00CED1;
+  --danger: #DC143C;
+
+  /* Borders & Shadows - Supernatural */
+  --border-subtle: rgba(212, 163, 45, 0.08);
+  --border-default: rgba(212, 163, 45, 0.15);
+  --border-strong: rgba(212, 163, 45, 0.25);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 20px var(--constantine-gold-glow);
+  --shadow-hellfire: 0 0 30px var(--hellfire-glow);
+  --shadow-celestial: 0 0 20px var(--celestial-glow);
 
   /* Layout */
   --title-bar-height: 36px;
@@ -55,12 +66,18 @@
 
   /* Typography */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
 
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
   --transition-slow: 0.4s ease;
+
+  /* Legacy Compatibility - Theme Bridge */
+  --carmen-red: var(--constantine-gold);
+  --carmen-red-dark: var(--constantine-gold-dark);
+  --carmen-red-light: var(--constantine-gold-light);
+  --carmen-red-glow: var(--constantine-gold-glow);
 }
 
 /* Reset & Base */
@@ -1258,8 +1275,41 @@ body {
 }
 
 @keyframes globe-pulse {
-  0%, 100% { box-shadow: 0 0 40px var(--carmen-red-glow), inset -10px -10px 20px rgba(0, 0, 0, 0.3), inset 5px 5px 15px rgba(255, 255, 255, 0.1); }
-  50% { box-shadow: 0 0 60px var(--carmen-red-glow), inset -10px -10px 20px rgba(0, 0, 0, 0.3), inset 5px 5px 15px rgba(255, 255, 255, 0.1); }
+  0%, 100% { box-shadow: 0 0 40px var(--constantine-gold-glow), inset -10px -10px 20px rgba(0, 0, 0, 0.3), inset 5px 5px 15px rgba(255, 255, 255, 0.1); }
+  50% { box-shadow: 0 0 60px var(--constantine-gold-glow), inset -10px -10px 20px rgba(0, 0, 0, 0.3), inset 5px 5px 15px rgba(255, 255, 255, 0.1); }
+}
+
+/* Constantine Theme - Supernatural Animations */
+@keyframes constantine-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--constantine-gold-glow);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 0 35px var(--constantine-gold-glow), 0 0 60px var(--hellfire-glow);
+    filter: brightness(1.1);
+  }
+}
+
+@keyframes hellfire-flicker {
+  0%, 100% { opacity: 1; filter: hue-rotate(0deg); }
+  25% { opacity: 0.9; filter: hue-rotate(-5deg); }
+  50% { opacity: 1; filter: hue-rotate(5deg); }
+  75% { opacity: 0.95; filter: hue-rotate(-3deg); }
+}
+
+@keyframes sigil-glow {
+  0%, 100% {
+    text-shadow: 0 0 10px var(--constantine-gold), 0 0 20px var(--constantine-gold-glow);
+  }
+  50% {
+    text-shadow: 0 0 15px var(--constantine-gold), 0 0 30px var(--constantine-gold-glow), 0 0 45px var(--hellfire-glow);
+  }
+}
+
+@keyframes exorcism-fade {
+  0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .start-title {

@@ -1,7 +1,9 @@
 /**
- * SANDIEGO Browser - Renderer Process
- * Version: 3.2.0
+ * CONSTANTINE Browser - Renderer Process
+ * Version: 4.1.1 - The Exorcist's Edge
  * Clean state management and robust UI handling
+ *
+ * "Between Heaven and Hell, intelligence prevails."
  */
 
 // ============================================
@@ -143,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Setup network status monitoring
   setupNetworkMonitoring();
 
-  console.log('SANDIEGO Browser v3.2.0 initialized');
+  console.log('CONSTANTINE Browser v4.1.1 - The Exorcist\'s Edge initialized');
 });
 
 async function initializePlatform() {

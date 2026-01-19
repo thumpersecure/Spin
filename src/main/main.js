@@ -1,11 +1,19 @@
 /**
- * SANDIEGO Browser - OSINT Investigation Suite
- * Version: 3.2.0
+ * CONSTANTINE Browser - OSINT Investigation Suite
+ * Version: 4.1.1 - The Exorcist's Edge
  *
  * A privacy-first browser engineered for Open Source Intelligence gathering.
  * Built for investigators, researchers, and privacy-conscious users.
  *
+ * "Between Heaven and Hell, intelligence prevails."
+ *
  * Platform Support: Windows 11, macOS (Intel/ARM), Debian/Ubuntu Linux
+ *
+ * Version History:
+ * - v1.0: Dick Tracy Edition (Original SANDIEGO)
+ * - v2.0: Tracey Edition (Hollywood Noir)
+ * - v3.x: Carmen Sandiego Edition (International Investigation)
+ * - v4.x: CONSTANTINE Edition (Supernatural Noir) - CURRENT
  */
 
 const { app, BrowserWindow, BrowserView, ipcMain, session, Menu, nativeTheme, shell, dialog, clipboard, net } = require('electron');
@@ -140,22 +148,22 @@ const Platform = {
   // Platform-specific config paths
   get configPath() {
     if (this.isWindows) {
-      return path.join(process.env.APPDATA || '', 'SANDIEGO');
+      return path.join(process.env.APPDATA || '', 'CONSTANTINE');
     }
     if (this.isMac) {
-      return path.join(process.env.HOME || '', 'Library', 'Application Support', 'SANDIEGO');
+      return path.join(process.env.HOME || '', 'Library', 'Application Support', 'CONSTANTINE');
     }
-    return path.join(process.env.XDG_CONFIG_HOME || path.join(process.env.HOME || '', '.config'), 'sandiego');
+    return path.join(process.env.XDG_CONFIG_HOME || path.join(process.env.HOME || '', '.config'), 'constantine');
   },
 
   get cachePath() {
     if (this.isWindows) {
-      return path.join(process.env.LOCALAPPDATA || '', 'SANDIEGO', 'Cache');
+      return path.join(process.env.LOCALAPPDATA || '', 'CONSTANTINE', 'Cache');
     }
     if (this.isMac) {
-      return path.join(process.env.HOME || '', 'Library', 'Caches', 'SANDIEGO');
+      return path.join(process.env.HOME || '', 'Library', 'Caches', 'CONSTANTINE');
     }
-    return path.join(process.env.XDG_CACHE_HOME || path.join(process.env.HOME || '', '.cache'), 'sandiego');
+    return path.join(process.env.XDG_CACHE_HOME || path.join(process.env.HOME || '', '.cache'), 'constantine');
   },
 
   get downloadPath() {
@@ -171,9 +179,11 @@ const Platform = {
 // ============================================
 
 const CONFIG = {
-  version: '3.2.0',
-  name: 'SANDIEGO Browser',
-  codename: 'OSINT Investigation Suite',
+  version: '4.1.1',
+  name: 'CONSTANTINE Browser',
+  codename: 'The Exorcist\'s Edge',
+  theme: 'constantine',
+  tagline: 'Between Heaven and Hell, intelligence prevails.',
 
   window: {
     width: 1400,

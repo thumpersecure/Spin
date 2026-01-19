@@ -1,0 +1,214 @@
+{
+  "$schema": "./themes-schema.json",
+  "meta": {
+    "version": "1.0.0",
+    "description": "SANDIEGO Browser Theme Configuration - Defines visual themes for the OSINT Investigation Suite",
+    "maintainer": "SANDIEGO Team",
+    "lastUpdated": "2026-01-19"
+  },
+  "themes": {
+    "constantine": {
+      "id": "constantine",
+      "name": "Constantine",
+      "codename": "The Exorcist's Edge",
+      "version": "4.1.1",
+      "tagline": "Between Heaven and Hell, intelligence prevails.",
+      "inspiration": "Supernatural noir - inspired by the realm between light and darkness",
+      "description": "A dark supernatural theme featuring amber gold accents, hellfire undertones, and celestial highlights. Designed for investigators who walk the line between worlds.",
+      "colors": {
+        "primary": {
+          "main": "#D4A32D",
+          "dark": "#B8860B",
+          "light": "#F4C430",
+          "glow": "rgba(212, 163, 45, 0.4)"
+        },
+        "accent": {
+          "hellfire": "#E65C00",
+          "celestial": "#00CED1",
+          "sulfur": "#FFD700",
+          "blood": "#8B0000",
+          "holy": "#F0E68C"
+        },
+        "background": {
+          "base": "#0A0A0C",
+          "elevated": "#121215",
+          "surface": "#1A1A1E",
+          "overlay": "#222226",
+          "hover": "#2A2A2F",
+          "active": "#333338"
+        },
+        "text": {
+          "primary": "#E8E6E3",
+          "secondary": "#9D9D9D",
+          "tertiary": "#6B6B6B",
+          "disabled": "#454545"
+        },
+        "semantic": {
+          "success": "#32CD32",
+          "warning": "#FF8C00",
+          "info": "#00CED1",
+          "danger": "#DC143C",
+          "gold": "#D4A32D"
+        },
+        "borders": {
+          "subtle": "rgba(212, 163, 45, 0.08)",
+          "default": "rgba(212, 163, 45, 0.15)",
+          "strong": "rgba(212, 163, 45, 0.25)"
+        },
+        "shadows": {
+          "glow": "0 0 20px rgba(212, 163, 45, 0.4)",
+          "hellfire": "0 0 30px rgba(230, 92, 0, 0.3)",
+          "celestial": "0 0 20px rgba(0, 206, 209, 0.3)"
+        }
+      },
+      "typography": {
+        "fontSans": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif",
+        "fontMono": "'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace"
+      },
+      "effects": {
+        "animations": ["constantine-pulse", "hellfire-flicker", "sigil-glow", "exorcism-fade"],
+        "transitions": {
+          "fast": "0.15s ease",
+          "normal": "0.25s ease",
+          "slow": "0.4s ease"
+        }
+      }
+    },
+    "carmen": {
+      "id": "carmen",
+      "name": "Carmen Sandiego",
+      "codename": "International Investigation",
+      "version": "3.2.0",
+      "tagline": "Where in the World Will You Search?",
+      "inspiration": "International noir - inspired by the legendary thief who leaves only questions",
+      "description": "A sophisticated dark theme with signature red accents, gold luxury highlights, and mysterious undertones. Designed for global investigators.",
+      "colors": {
+        "primary": {
+          "main": "#C41E3A",
+          "dark": "#9A1830",
+          "light": "#E63950",
+          "glow": "rgba(196, 30, 58, 0.4)"
+        },
+        "accent": {
+          "gold": "#D4AF37",
+          "goldLight": "#F0D060"
+        },
+        "background": {
+          "base": "#0D0D0F",
+          "elevated": "#151518",
+          "surface": "#1C1C21",
+          "overlay": "#242429",
+          "hover": "#2D2D33",
+          "active": "#363640"
+        },
+        "text": {
+          "primary": "#F5F5F7",
+          "secondary": "#A1A1A6",
+          "tertiary": "#6E6E73",
+          "disabled": "#48484A"
+        },
+        "semantic": {
+          "success": "#30D158",
+          "warning": "#FF9F0A",
+          "info": "#64D2FF",
+          "danger": "#FF453A",
+          "gold": "#D4AF37"
+        }
+      }
+    },
+    "tracey": {
+      "id": "tracey",
+      "name": "Dick Tracey",
+      "codename": "Detective's Noir",
+      "version": "2.0.0",
+      "tagline": "The city never sleeps, and neither do the clues.",
+      "inspiration": "Classic detective noir - yellow trench coat and shadows",
+      "description": "The original detective theme with classic yellow accents against deep noir backgrounds. Where investigation began.",
+      "colors": {
+        "primary": {
+          "main": "#FFD700",
+          "dark": "#B8960B",
+          "light": "#FFEC8B",
+          "glow": "rgba(255, 215, 0, 0.4)"
+        },
+        "background": {
+          "base": "#0F0F12",
+          "elevated": "#171720",
+          "surface": "#1F1F28",
+          "overlay": "#282830"
+        },
+        "text": {
+          "primary": "#EFEFEF",
+          "secondary": "#B0B0B0"
+        }
+      }
+    }
+  },
+  "activeTheme": "constantine",
+  "themeHistory": [
+    {
+      "version": "1.0.0",
+      "theme": "tracey",
+      "codename": "Dick Tracy Edition",
+      "releaseDate": "2025-01-01"
+    },
+    {
+      "version": "2.0.0",
+      "theme": "tracey",
+      "codename": "Tracey Edition",
+      "releaseDate": "2025-06-01"
+    },
+    {
+      "version": "3.0.0",
+      "theme": "carmen",
+      "codename": "Carmen Sandiego Edition",
+      "releaseDate": "2025-10-01"
+    },
+    {
+      "version": "3.2.0",
+      "theme": "carmen",
+      "codename": "Noir OSINT Theme",
+      "releaseDate": "2025-12-15"
+    },
+    {
+      "version": "4.1.1",
+      "theme": "constantine",
+      "codename": "The Exorcist's Edge",
+      "releaseDate": "2026-01-19"
+    }
+  ],
+  "customization": {
+    "allowUserOverrides": true,
+    "overridableProperties": [
+      "colors.primary",
+      "colors.accent",
+      "colors.background",
+      "typography.fontSans",
+      "typography.fontMono"
+    ],
+    "persistUserPreferences": true
+  },
+  "reportStyles": {
+    "constantine": {
+      "headerColor": "#D4A32D",
+      "borderStyle": "double",
+      "accentGlyph": "⚡",
+      "headerGlyph": "🔱",
+      "footerQuote": "\"God's a kid with an ant farm. He's not planning anything.\""
+    },
+    "carmen": {
+      "headerColor": "#C41E3A",
+      "borderStyle": "solid",
+      "accentGlyph": "🔴",
+      "headerGlyph": "🌍",
+      "footerQuote": "\"She travels the world, leaving only questions in her wake.\""
+    },
+    "tracey": {
+      "headerColor": "#FFD700",
+      "borderStyle": "dashed",
+      "accentGlyph": "🔍",
+      "headerGlyph": "🕵️",
+      "footerQuote": "\"The city never sleeps, and neither do the clues.\""
+    }
+  }
+}
