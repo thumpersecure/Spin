@@ -520,7 +520,8 @@ function createMainWindow() {
 
   state.mainWindow = new BrowserWindow(windowConfig);
 
-  state.mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+  // Load built Svelte app from dist folder
+  state.mainWindow.loadFile(path.join(__dirname, '../renderer/dist/index.html'));
 
   state.mainWindow.once('ready-to-show', () => {
     state.mainWindow.show();
