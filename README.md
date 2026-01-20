@@ -20,13 +20,14 @@
               ║                                                                   ║
               ╚═══════════════════════════════════════════════════════════════════╝
 
-                                    [ Version 4.2.0 ]
+                                    [ Version 4.3.0 ]
 ```
 
 <div align="center">
 
 [![License: Unlicense](https://img.shields.io/badge/License-Unlicense-D4A32D.svg)](https://unlicense.org)
-[![Electron](https://img.shields.io/badge/Electron-35.7.5-47848F.svg)](https://electronjs.org/)
+[![Electron](https://img.shields.io/badge/Electron-40.0.0-47848F.svg)](https://electronjs.org/)
+[![Svelte](https://img.shields.io/badge/Svelte-5.0-FF3E00.svg)](https://svelte.dev/)
 [![Platform](https://img.shields.io/badge/Platform-Win%20%7C%20macOS%20%7C%20Linux-181818.svg)](#platform-installation)
 [![OSINT](https://img.shields.io/badge/Purpose-OSINT-D4A32D.svg)](#osint-capabilities)
 [![AI](https://img.shields.io/badge/AI-Intelligence%20Suite-00CED1.svg)](#ai-intelligence-suite)
@@ -100,7 +101,8 @@ Version 4.x introduces the **Constantine** theme, a dramatic shift from the prev
 v1.0  Dick Tracy Edition     - Classic Detective Yellow
 v2.0  Tracey Edition         - Hollywood Noir
 v3.x  Carmen Sandiego        - International Red
-v4.x  CONSTANTINE            - Supernatural Gold  <-- CURRENT (v4.2.0)
+v4.2  CONSTANTINE            - Supernatural Gold
+v4.3  CONSTANTINE + Svelte   - Performance Edition  <-- CURRENT
 ```
 
 #### Future Themes
@@ -587,9 +589,23 @@ Spin/
 │   ├── main/
 │   │   └── main.js                  # Main process with platform detection
 │   ├── renderer/
-│   │   ├── index.html               # Browser UI
+│   │   ├── index.html               # Entry HTML
+│   │   ├── main.js                  # Svelte entry point
+│   │   ├── App.svelte               # Root Svelte component
 │   │   ├── styles.css               # Constantine theme styles
-│   │   └── renderer.js              # UI logic
+│   │   ├── stores/
+│   │   │   └── app.js               # Centralized state management
+│   │   ├── components/
+│   │   │   ├── TitleBar.svelte      # Window title bar
+│   │   │   ├── TabBar.svelte        # Tab management
+│   │   │   ├── NavBar.svelte        # Navigation + URL bar
+│   │   │   ├── StartPage.svelte     # New tab page
+│   │   │   ├── ExtensionsPanel.svelte
+│   │   │   ├── PrivacyPanel.svelte
+│   │   │   ├── PhoneIntel.svelte
+│   │   │   ├── Notifications.svelte
+│   │   │   └── ...                  # Other components
+│   │   └── dist/                    # Built Svelte output
 │   ├── preload/
 │   │   ├── preload.js               # Secure IPC bridge
 │   │   └── webview-preload.js       # Minimal webview API
@@ -601,6 +617,8 @@ Spin/
 │   │   └── ai-cognitive-tools.js    # Focus mode, timeline, bookmarks
 │   └── data/
 │       └── themes.json              # Theme configuration
+├── vite.config.mjs                  # Vite build config
+├── svelte.config.mjs                # Svelte compiler config
 ├── package.json
 └── README.md
 ```
@@ -630,6 +648,56 @@ Spin/
 - No external API calls except user-initiated searches
 - All settings stored locally
 - Optional data purge on exit
+
+---
+
+## Version 4.3.0 Changelog
+
+### Major Features — Svelte Migration
+
+- **Complete UI Rewrite**: Migrated from vanilla JavaScript (~1,800 lines) to Svelte 5 component architecture
+- **Vite Build System**: Fast bundling with HMR support, code splitting, and tree shaking
+- **Reactive State Management**: Centralized Svelte stores with optimized batching
+- **Lazy Loading**: Heavy components (panels, overlays) loaded on-demand
+- **Performance Optimizations**:
+  - `requestAnimationFrame` batched tab updates
+  - CSS containment for layout isolation
+  - Immutable static data with `Object.freeze()`
+  - Efficient store subscriptions with `get()`
+  - Debounce/throttle utilities for high-frequency events
+
+### Component Architecture
+
+| Component | Purpose |
+|-----------|---------|
+| `App.svelte` | Root component, IPC setup, keyboard shortcuts |
+| `TitleBar.svelte` | Window controls, status indicator |
+| `TabBar.svelte` | Tab management with loading states |
+| `NavBar.svelte` | URL bar, navigation, panel toggles |
+| `StartPage.svelte` | New tab page with quick links |
+| `ExtensionsPanel.svelte` | OSINT bookmarks, Phone Intel |
+| `PrivacyPanel.svelte` | Privacy settings toggles |
+| `Notifications.svelte` | Toast notification system |
+
+### Build Output
+
+```
+dist/
+├── index.html                   (0.56 KB)
+├── assets/index-*.js            (62 KB gzip: 23 KB)  # Core bundle
+├── assets/index-*.css           (65 KB gzip: 10 KB)  # Styles
+├── assets/ExtensionsPanel-*.js  (10 KB)              # Lazy loaded
+├── assets/PrivacyPanel-*.js     (3 KB)               # Lazy loaded
+└── assets/[overlays]-*.js       (< 2 KB each)        # Lazy loaded
+```
+
+### Technical Details
+
+- 12 Svelte components replacing monolithic renderer.js
+- Derived stores for computed values (activeTab, tabCount, protectionLevel)
+- Proper cleanup in `onDestroy` lifecycle hooks
+- CSS `contain: strict` for paint optimization
+- `will-change: width` for smooth panel animations
 
 ---
 
@@ -751,7 +819,7 @@ This is free and unencumbered software released into the public domain — see [
 
 ---
 
-**CONSTANTINE** — Version 4.2.0 - The Exorcist's Edge
+**CONSTANTINE** — Version 4.3.0 - The Exorcist's Edge (Svelte Edition)
 
 [Report Issue](https://github.com/thumpersecure/Spin/issues) | [spin 💫 osint]
 

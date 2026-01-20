@@ -1,26 +1,60 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { get } from 'svelte/store';
   import {
     tabs, activeTabId, activeTab, privacy, panelState,
-    platform, appStatus, notifications
+    platform, appStatus, notifications, protectionLevel
   } from './stores/app.js';
 
   import TitleBar from './components/TitleBar.svelte';
   import TabBar from './components/TabBar.svelte';
   import NavBar from './components/NavBar.svelte';
   import StartPage from './components/StartPage.svelte';
-  import ExtensionsPanel from './components/ExtensionsPanel.svelte';
-  import PrivacyPanel from './components/PrivacyPanel.svelte';
   import Notifications from './components/Notifications.svelte';
-  import SessionRestoreBanner from './components/SessionRestoreBanner.svelte';
-  import OfflineBanner from './components/OfflineBanner.svelte';
-  import CrashOverlay from './components/CrashOverlay.svelte';
+
+  // Lazy load heavy components
+  let ExtensionsPanel = null;
+  let PrivacyPanel = null;
+  let SessionRestoreBanner = null;
+  let OfflineBanner = null;
+  let CrashOverlay = null;
 
   let sessionData = null;
   let crashedTab = null;
+  let keydownHandler = null;
+
+  // Lazy load panels on first open
+  async function loadPanelComponents() {
+    if (!ExtensionsPanel) {
+      const mod = await import('./components/ExtensionsPanel.svelte');
+      ExtensionsPanel = mod.default;
+    }
+    if (!PrivacyPanel) {
+      const mod = await import('./components/PrivacyPanel.svelte');
+      PrivacyPanel = mod.default;
+    }
+  }
+
+  async function loadOverlayComponents() {
+    if (!SessionRestoreBanner) {
+      const mod = await import('./components/SessionRestoreBanner.svelte');
+      SessionRestoreBanner = mod.default;
+    }
+    if (!OfflineBanner) {
+      const mod = await import('./components/OfflineBanner.svelte');
+      OfflineBanner = mod.default;
+    }
+    if (!CrashOverlay) {
+      const mod = await import('./components/CrashOverlay.svelte');
+      CrashOverlay = mod.default;
+    }
+  }
 
   // Initialize app
   onMount(async () => {
+    // Load overlay components in background
+    loadOverlayComponents();
+
     await initializePlatform();
     await loadPrivacySettings();
     await createInitialTab();
@@ -29,7 +63,7 @@
     setupNetworkMonitoring();
     setupKeyboardShortcuts();
 
-    console.log("CONSTANTINE Browser v4.3.0 - Svelte Edition initialized");
+    console.log("CONSTANTINE Browser v4.3.0 - Optimized Svelte Edition");
   });
 
   async function initializePlatform() {
@@ -79,7 +113,7 @@
   }
 
   function setupIPCListeners() {
-    // Tab events
+    // Tab events - using batched updates for high-frequency events
     window.sandiego.onTabLoading(({ tabId, loading }) => {
       tabs.updateTab(tabId, { loading });
     });
@@ -102,17 +136,14 @@
     });
 
     window.sandiego.onTabCreated(({ tabId, url }) => {
-      let currentTabs;
-      tabs.subscribe(t => currentTabs = t)();
+      const currentTabs = get(tabs);
       if (!currentTabs.has(tabId)) {
         tabs.add(tabId, { title: 'New Tab', url: url || '' });
       }
     });
 
     window.sandiego.onTabError(({ tabId, error }) => {
-      let currentActiveId;
-      activeTabId.subscribe(id => currentActiveId = id)();
-      if (tabId === currentActiveId) {
+      if (tabId === get(activeTabId)) {
         notifications.show('error', `Failed to load: ${error}`);
       }
     });
@@ -137,10 +168,8 @@
     });
 
     window.sandiego.on('tab-crashed', ({ tabId, reason }) => {
-      tabs.updateTab(tabId, { crashed: true });
-      let currentActiveId;
-      activeTabId.subscribe(id => currentActiveId = id)();
-      if (tabId === currentActiveId) {
+      tabs.updateTabImmediate(tabId, { crashed: true });
+      if (tabId === get(activeTabId)) {
         crashedTab = { tabId, reason };
       }
       notifications.show('error', `Tab ${reason === 'oom' ? 'ran out of memory' : 'crashed'}`, 5000);
@@ -148,9 +177,7 @@
 
     window.sandiego.on('tab-unresponsive', ({ tabId }) => {
       tabs.updateTab(tabId, { unresponsive: true });
-      let currentActiveId;
-      activeTabId.subscribe(id => currentActiveId = id)();
-      if (tabId === currentActiveId) {
+      if (tabId === get(activeTabId)) {
         notifications.show('warning', 'Tab is not responding...', 3000);
       }
     });
@@ -163,10 +190,9 @@
       handleNetworkChange(isOnline);
     });
 
-    window.sandiego.on('open-panel', (panelType) => {
-      if (panelType === 'phone-intel') {
-        panelState.set({ open: true, activePanel: 'extensions' });
-      } else if (panelType === 'bookmarks') {
+    window.sandiego.on('open-panel', async (panelType) => {
+      await loadPanelComponents();
+      if (panelType === 'phone-intel' || panelType === 'bookmarks') {
         panelState.set({ open: true, activePanel: 'extensions' });
       } else if (panelType === 'privacy') {
         panelState.set({ open: true, activePanel: 'privacy' });
@@ -189,8 +215,7 @@
   }
 
   function handleNetworkChange(isOnline) {
-    let wasOnline;
-    appStatus.subscribe(s => wasOnline = s.isOnline)();
+    const wasOnline = get(appStatus).isOnline;
     appStatus.update(s => ({ ...s, isOnline }));
 
     if (!isOnline && wasOnline) {
@@ -201,7 +226,8 @@
   }
 
   function setupKeyboardShortcuts() {
-    document.addEventListener('keydown', handleKeydown);
+    keydownHandler = handleKeydown;
+    document.addEventListener('keydown', keydownHandler);
   }
 
   function handleKeydown(e) {
@@ -215,8 +241,7 @@
           break;
         case 'w':
           e.preventDefault();
-          let currentId;
-          activeTabId.subscribe(id => currentId = id)();
+          const currentId = get(activeTabId);
           if (currentId) closeTab(currentId);
           break;
         case 'l':
@@ -237,24 +262,19 @@
       if (e.shiftKey) {
         switch (e.key.toLowerCase()) {
           case 'p':
-            e.preventDefault();
-            panelState.set({ open: true, activePanel: 'extensions' });
-            break;
           case 'b':
             e.preventDefault();
-            panelState.set({ open: true, activePanel: 'extensions' });
+            togglePanel('extensions');
             break;
           case 'd':
             e.preventDefault();
-            panelState.set({ open: true, activePanel: 'privacy' });
+            togglePanel('privacy');
             break;
         }
       }
     }
 
-    let panel;
-    panelState.subscribe(p => panel = p)();
-    if (e.key === 'Escape' && panel.open) {
+    if (e.key === 'Escape' && get(panelState).open) {
       panelState.set({ open: false, activePanel: null });
     }
   }
@@ -281,9 +301,8 @@
     window.sandiego.closeTab(tabId);
     tabs.remove(tabId);
 
-    let currentTabs, currentActiveId;
-    tabs.subscribe(t => currentTabs = t)();
-    activeTabId.subscribe(id => currentActiveId = id)();
+    const currentTabs = get(tabs);
+    const currentActiveId = get(activeTabId);
 
     if (currentTabs.size === 0) {
       handleNewTab();
@@ -296,15 +315,13 @@
 
   export function navigateToUrl(input) {
     if (!input || !input.trim()) return;
-    let currentActiveId;
-    activeTabId.subscribe(id => currentActiveId = id)();
+    const currentActiveId = get(activeTabId);
     if (!currentActiveId) return;
     window.sandiego.navigate(currentActiveId, input.trim());
   }
 
   export function handleNavigation(action) {
-    let currentActiveId;
-    activeTabId.subscribe(id => currentActiveId = id)();
+    const currentActiveId = get(activeTabId);
     if (!currentActiveId) return;
 
     switch (action) {
@@ -321,11 +338,10 @@
   }
 
   export function handleGoHome() {
-    let currentActiveId;
-    activeTabId.subscribe(id => currentActiveId = id)();
+    const currentActiveId = get(activeTabId);
     if (!currentActiveId) return;
 
-    tabs.updateTab(currentActiveId, {
+    tabs.updateTabImmediate(currentActiveId, {
       url: '',
       title: 'New Tab',
       canGoBack: false,
@@ -335,9 +351,8 @@
   }
 
   export async function handleBookmarkPage() {
-    let currentActiveId, currentTab;
-    activeTabId.subscribe(id => currentActiveId = id)();
-    activeTab.subscribe(t => currentTab = t)();
+    const currentActiveId = get(activeTabId);
+    const currentTab = get(activeTab);
 
     if (!currentActiveId || !currentTab?.url) {
       notifications.show('warning', 'No page to bookmark');
@@ -356,9 +371,9 @@
     }
   }
 
-  export function togglePanel(panelType) {
-    let current;
-    panelState.subscribe(p => current = p)();
+  export async function togglePanel(panelType) {
+    await loadPanelComponents();
+    const current = get(panelState);
 
     if (current.open && current.activePanel === panelType) {
       panelState.set({ open: false, activePanel: null });
@@ -394,7 +409,7 @@
   function handleCrashReload() {
     if (!crashedTab) return;
     window.sandiego.reload(crashedTab.tabId);
-    tabs.updateTab(crashedTab.tabId, { crashed: false });
+    tabs.updateTabImmediate(crashedTab.tabId, { crashed: false });
     crashedTab = null;
   }
 
@@ -411,23 +426,26 @@
                      $platform.isLinux ? 'platform-linux' : '';
 
   onDestroy(() => {
-    document.removeEventListener('keydown', handleKeydown);
+    if (keydownHandler) {
+      document.removeEventListener('keydown', keydownHandler);
+    }
   });
 </script>
 
 <div class="app {platformClass}" class:fullscreen={$appStatus.isFullscreen}>
   <TitleBar />
 
-  {#if sessionData}
-    <SessionRestoreBanner
+  {#if sessionData && SessionRestoreBanner}
+    <svelte:component
+      this={SessionRestoreBanner}
       count={sessionData.count}
       on:restore={handleSessionRestore}
       on:dismiss={dismissSessionRestore}
     />
   {/if}
 
-  {#if !$appStatus.isOnline}
-    <OfflineBanner />
+  {#if !$appStatus.isOnline && OfflineBanner}
+    <svelte:component this={OfflineBanner} />
   {/if}
 
   <TabBar
@@ -447,10 +465,10 @@
   <main class="main-container">
     {#if $panelState.open}
       <aside class="extensions-panel open">
-        {#if $panelState.activePanel === 'extensions'}
-          <ExtensionsPanel {navigateToUrl} {closePanel} />
-        {:else if $panelState.activePanel === 'privacy'}
-          <PrivacyPanel {closePanel} />
+        {#if $panelState.activePanel === 'extensions' && ExtensionsPanel}
+          <svelte:component this={ExtensionsPanel} {navigateToUrl} {closePanel} />
+        {:else if $panelState.activePanel === 'privacy' && PrivacyPanel}
+          <svelte:component this={PrivacyPanel} {closePanel} />
         {/if}
       </aside>
     {/if}
@@ -462,8 +480,9 @@
     </div>
   </main>
 
-  {#if crashedTab}
-    <CrashOverlay
+  {#if crashedTab && CrashOverlay}
+    <svelte:component
+      this={CrashOverlay}
       reason={crashedTab.reason}
       on:reload={handleCrashReload}
       on:close={handleCrashClose}
@@ -480,12 +499,14 @@
     height: 100vh;
     background: var(--bg-primary);
     color: var(--text-primary);
+    contain: layout style;
   }
 
   .main-container {
     display: flex;
     flex: 1;
     overflow: hidden;
+    contain: strict;
   }
 
   .extensions-panel {
@@ -494,6 +515,8 @@
     transition: width 0.2s ease;
     background: var(--bg-secondary);
     border-right: 1px solid var(--border-default);
+    contain: layout style paint;
+    will-change: width;
   }
 
   .extensions-panel.open {
@@ -504,5 +527,6 @@
     flex: 1;
     position: relative;
     overflow: hidden;
+    contain: strict;
   }
 </style>
