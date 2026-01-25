@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest  # Compatible with Parrot OS (Debian-based)
+    runs-on: ubuntu-latest  # Debian-based runner compatible with Parrot OS
 
     strategy:
       matrix:
@@ -47,7 +47,7 @@ jobs:
 
   security:
     name: Security Audit
-    runs-on: ubuntu-latest  # Compatible with Parrot OS (Debian-based)
+    runs-on: ubuntu-latest  # Debian-based runner compatible with Parrot OS
 
     steps:
       - name: Checkout repository

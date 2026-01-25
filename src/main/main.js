@@ -7,7 +7,7 @@
  *
  * "Between Heaven and Hell, intelligence prevails."
  *
- * Platform Support: Windows 11, macOS (Intel/ARM), Parrot OS, Debian/Ubuntu Linux
+ * Platform Support: Windows 11, macOS (Intel/ARM), Parrot OS, Debian Linux
  *
  * Version History:
  * - v1.0: Dick Tracy Edition (Original SANDIEGO)
@@ -56,7 +56,6 @@ const Platform = {
       isWindows11: false,
       isParrotOS: false,
       isDebian: false,
-      isUbuntu: false,
       isFedora: false,
       isArch: false,
       macVersion: null,
@@ -79,7 +78,6 @@ const Platform = {
           const osRelease = fs.readFileSync('/etc/os-release', 'utf8');
           info.isParrotOS = /parrot/i.test(osRelease);
           info.isDebian = /debian/i.test(osRelease);
-          info.isUbuntu = /ubuntu/i.test(osRelease);
           info.isFedora = /fedora/i.test(osRelease);
           info.isArch = /arch/i.test(osRelease);
         }
