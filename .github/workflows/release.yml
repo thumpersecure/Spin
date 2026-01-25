@@ -62,7 +62,7 @@ jobs:
   # Build macOS binaries (Intel + Apple Silicon)
   build-macos:
     name: Build macOS
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - name: Checkout repository
@@ -115,7 +115,7 @@ jobs:
       - name: Install Linux build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y rpm libarchive-tools
+          sudo apt-get install -y libarchive-tools
 
       - name: Build Linux binaries
         run: npm run build:linux
@@ -133,7 +133,6 @@ jobs:
             dist/*.AppImage
             dist/*.deb
             dist/*.tar.gz
-            dist/*.rpm
           retention-days: 5
 
   # Create GitHub Release with all binaries
@@ -216,11 +215,6 @@ jobs:
           for file in release/linux/*.tar.gz; do
             if [ -f "$file" ]; then
               cp "$file" "release/final/CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Linux.tar.gz"
-            fi
-          done
-          for file in release/linux/*.rpm; do
-            if [ -f "$file" ]; then
-              cp "$file" "release/final/CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Fedora.rpm"
             fi
           done
 

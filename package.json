@@ -100,8 +100,7 @@
       "target": [
         "AppImage",
         "deb",
-        "tar.gz",
-        "rpm"
+        "tar.gz"
       ],
       "category": "Network",
       "icon": "assets/icon.png",
@@ -126,19 +125,6 @@
         "tor"
       ],
       "category": "Network"
-    },
-    "rpm": {
-      "depends": [
-        "gtk3",
-        "libnotify",
-        "nss",
-        "libXScrnSaver",
-        "libXtst",
-        "xdg-utils",
-        "at-spi2-core",
-        "libuuid",
-        "libsecret"
-      ]
     },
     "nsis": {
       "oneClick": false,
