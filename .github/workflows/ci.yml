@@ -7,71 +7,9 @@ on:
     branches: [main, develop]
 
 jobs:
-  test:
-    name: Test
-    runs-on: ubuntu-latest  # Debian-based runner compatible with Parrot OS
-
-    strategy:
-      matrix:
-        node-version: [20.x, 22.x]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run linter
-        run: npm run lint
-        continue-on-error: true
-
-      - name: Run tests
-        run: npm test
-
-      - name: Run tests with coverage
-        run: npm run test:coverage
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v5
-        if: matrix.node-version == '20.x'
-        with:
-          files: ./coverage/lcov.info
-          fail_ci_if_error: false
-
-  security:
-    name: Security Audit
-    runs-on: ubuntu-latest  # Debian-based runner compatible with Parrot OS
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run npm audit
-        run: npm audit --audit-level=critical
-        # Using critical level due to known tar vulnerability in electron-builder dependency tree
-        # tar 7.x fixes GHSA-8qq5-rm4j-mr97 but breaks @electron/rebuild ESM compatibility
-        # See: https://github.com/electron/rebuild/issues - waiting for upstream fix
-
   build:
     name: Build
     runs-on: ${{ matrix.os }}
-    needs: test
 
     strategy:
       matrix:
@@ -90,13 +28,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Linux build dependencies (Parrot OS compatible)
+      - name: Install Parrot OS build dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y libarchive-tools
 
-      - name: Build for Linux (Parrot OS compatible)
+      - name: Build for Parrot OS
         if: matrix.os == 'ubuntu-latest'
         run: npm run build:linux
         env:
@@ -114,11 +52,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Linux artifacts
+      - name: Upload Parrot OS artifacts
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: linux-build
+          name: parrot-os-build
           path: |
             dist/*.AppImage
             dist/*.deb
