@@ -51,7 +51,7 @@ jobs:
         shell: cmd
 
       - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: windows-binaries
           path: |
@@ -86,7 +86,7 @@ jobs:
         run: ls -la dist/
 
       - name: Upload macOS artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: macos-binaries
           path: |
@@ -126,7 +126,7 @@ jobs:
         run: ls -la dist/
 
       - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: linux-binaries
           path: |
