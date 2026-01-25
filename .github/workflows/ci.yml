@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: parrot-os
 
     strategy:
       matrix:
@@ -47,7 +47,7 @@ jobs:
 
   security:
     name: Security Audit
-    runs-on: ubuntu-latest
+    runs-on: parrot-os
 
     steps:
       - name: Checkout repository
@@ -75,7 +75,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13]
+        os: [parrot-os, windows-latest, macos-13]
 
     steps:
       - name: Checkout repository
@@ -91,13 +91,13 @@ jobs:
         run: npm ci
 
       - name: Install Linux build dependencies
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'parrot-os'
         run: |
           sudo apt-get update
           sudo apt-get install -y libarchive-tools
 
       - name: Build for Linux
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'parrot-os'
         run: npm run build:linux
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -115,7 +115,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Linux artifacts
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'parrot-os'
         uses: actions/upload-artifact@v4
         with:
           name: linux-build

@@ -306,9 +306,11 @@ describe('FeatureModule', () => {
 ## CI/CD Pipeline
 
 GitHub Actions workflow (`.github/workflows/ci.yml`):
-1. **Test** - Node 20.x/22.x, lint, jest, coverage
-2. **Security** - npm audit (critical level)
-3. **Build** - Multi-platform (Ubuntu, Windows, macOS)
+1. **Test** - Node 20.x/22.x, lint, jest, coverage (runs on Parrot OS)
+2. **Security** - npm audit (critical level) (runs on Parrot OS)
+3. **Build** - Multi-platform (Parrot OS, Windows, macOS)
+
+**Note**: All Linux-based CI/CD jobs now run on self-hosted Parrot OS runners instead of Ubuntu. Parrot OS is Debian-based and fully compatible with `apt-get` package management and standard Node.js tooling.
 
 ## Key Files Reference
 

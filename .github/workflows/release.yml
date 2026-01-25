@@ -94,10 +94,10 @@ jobs:
             dist/*.zip
           retention-days: 5
 
-  # Build Linux binaries (Ubuntu/Debian/Parrot OS compatible)
+  # Build Linux binaries (Parrot OS)
   build-linux:
-    name: Build Linux (Parrot OS Compatible)
-    runs-on: ubuntu-latest
+    name: Build Linux (Parrot OS)
+    runs-on: parrot-os
 
     steps:
       - name: Checkout repository
@@ -138,7 +138,7 @@ jobs:
   # Create GitHub Release with all binaries
   release:
     name: Create Release
-    runs-on: ubuntu-latest
+    runs-on: parrot-os
     needs: [build-windows, build-macos, build-linux]
 
     steps:
