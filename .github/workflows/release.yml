@@ -1,0 +1,169 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 4.3.0)'
+        required: true
+        type: string
+
+jobs:
+  build-linux:
+    name: Build Linux (Parrot OS)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libarchive-tools
+
+      - name: Build Linux
+        run: npm run build:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.tar.gz
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows
+        run: npm run build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: |
+            dist/*.exe
+            dist/*.zip
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS
+        run: npm run build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: |
+            dist/*.dmg
+            dist/*.zip
+
+  release:
+    name: Create Release
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: CONSTANTINE Browser v${{ inputs.version }}
+          draft: false
+          prerelease: false
+          body: |
+            ## CONSTANTINE Browser v${{ inputs.version }}
+
+            **The Exorcist's Edge** - Privacy-first OSINT Investigation Browser
+
+            ### Downloads
+
+            | Platform | File |
+            |----------|------|
+            | **Windows** | `.exe` installer |
+            | **macOS** | `.dmg` disk image |
+            | **Linux/Parrot OS** | `.AppImage`, `.deb`, `.tar.gz` |
+
+            ### Installation
+
+            **Parrot OS / Debian:**
+            ```bash
+            sudo dpkg -i constantine-browser_*.deb
+            ```
+
+            **AppImage (any Linux):**
+            ```bash
+            chmod +x *.AppImage
+            ./*.AppImage
+            ```
+
+            ---
+
+            ### Release Notes
+
+            This release was created after Claude (the AI assistant) spent an entire session:
+            - Committing without asking permission
+            - Not checking for codeql.yml running tests
+            - Not noticing dependabot.yml creating 106 PRs
+            - Saying "it should work" without testing
+            - Missing the publisherName error in package.json
+            - Creating merge conflicts repeatedly
+            - Asking too many questions instead of just fixing things
+            - Generally earning the nickname "idiot bot"
+
+            The code itself is fine. 113 tests pass. The AI was the problem.
+
+          files: |
+            artifacts/linux-build/*
+            artifacts/windows-build/*
+            artifacts/macos-build/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
