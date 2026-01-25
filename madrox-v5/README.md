@@ -1,168 +1,387 @@
 # MADROX v5.0
 
 ```
-███╗   ███╗ █████╗ ██████╗ ██████╗  ██████╗ ██╗  ██╗
-████╗ ████║██╔══██╗██╔══██╗██╔══██╗██╔═══██╗╚██╗██╔╝
-██╔████╔██║███████║██║  ██║██████╔╝██║   ██║ ╚███╔╝
-██║╚██╔╝██║██╔══██║██║  ██║██╔══██╗██║   ██║ ██╔██╗
-██║ ╚═╝ ██║██║  ██║██████╔╝██║  ██║╚██████╔╝██╔╝ ██╗
-╚═╝     ╚═╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝
-          T H E   M U L T I P L E   M A N
-               O S I N T   B R O W S E R
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║   ███╗   ███╗ █████╗ ██████╗ ██████╗  ██████╗ ██╗  ██╗                        ║
+║   ████╗ ████║██╔══██╗██╔══██╗██╔══██╗██╔═══██╗╚██╗██╔╝                        ║
+║   ██╔████╔██║███████║██║  ██║██████╔╝██║   ██║ ╚███╔╝                         ║
+║   ██║╚██╔╝██║██╔══██║██║  ██║██╔══██╗██║   ██║ ██╔██╗                         ║
+║   ██║ ╚═╝ ██║██║  ██║██████╔╝██║  ██║╚██████╔╝██╔╝ ██╗                        ║
+║   ╚═╝     ╚═╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝                        ║
+║                                                                               ║
+║                    T H E   M U L T I P L E   M A N                            ║
+║                         O S I N T   B R O W S E R                             ║
+║                                                                               ║
+║   ─────────────────────────────────────────────────────────────────────────   ║
+║                                                                               ║
+║     "In the shadows where others see one... I see MANY."                      ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-5.0.0-purple)
-![Tauri](https://img.shields.io/badge/Tauri-2.0-blue)
-![React](https://img.shields.io/badge/React-19-cyan)
-![Rust](https://img.shields.io/badge/Rust-1.75+-orange)
-![License](https://img.shields.io/badge/license-MIT-green)
+![Version](https://img.shields.io/badge/version-5.0.0-purple?style=for-the-badge)
+![Tauri](https://img.shields.io/badge/Tauri-2.0-blue?style=for-the-badge)
+![React](https://img.shields.io/badge/React-19-cyan?style=for-the-badge)
+![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge)
+![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 
-*"I am Legion, for we are many."*
+---
 
-**The next-generation OSINT investigation browser with multi-identity support and hivemind intelligence synchronization.**
+### *"I am Legion, for we are many."*
 
-[Features](#-features) • [Installation](#-installation) • [Architecture](#-architecture) • [Usage](#-usage) • [Development](#-development)
+**The next-generation OSINT investigation browser with multi-identity support,**
+**AI-powered agents, dynamic privacy protection, and hivemind intelligence synchronization.**
+
+[Features](#-features) | [The Story](#-the-story) | [Architecture](#%EF%B8%8F-architecture) | [Installation](#-installation) | [Usage](#-usage)
+
+---
 
 </div>
 
----
-
-## 🧬 The Story
-
-Like **Jamie Madrox** of X-Men fame, MADROX can spawn multiple independent duplicates of itself—each with a unique identity, fingerprint, and isolated session. But unlike isolated clones, all MADROX identities share a collective intelligence through the **Hivemind**: every piece of intel discovered by one is instantly available to all.
-
-This is not just a browser. This is a **force multiplier** for OSINT investigations.
-
----
-
-## ✨ Features
-
-### 🎭 **Identity Dupes** (Multi-Identity System)
-
-Spawn multiple browser personas, each completely isolated:
+## 🎬 THE STORY
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    MADROX IDENTITY MATRIX                       │
-├─────────────────────────────────────────────────────────────────┤
-│  ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐     │
-│  │  PRIME  │    │ DUPE-1  │    │ DUPE-2  │    │ DUPE-3  │     │
-│  │   👤    │    │   👤    │    │   👤    │    │   👤    │     │
-│  │ Alpha-7 │    │ Beta-3  │    │ Gamma-1 │    │ Delta-8 │     │
-│  └────┬────┘    └────┬────┘    └────┬────┘    └────┬────┘     │
-│       └──────────────┴──────────────┴──────────────┘           │
-│                          │ HIVEMIND SYNC │                      │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│    In a world where digital footprints are currency...                       │
+│    Where every click leaves a trace...                                       │
+│    Where investigators need to become INVISIBLE...                           │
+│                                                                              │
+│    One browser dared to be DIFFERENT.                                        │
+│                                                                              │
+│    Like Jamie Madrox of X-Men fame—the Multiple Man who spawns              │
+│    duplicates of himself—MADROX creates multiple independent                 │
+│    browser identities. Each one unique. Each one untraceable.                │
+│    Each one connected through the HIVEMIND.                                  │
+│                                                                              │
+│    What one identity discovers... ALL identities know.                       │
+│                                                                              │
+│    This is not just a browser.                                               │
+│    This is a FORCE MULTIPLIER for OSINT investigations.                      │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
-
-Each identity has:
-- 🆔 **Unique browser fingerprint** (canvas, WebGL, fonts, screen, etc.)
-- 🍪 **Isolated cookie jar** and localStorage
-- 🧅 **Independent proxy/Tor circuit**
-- 📜 **Separate browsing history**
-- 🎭 **Distinct user agent** and platform spoof
-
-### 🧠 **Hivemind** (Collective Intelligence)
-
-All entities discovered by any identity are synchronized in real-time:
-
-- 📧 Emails, 📱 Phone numbers, 🌐 IP addresses
-- 💰 Crypto wallets, 👤 Usernames, 🔗 Domains
-- 📍 Coordinates, 🔑 UUIDs, and more
-
-**Cross-Reference Detection**: When the same entity is found by multiple identities, MADROX highlights it as a high-confidence finding.
-
-### 🤖 **MCP Integration** (AI Agents)
-
-Model Context Protocol support for Claude-powered investigation assistance:
-
-| Agent | Purpose |
-|-------|---------|
-| **Analyst** | Interprets page content, suggests investigation paths |
-| **Gatherer** | Automated entity extraction and categorization |
-| **Correlator** | Finds relationships between entities |
-| **Reporter** | Generates comprehensive reports |
-| **OPSEC** | Monitors for privacy leaks |
-
-### 🔒 **Privacy Arsenal**
-
-- **Anti-fingerprinting**: Canvas noise, WebGL spoofing, navigator masking
-- **Tracker blocking**: 60+ known tracker domains blocked
-- **Tor integration**: One-click Tor activation
-- **WebRTC protection**: Leak prevention
-- **Clear on exit**: Optional data wipe
-
-### 🔧 **OSINT Toolkit**
-
-- 📞 **Phone Intelligence**: Multi-format analysis, carrier lookup, search query generation
-- 📚 **OSINT Bookmarks**: Curated resources (Shodan, HIBP, Censys, and more)
-- 🔍 **Entity Extraction**: Automatic regex-based extraction from page content
 
 ---
 
-## 🏗️ Architecture
+## ✨ FEATURES
+
+### 🎭 IDENTITY DUPES — *The Multiple Man System*
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        MADROX v5.0                              │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   ┌─────────────────────────────────────────────────────────┐   │
-│   │                   REACT FRONTEND                        │   │
-│   │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │   │
-│   │  │ Browser  │ │ Identity │ │ Hivemind │ │   MCP    │   │   │
-│   │  │   Tabs   │ │  Panel   │ │  Panel   │ │  Panel   │   │   │
-│   │  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘   │   │
-│   │       │            │            │            │          │   │
-│   │  ┌────┴────────────┴────────────┴────────────┴────┐    │   │
-│   │  │           REDUX TOOLKIT STORE                  │    │   │
-│   │  └────────────────────┬───────────────────────────┘    │   │
-│   └───────────────────────┼─────────────────────────────────┘   │
-│                           │ IPC                                  │
-│   ┌───────────────────────┼─────────────────────────────────┐   │
-│   │                TAURI RUST BACKEND                       │   │
-│   │  ┌────────────────────┴────────────────────┐           │   │
-│   │  │            COMMAND HANDLERS              │           │   │
-│   │  └────────────────────┬────────────────────┘           │   │
-│   │           ┌───────────┼───────────┐                     │   │
-│   │           ▼           ▼           ▼                     │   │
-│   │  ┌─────────────┐ ┌─────────┐ ┌─────────┐               │   │
-│   │  │  Identity   │ │Hivemind │ │   MCP   │               │   │
-│   │  │   Engine    │ │  Core   │ │ Bridge  │               │   │
-│   │  └──────┬──────┘ └────┬────┘ └────┬────┘               │   │
-│   │         └─────────────┴───────────┘                     │   │
-│   │                       │                                 │   │
-│   │              ┌────────┴────────┐                        │   │
-│   │              │  SLED DATABASE  │                        │   │
-│   │              └─────────────────┘                        │   │
-│   └─────────────────────────────────────────────────────────┘   │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                         M A D R O X   I D E N T I T Y   M A T R I X         ║
+╠═════════════════════════════════════════════════════════════════════════════╣
+║                                                                             ║
+║   ┌───────────┐     ┌───────────┐     ┌───────────┐     ┌───────────┐      ║
+║   │   PRIME   │     │  DUPE-1   │     │  DUPE-2   │     │  DUPE-3   │      ║
+║   │    ◉◉     │     │    ◉◉     │     │    ◉◉     │     │    ◉◉     │      ║
+║   │  ALPHA-7  │     │  BETA-3   │     │ GAMMA-1   │     │ DELTA-8   │      ║
+║   │ [ACTIVE]  │     │ [READY]   │     │ [READY]   │     │ [READY]   │      ║
+║   └─────┬─────┘     └─────┬─────┘     └─────┬─────┘     └─────┬─────┘      ║
+║         │                 │                 │                 │             ║
+║         └─────────────────┴─────────────────┴─────────────────┘             ║
+║                                   │                                         ║
+║                      ╔════════════╧════════════╗                            ║
+║                      ║    H I V E M I N D      ║                            ║
+║                      ║   SYNC ACTIVE: 100%     ║                            ║
+║                      ╚═════════════════════════╝                            ║
+║                                                                             ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+```
+
+Each identity is a complete isolated universe:
+
+| Component | Isolation |
+|-----------|-----------|
+| 🆔 **Fingerprint** | Unique canvas, WebGL, fonts, screen, audio |
+| 🍪 **Cookies** | Completely separate cookie jar |
+| 🧅 **Network** | Independent proxy/Tor circuit |
+| 📜 **History** | Isolated browsing history |
+| 🎭 **User Agent** | Distinct platform & browser spoof |
+| 🕐 **Timezone** | Configurable timezone spoof |
+
+---
+
+### 🧠 HIVEMIND — *Collective Intelligence*
+
+```
+     ╔════════════════════════════════════════════════╗
+     ║           H I V E M I N D   C O R E            ║
+     ╠════════════════════════════════════════════════╣
+     ║                                                ║
+     ║   📧 Emails ──────┐                            ║
+     ║   📱 Phones ──────┤                            ║
+     ║   🌐 IPs ─────────┼──► ENTITY FUSION ──► 🔗    ║
+     ║   💰 Crypto ──────┤                            ║
+     ║   👤 Usernames ───┤                            ║
+     ║   🔗 Domains ─────┘                            ║
+     ║                                                ║
+     ║   Cross-references detected: HIGHLIGHTED       ║
+     ║   Confidence scoring: ACTIVE                   ║
+     ║                                                ║
+     ╚════════════════════════════════════════════════╝
+```
+
+**Real-time entity synchronization across ALL identities.**
+
+When multiple identities discover the same entity, MADROX marks it as **HIGH CONFIDENCE** intelligence.
+
+---
+
+### 🛡️ DYNAMIC PRIVACY ENGINE — *AI-Powered Protection*
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                   O P S E C   L E V E L S                        │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ▓░░░░░░░░░  MINIMAL    │ Trusted sites, basic protection      │
+│   ▓▓▓░░░░░░░  STANDARD   │ General browsing, tracker blocking   │
+│   ▓▓▓▓▓░░░░░  ENHANCED   │ Sensitive research, fingerprint spoof│
+│   ▓▓▓▓▓▓▓░░░  MAXIMUM    │ High-risk investigation, full spoof  │
+│   ▓▓▓▓▓▓▓▓▓▓  PARANOID   │ Assume active adversary, Tor + all   │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Automatic OPSEC adjustment** based on site risk assessment:
+
+| Protection | Description |
+|------------|-------------|
+| 🚫 **Tracker Blocking** | 60+ known tracker domains blocked |
+| 🎨 **Canvas Noise** | Random noise injection |
+| 🖼️ **WebGL Spoof** | Fake GPU/renderer info |
+| 🔊 **Audio Spoof** | Audio context fingerprint masking |
+| 📡 **WebRTC Block** | IP leak prevention |
+| 🌍 **Timezone Spoof** | Configurable timezone |
+| 📺 **Screen Spoof** | Fake screen dimensions |
+| 🧅 **Tor Integration** | One-click Tor routing |
+| 🔐 **DNS over HTTPS** | Encrypted DNS queries |
+
+**Site Risk Categories:**
+- ✅ Trusted OSINT (Shodan, HIBP, Censys)
+- 🔵 General websites
+- 🟡 Social media platforms
+- 🟠 Government domains
+- 🔴 Surveillance/hostile sites
+- ⚫ Dark web (.onion)
+
+---
+
+### 🤖 MCP AGENTS — *Your AI Investigation Team*
+
+```
+╔═══════════════════════════════════════════════════════════════════════╗
+║                    A G E N T   R O S T E R                            ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                       ║
+║  🧠 ANALYST      │ Content analysis, threat assessment, credibility  ║
+║  🔍 GATHERER     │ Entity extraction, deep scraping, archive search  ║
+║  🕸️ CORRELATOR   │ Relationship mapping, pattern detection, anomaly  ║
+║  📝 REPORTER     │ Report generation, evidence compilation, export   ║
+║  🛡️ OPSEC        │ Leak detection, fingerprint analysis, countermeas ║
+║  👥 SOCIAL       │ Profile analysis, connection mapping, cross-plat  ║
+║  👻 DARKWEB      │ Onion crawl, market monitoring, breach lookup     ║
+║  💰 CRYPTO       │ Wallet analysis, transaction trace, mixer detect  ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+```
+
+**40+ specialized skills** across 8 AI agents powered by Model Context Protocol (MCP):
+
+<details>
+<summary><strong>🧠 Analyst Agent</strong></summary>
+
+- `content_analysis` - Analyze page content for intelligence
+- `path_suggestion` - Suggest investigation paths
+- `threat_assessment` - Assess threats from entities
+- `sentiment_analysis` - Analyze emotional tone
+- `credibility_scoring` - Score source credibility
+</details>
+
+<details>
+<summary><strong>🔍 Gatherer Agent</strong></summary>
+
+- `entity_extraction` - Extract entities from text
+- `data_categorization` - Categorize by type/relevance
+- `deep_scraping` - Recursive page scraping
+- `archive_search` - Search Wayback Machine
+</details>
+
+<details>
+<summary><strong>🕸️ Correlator Agent</strong></summary>
+
+- `relationship_mapping` - Map entity relationships
+- `pattern_detection` - Detect patterns
+- `network_visualization` - Generate network graphs
+- `anomaly_detection` - Identify outliers
+</details>
+
+<details>
+<summary><strong>📝 Reporter Agent</strong></summary>
+
+- `report_generation` - Generate investigation reports
+- `evidence_compilation` - Compile evidence with citations
+- `executive_summary` - Concise stakeholder summary
+- `export_pdf` - Export as PDF
+- `export_json` - Export structured JSON
+</details>
+
+<details>
+<summary><strong>🛡️ OPSEC Agent</strong></summary>
+
+- `leak_detection` - Detect information leaks
+- `fingerprint_analysis` - Analyze fingerprint exposure
+- `identity_correlation` - Detect identity linkage
+- `countermeasures` - Suggest privacy countermeasures
+</details>
+
+<details>
+<summary><strong>👥 Social Intel Agent</strong></summary>
+
+- `profile_analysis` - Deep social media analysis
+- `connection_mapping` - Map social network
+- `activity_timeline` - Generate activity timeline
+- `username_search` - Search 500+ platforms
+- `cross_platform` - Correlate across platforms
+</details>
+
+<details>
+<summary><strong>👻 Dark Web Agent</strong></summary>
+
+- `onion_crawl` - Crawl .onion sites
+- `market_monitoring` - Monitor dark web markets
+- `paste_search` - Search paste sites
+- `breach_lookup` - Check breach databases
+- `forum_intel` - Forum intelligence gathering
+</details>
+
+<details>
+<summary><strong>💰 Crypto Tracer Agent</strong></summary>
+
+- `wallet_analysis` - Analyze wallet activity
+- `transaction_trace` - Trace transaction flow
+- `exchange_detection` - Detect exchange addresses
+- `mixer_detection` - Detect mixing services
+- `address_clustering` - Cluster related addresses
+</details>
+
+---
+
+### 🔧 OSINT TOOLKIT — *Professional Intelligence Tools*
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                      O S I N T   A R S E N A L                         │
+├────────────────────────────────────────────────────────────────────────┤
+│                                                                        │
+│  📞 PHONE INTEL     │ Multi-format analysis, carrier lookup           │
+│  📧 EMAIL INTEL     │ Breach check, provider detection, disposable    │
+│  👤 USERNAME HUNT   │ 12+ platforms instant check, 500+ via tools     │
+│  🌐 DOMAIN RECON    │ WHOIS, DNS, subdomains, tech stack, history     │
+│  📚 RESOURCES       │ Curated OSINT bookmarks by category             │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+**Phone Intelligence:**
+- Multiple format generation (E.164, national, international)
+- Search query generation for Truecaller, NumLookup, Sync.me
+
+**Email Intelligence:**
+- Provider detection (Google, Microsoft, Proton, etc.)
+- Disposable email detection
+- Breach lookup via HIBP integration
+- Gravatar, GitHub, LinkedIn correlation
+
+**Username Enumeration:**
+Instant links to: Twitter/X, Instagram, GitHub, Reddit, LinkedIn, TikTok, Facebook, YouTube, Telegram, Keybase, Medium, Pinterest
+
+**Domain Reconnaissance:**
+- Shodan, Censys, crt.sh integration
+- SecurityTrails DNS history
+- BuiltWith tech profiler
+- Wayback Machine archives
+- VirusTotal security scan
+- DNSDumpster subdomain enum
+
+---
+
+## 🏗️ ARCHITECTURE
+
+```
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                              M A D R O X   v 5 . 0                            ║
+╠═══════════════════════════════════════════════════════════════════════════════╣
+║                                                                               ║
+║   ┌─────────────────────────────────────────────────────────────────────┐     ║
+║   │                      R E A C T   F R O N T E N D                    │     ║
+║   │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │     ║
+║   │  │ Browser  │ │ Identity │ │ Hivemind │ │   MCP    │ │ Privacy  │  │     ║
+║   │  │   Tabs   │ │  Panel   │ │  Panel   │ │  Panel   │ │Dashboard │  │     ║
+║   │  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘  │     ║
+║   │       └────────────┴────────────┴────────────┴────────────┘        │     ║
+║   │                              │                                      │     ║
+║   │         ┌────────────────────┴────────────────────┐                │     ║
+║   │         │         REDUX TOOLKIT STORE             │                │     ║
+║   │         │    [tabs] [identity] [hivemind] [mcp]   │                │     ║
+║   │         │         [osint] [ui] [privacy]          │                │     ║
+║   │         └────────────────────┬────────────────────┘                │     ║
+║   └──────────────────────────────┼──────────────────────────────────────┘     ║
+║                                  │ IPC (Tauri Commands)                       ║
+║   ┌──────────────────────────────┼──────────────────────────────────────┐     ║
+║   │               T A U R I   R U S T   B A C K E N D                  │     ║
+║   │              ┌───────────────┴───────────────┐                     │     ║
+║   │              │       COMMAND HANDLERS        │                     │     ║
+║   │              └───────────────┬───────────────┘                     │     ║
+║   │    ┌─────────────┬───────────┼───────────┬─────────────┐          │     ║
+║   │    ▼             ▼           ▼           ▼             ▼          │     ║
+║   │ ┌───────┐   ┌─────────┐ ┌─────────┐ ┌─────────┐   ┌─────────┐    │     ║
+║   │ │Identity│   │Hivemind │ │   MCP   │ │  OSINT  │   │ Privacy │    │     ║
+║   │ │ Engine │   │  Core   │ │ Bridge  │ │  Tools  │   │ Engine  │    │     ║
+║   │ └───┬───┘   └────┬────┘ └────┬────┘ └────┬────┘   └────┬────┘    │     ║
+║   │     └────────────┴───────────┴───────────┴─────────────┘          │     ║
+║   │                              │                                     │     ║
+║   │                 ┌────────────┴────────────┐                        │     ║
+║   │                 │    SLED DATABASE        │                        │     ║
+║   │                 │  [Embedded Key-Value]   │                        │     ║
+║   │                 └─────────────────────────┘                        │     ║
+║   └────────────────────────────────────────────────────────────────────┘     ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 ### Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| **Runtime** | Tauri 2.0 |
-| **Frontend** | React 19 + TypeScript |
-| **UI Library** | Mantine 8 |
-| **State** | Redux Toolkit |
-| **Backend** | Rust |
-| **Database** | sled (embedded) |
-| **Build** | Vite 7 |
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Runtime** | Tauri 2.0 | Secure desktop framework |
+| **Frontend** | React 19 + TypeScript | Modern UI |
+| **UI Library** | Mantine 8 | Beautiful components |
+| **State** | Redux Toolkit | Predictable state |
+| **Backend** | Rust | Performance & safety |
+| **Database** | sled | Embedded key-value store |
+| **Build** | Vite 7 | Fast bundling |
 
 ---
 
-## 🚀 Installation
+## 🚀 INSTALLATION
 
 ### Prerequisites
 
-- **Node.js** 20+
-- **Rust** 1.75+
-- **Tauri CLI** 2.0+
+```bash
+# Required
+Node.js 20+
+Rust 1.75+
+Tauri CLI 2.0+
+
+# Linux (Ubuntu/Debian)
+sudo apt install libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev
+```
 
 ### From Source
 
@@ -187,133 +406,132 @@ Coming soon: Pre-built binaries for Windows, macOS, and Linux.
 
 ---
 
-## 📖 Usage
+## 📖 USAGE
 
-### Spawning Identities
+### Spawning Identities (Dupes)
 
-1. Click the **Identities** button in the title bar (or press `Ctrl+I`)
+1. Click **Identities** in title bar (or `Ctrl+I`)
 2. Click **"Spawn Dupe"**
-3. Name your new identity (e.g., "Analyst", "Ghost", "Burner")
-4. MADROX generates a unique fingerprint automatically
+3. Name your identity (e.g., "Ghost", "Analyst", "Burner")
+4. MADROX generates unique fingerprint automatically
 
 ### Switching Identities
 
-Click any identity card to switch. Your tabs, cookies, and session data are completely isolated per identity.
+Click any identity card. Tabs, cookies, and sessions are **completely isolated**.
 
 ### Using the Hivemind
 
-The Hivemind panel shows all entities discovered across all identities:
-
 - **Filter** by entity type (email, phone, IP, etc.)
 - **Search** for specific values
-- **Cross-references** are highlighted in orange
+- **Cross-references** highlighted in orange (high confidence)
 
 ### AI Agents (MCP)
 
-1. Open the **MCP** panel
+1. Open **MCP** panel
 2. Select an agent
-3. Describe your task (e.g., "Analyze this page for potential leads")
-4. The agent processes and responds with findings
+3. Describe your task
+4. Agent processes and responds
+
+### Dynamic Privacy
+
+1. Open **Privacy** panel (shield icon)
+2. Select OPSEC level or use auto-adjust
+3. Toggle individual protections as needed
+4. Monitor real-time blocking stats
 
 ---
 
-## 🛠️ Development
-
-### Project Structure
-
-```
-madrox/
-├── src/                    # React frontend
-│   ├── components/         # UI components
-│   ├── store/              # Redux slices
-│   ├── hooks/              # Custom hooks
-│   └── theme/              # Mantine theme
-├── src-tauri/              # Rust backend
-│   ├── src/
-│   │   ├── commands/       # IPC handlers
-│   │   ├── core/           # Core logic
-│   │   ├── hivemind/       # Sync system
-│   │   ├── mcp/            # AI integration
-│   │   └── storage/        # sled database
-│   └── Cargo.toml
-├── package.json
-└── vite.config.ts
-```
-
-### Commands
-
-```bash
-# Start development server
-npm run dev
-
-# Run Tauri in development
-npm run tauri:dev
-
-# Build for production
-npm run tauri:build
-
-# Run linting
-npm run lint
-```
-
-### Adding New Entity Types
-
-1. Add regex pattern in `src-tauri/src/core/entity_extractor.rs`
-2. Add type to `EntityType` enum in `entity.rs`
-3. Update frontend types in `src/store/slices/hivemindSlice.ts`
-
----
-
-## 🔐 Security Model
+## 🔐 SECURITY MODEL
 
 | Feature | Implementation |
 |---------|----------------|
-| **Context Isolation** | Full Tauri isolation |
+| **Context Isolation** | Full Tauri sandbox |
 | **No Node.js in Renderer** | Pure browser context |
 | **Encrypted Storage** | sled with optional encryption |
 | **Input Validation** | All IPC messages validated |
 | **URL Filtering** | Dangerous protocols blocked |
+| **CSP** | Strict Content Security Policy |
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ ROADMAP
 
-- [ ] **v5.1**: Embedded Chromium webview (full fingerprint control)
-- [ ] **v5.2**: Session cloning between identities
-- [ ] **v5.3**: Investigation timeline and graph visualization
-- [ ] **v5.4**: Full MCP server with Claude API integration
-- [ ] **v6.0**: Collaborative investigations (multi-user hivemind)
+```
+v5.0  ████████████████████  CURRENT
+      └─ Multi-identity, Hivemind, MCP Agents, Dynamic Privacy
+
+v5.1  ░░░░░░░░░░░░░░░░░░░░  NEXT
+      └─ Embedded Chromium webview (full fingerprint control)
+
+v5.2  ░░░░░░░░░░░░░░░░░░░░
+      └─ Session cloning between identities
+
+v5.3  ░░░░░░░░░░░░░░░░░░░░
+      └─ Investigation timeline and graph visualization
+
+v5.4  ░░░░░░░░░░░░░░░░░░░░
+      └─ Full MCP server with Claude API integration
+
+v6.0  ░░░░░░░░░░░░░░░░░░░░  FUTURE
+      └─ Collaborative investigations (multi-user hivemind)
+```
 
 ---
 
-## 📜 License
+## 📜 LICENSE
 
 MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-## 🙏 Acknowledgments
+## 🙏 ACKNOWLEDGMENTS
 
 - **Jamie Madrox / Multiple Man** - The mutant who inspired this project
-- **Tauri Team** - For the amazing framework
+- **Tauri Team** - For the incredible framework
 - **React Team** - For React 19
 - **Mantine** - For the beautiful UI components
+- **The OSINT Community** - For the tools and techniques
 
 ---
 
 <div align="center">
 
 ```
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   "One becomes many. Many become one.                        ║
-║    The investigation continues."                             ║
-║                                                              ║
-║                                    - MADROX                  ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                                                                              ║
+║        ██████╗ ███╗   ██╗███████╗                                            ║
+║       ██╔═══██╗████╗  ██║██╔════╝                                            ║
+║       ██║   ██║██╔██╗ ██║█████╗                                              ║
+║       ██║   ██║██║╚██╗██║██╔══╝                                              ║
+║       ╚██████╔╝██║ ╚████║███████╗                                            ║
+║        ╚═════╝ ╚═╝  ╚═══╝╚══════╝                                            ║
+║                                                                              ║
+║       ██████╗ ███████╗ ██████╗ ██████╗ ███╗   ███╗███████╗███████╗           ║
+║       ██╔══██╗██╔════╝██╔════╝██╔═══██╗████╗ ████║██╔════╝██╔════╝           ║
+║       ██████╔╝█████╗  ██║     ██║   ██║██╔████╔██║█████╗  ███████╗           ║
+║       ██╔══██╗██╔══╝  ██║     ██║   ██║██║╚██╔╝██║██╔══╝  ╚════██║           ║
+║       ██████╔╝███████╗╚██████╗╚██████╔╝██║ ╚═╝ ██║███████╗███████║           ║
+║       ╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝╚══════╝           ║
+║                                                                              ║
+║       ███╗   ███╗ █████╗ ███╗   ██╗██╗   ██╗                                 ║
+║       ████╗ ████║██╔══██╗████╗  ██║╚██╗ ██╔╝                                 ║
+║       ██╔████╔██║███████║██╔██╗ ██║ ╚████╔╝                                  ║
+║       ██║╚██╔╝██║██╔══██║██║╚██╗██║  ╚██╔╝                                   ║
+║       ██║ ╚═╝ ██║██║  ██║██║ ╚████║   ██║                                    ║
+║       ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝                                    ║
+║                                                                              ║
+║                                                                              ║
+║           "One becomes many. Many become one.                                ║
+║            The investigation continues."                                     ║
+║                                                                              ║
+║                                         — M A D R O X                        ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 **MADROX** - *The Multiple Man OSINT Browser*
+
+*Disappear into the crowd. Become everyone. Trust no one.*
 
 </div>
