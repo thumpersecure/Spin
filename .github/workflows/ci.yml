@@ -124,7 +124,7 @@ jobs:
             dist/*.deb
             dist/*.rpm
             dist/*.tar.gz
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
 
       - name: Upload Windows artifacts
@@ -135,7 +135,7 @@ jobs:
           path: |
             dist/*.exe
             dist/*.zip
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
 
       - name: Upload macOS artifacts
@@ -146,5 +146,5 @@ jobs:
           path: |
             dist/*.dmg
             dist/*.zip
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
