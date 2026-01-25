@@ -79,20 +79,8 @@
     "mac": {
       "category": "public.app-category.productivity",
       "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
+        "dmg",
+        "zip"
       ],
       "icon": "assets/icon.icns",
       "darkModeSupport": true,
