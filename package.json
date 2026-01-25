@@ -79,28 +79,72 @@
     "mac": {
       "category": "public.app-category.productivity",
       "target": [
-        "dmg",
-        "zip"
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
       ],
       "icon": "assets/icon.icns",
       "darkModeSupport": true,
-      "hardenedRuntime": true
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
     },
     "win": {
       "target": [
         "nsis",
-        "portable"
+        "portable",
+        "zip"
       ],
-      "icon": "assets/icon.ico"
+      "icon": "assets/icon.ico",
+      "publisherName": "CONSTANTINE Team"
     },
     "linux": {
       "target": [
         "AppImage",
-        "deb"
+        "deb",
+        "tar.gz",
+        "rpm"
       ],
       "category": "Network",
       "icon": "assets/icon.png",
-      "executableName": "constantine-browser"
+      "executableName": "constantine-browser",
+      "synopsis": "Privacy-first OSINT Investigation Browser",
+      "description": "CONSTANTINE Browser - The Exorcist's Edge. A privacy-first browser engineered for OSINT investigations with Tor integration, anti-fingerprinting, and AI-powered research tools. Compatible with Parrot OS, Kali Linux, Ubuntu, and Debian.",
+      "maintainer": "CONSTANTINE Team <dev@constantine-browser.io>"
+    },
+    "deb": {
+      "depends": [
+        "libgtk-3-0",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0",
+        "libuuid1",
+        "libsecret-1-0"
+      ],
+      "recommends": [
+        "tor"
+      ],
+      "category": "Network"
+    },
+    "rpm": {
+      "depends": [
+        "gtk3",
+        "libnotify",
+        "nss",
+        "libXScrnSaver",
+        "libXtst",
+        "xdg-utils",
+        "at-spi2-core",
+        "libuuid",
+        "libsecret"
+      ]
     },
     "nsis": {
       "oneClick": false,
