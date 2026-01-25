@@ -308,7 +308,7 @@ describe('FeatureModule', () => {
 GitHub Actions workflow (`.github/workflows/ci.yml`):
 1. **Test** - Node 20.x/22.x, lint, jest, coverage
 2. **Security** - npm audit (critical level)
-3. **Build** - Multi-platform (Ubuntu, Windows, macOS)
+3. **Build** - Multi-platform (Parrot OS compatible, Windows, macOS)
 
 ## Key Files Reference
 

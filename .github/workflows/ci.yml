@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Compatible with Parrot OS (Debian-based)
 
     strategy:
       matrix:
@@ -47,7 +47,7 @@ jobs:
 
   security:
     name: Security Audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Compatible with Parrot OS (Debian-based)
 
     steps:
       - name: Checkout repository
@@ -90,13 +90,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Linux build dependencies
+      - name: Install Linux build dependencies (Parrot OS compatible)
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y libarchive-tools
 
-      - name: Build for Linux
+      - name: Build for Linux (Parrot OS compatible)
         if: matrix.os == 'ubuntu-latest'
         run: npm run build:linux
         env:
