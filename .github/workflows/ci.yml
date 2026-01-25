@@ -124,6 +124,7 @@ jobs:
             dist/*.deb
             dist/*.rpm
             dist/*.tar.gz
+          if-no-files-found: error
           retention-days: 7
 
       - name: Upload Windows artifacts
@@ -133,6 +134,8 @@ jobs:
           name: windows-build
           path: |
             dist/*.exe
+            dist/*.zip
+          if-no-files-found: error
           retention-days: 7
 
       - name: Upload macOS artifacts
@@ -142,4 +145,6 @@ jobs:
           name: macos-build
           path: |
             dist/*.dmg
+            dist/*.zip
+          if-no-files-found: error
           retention-days: 7
