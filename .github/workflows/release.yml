@@ -94,7 +94,7 @@ jobs:
             dist/*.zip
           retention-days: 5
 
-  # Build Linux binaries (Ubuntu/Debian/Parrot OS compatible)
+  # Build Linux binaries (Debian/Parrot OS compatible)
   build-linux:
     name: Build Linux (Parrot OS Compatible)
     runs-on: ubuntu-latest
@@ -250,7 +250,7 @@ jobs:
 
             #### Linux / Parrot OS
             - **AppImage** (Universal): `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Linux.AppImage`
-            - **DEB Package** (Debian/Ubuntu/Parrot OS): `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-ParrotOS-Debian.deb`
+            - **DEB Package** (Debian/Parrot OS): `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-ParrotOS-Debian.deb`
             - **Tarball**: `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Linux.tar.gz`
 
             ### Parrot OS Installation

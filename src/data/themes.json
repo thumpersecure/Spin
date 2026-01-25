@@ -62,7 +62,7 @@
         }
       },
       "typography": {
-        "fontSans": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif",
+        "fontSans": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif",
         "fontMono": "'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace"
       },
       "effects": {
@@ -199,7 +199,7 @@
         }
       },
       "typography": {
-        "fontSans": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif",
+        "fontSans": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif",
         "fontMono": "'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace"
       },
       "effects": {
