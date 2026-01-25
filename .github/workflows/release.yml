@@ -1,0 +1,279 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 4.3.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  # Build Windows binaries
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows binaries
+        run: npm run build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List build artifacts
+        run: dir dist
+        shell: cmd
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-binaries
+          path: |
+            dist/*.exe
+            dist/*.zip
+          retention-days: 5
+
+  # Build macOS binaries (Intel + Apple Silicon)
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS binaries
+        run: npm run build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List build artifacts
+        run: ls -la dist/
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-binaries
+          path: |
+            dist/*.dmg
+            dist/*.zip
+          retention-days: 5
+
+  # Build Linux binaries (Ubuntu/Debian/Parrot OS compatible)
+  build-linux:
+    name: Build Linux (Parrot OS Compatible)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Linux binaries
+        run: npm run build:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List build artifacts
+        run: ls -la dist/
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binaries
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.tar.gz
+            dist/*.rpm
+          retention-days: 5
+
+  # Create GitHub Release with all binaries
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-macos, build-linux]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+            echo "tag=v${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+            echo "prerelease=${{ github.event.inputs.prerelease }}" >> $GITHUB_OUTPUT
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-binaries
+          path: release/windows
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-binaries
+          path: release/macos
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-binaries
+          path: release/linux
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release/final
+
+          # Windows binaries
+          for file in release/windows/*.exe; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              cp "$file" "release/final/CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Windows-${filename##*-}"
+            fi
+          done
+
+          # macOS binaries
+          for file in release/macos/*.dmg; do
+            if [ -f "$file" ]; then
+              cp "$file" "release/final/CONSTANTINE-Browser-${{ steps.version.outputs.version }}-macOS.dmg"
+            fi
+          done
+          for file in release/macos/*.zip; do
+            if [ -f "$file" ]; then
+              cp "$file" "release/final/CONSTANTINE-Browser-${{ steps.version.outputs.version }}-macOS.zip"
+            fi
+          done
+
+          # Linux binaries (Parrot OS compatible)
+          for file in release/linux/*.AppImage; do
+            if [ -f "$file" ]; then
+              cp "$file" "release/final/CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Linux.AppImage"
+            fi
+          done
+          for file in release/linux/*.deb; do
+            if [ -f "$file" ]; then
+              cp "$file" "release/final/CONSTANTINE-Browser-${{ steps.version.outputs.version }}-ParrotOS-Debian.deb"
+            fi
+          done
+          for file in release/linux/*.tar.gz; do
+            if [ -f "$file" ]; then
+              cp "$file" "release/final/CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Linux.tar.gz"
+            fi
+          done
+          for file in release/linux/*.rpm; do
+            if [ -f "$file" ]; then
+              cp "$file" "release/final/CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Fedora.rpm"
+            fi
+          done
+
+          ls -la release/final/
+
+      - name: Generate checksums
+        run: |
+          cd release/final
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: CONSTANTINE Browser v${{ steps.version.outputs.version }}
+          prerelease: ${{ steps.version.outputs.prerelease == 'true' }}
+          generate_release_notes: true
+          body: |
+            ## CONSTANTINE Browser v${{ steps.version.outputs.version }}
+
+            **The Exorcist's Edge** - Privacy-first OSINT Investigation Suite
+
+            ### Downloads
+
+            #### Windows
+            - **Installer**: `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Windows-Setup.exe`
+            - **Portable**: `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Windows-Portable.exe`
+
+            #### macOS
+            - **DMG Installer**: `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-macOS.dmg`
+            - **ZIP Archive**: `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-macOS.zip`
+
+            #### Linux / Parrot OS
+            - **AppImage** (Universal): `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Linux.AppImage`
+            - **DEB Package** (Debian/Ubuntu/Parrot OS): `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-ParrotOS-Debian.deb`
+            - **Tarball**: `CONSTANTINE-Browser-${{ steps.version.outputs.version }}-Linux.tar.gz`
+
+            ### Parrot OS Installation
+
+            ```bash
+            # Install DEB package
+            sudo dpkg -i CONSTANTINE-Browser-*-ParrotOS-Debian.deb
+            sudo apt-get install -f  # Fix any dependency issues
+
+            # Or use AppImage (no installation required)
+            chmod +x CONSTANTINE-Browser-*-Linux.AppImage
+            ./CONSTANTINE-Browser-*-Linux.AppImage
+            ```
+
+            ### Verification
+
+            Verify downloads using `SHA256SUMS.txt`:
+            ```bash
+            sha256sum -c SHA256SUMS.txt
+            ```
+
+          files: |
+            release/final/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
