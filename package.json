@@ -93,8 +93,7 @@
         "portable",
         "zip"
       ],
-      "icon": "assets/icon.ico",
-      "publisherName": "CONSTANTINE Team"
+      "icon": "assets/icon.ico"
     },
     "linux": {
       "target": [
