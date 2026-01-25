@@ -106,7 +106,7 @@
       "icon": "assets/icon.png",
       "executableName": "constantine-browser",
       "synopsis": "Privacy-first OSINT Investigation Browser",
-      "description": "CONSTANTINE Browser - The Exorcist's Edge. A privacy-first browser engineered for OSINT investigations with Tor integration, anti-fingerprinting, and AI-powered research tools. Compatible with Parrot OS, Kali Linux, Ubuntu, and Debian.",
+      "description": "CONSTANTINE Browser - The Exorcist's Edge. A privacy-first browser engineered for OSINT investigations with Tor integration, anti-fingerprinting, and AI-powered research tools. Compatible with Parrot OS, Kali Linux, and other Debian-based distributions.",
       "maintainer": "CONSTANTINE Team <dev@constantine-browser.io>"
     },
     "deb": {

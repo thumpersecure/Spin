@@ -379,7 +379,7 @@ Node.js 20+
 Rust 1.75+
 Tauri CLI 2.0+
 
-# Linux (Ubuntu/Debian)
+# Linux (Parrot OS / Debian-based)
 sudo apt install libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev
 ```
 
