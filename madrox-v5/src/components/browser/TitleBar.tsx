@@ -14,6 +14,7 @@ import {
   IconSearch,
   IconSettings,
   IconNetwork,
+  IconShieldLock,
 } from '@tabler/icons-react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
@@ -141,6 +142,15 @@ function TitleBar() {
           title="OSINT Tools"
         >
           <IconSearch size={18} />
+        </ActionIcon>
+
+        <ActionIcon
+          variant={activePanel === 'privacy' ? 'filled' : 'subtle'}
+          color={activePanel === 'privacy' ? 'violet' : 'gray'}
+          onClick={() => handlePanelToggle('privacy')}
+          title="Dynamic Privacy"
+        >
+          <IconShieldLock size={18} />
         </ActionIcon>
 
         <ActionIcon

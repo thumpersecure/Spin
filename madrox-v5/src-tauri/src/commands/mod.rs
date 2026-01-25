@@ -7,3 +7,4 @@ pub mod hivemind;
 pub mod identity;
 pub mod mcp;
 pub mod osint;
+pub mod privacy;

@@ -11,6 +11,7 @@ import IdentityPanel from '../identity/IdentityPanel';
 import HivemindPanel from '../hivemind/HivemindPanel';
 import McpPanel from '../mcp/McpPanel';
 import OsintPanel from '../osint/OsintPanel';
+import PrivacyDashboard from '../privacy/PrivacyDashboard';
 import SettingsPanel from './SettingsPanel';
 
 function SidePanel() {
@@ -26,6 +27,8 @@ function SidePanel() {
         return <McpPanel />;
       case 'osint':
         return <OsintPanel />;
+      case 'privacy':
+        return <PrivacyDashboard />;
       case 'settings':
         return <SettingsPanel />;
       default:

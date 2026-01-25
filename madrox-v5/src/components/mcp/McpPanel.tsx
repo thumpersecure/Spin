@@ -28,8 +28,10 @@ import {
   IconNetwork,
   IconFileText,
   IconShield,
-  IconRefresh,
   IconPlayerPlay,
+  IconUsers,
+  IconGhost,
+  IconCurrencyBitcoin,
 } from '@tabler/icons-react';
 
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -47,6 +49,20 @@ const AGENT_ICONS: Record<string, typeof IconBrain> = {
   correlator: IconNetwork,
   reporter: IconFileText,
   opsec: IconShield,
+  social: IconUsers,
+  darkweb: IconGhost,
+  crypto: IconCurrencyBitcoin,
+};
+
+const AGENT_COLORS: Record<string, string> = {
+  analyst: 'blue',
+  gatherer: 'cyan',
+  correlator: 'grape',
+  reporter: 'teal',
+  opsec: 'green',
+  social: 'pink',
+  darkweb: 'dark',
+  crypto: 'orange',
 };
 
 function McpPanel() {
@@ -247,8 +263,9 @@ function AgentCard({ agent, isSelected, onSelect }: AgentCardProps) {
 
 function AgentIcon({ agentId }: { agentId: string }) {
   const Icon = AGENT_ICONS[agentId] || IconBrain;
+  const color = AGENT_COLORS[agentId] || 'blue';
   return (
-    <ThemeIcon variant="light" color="osintBlue" size="md">
+    <ThemeIcon variant="light" color={color} size="md">
       <Icon size={16} />
     </ThemeIcon>
   );

@@ -74,7 +74,23 @@ pub fn run() {
 
             // OSINT commands
             commands::osint::analyze_phone,
+            commands::osint::analyze_email,
+            commands::osint::analyze_username,
+            commands::osint::analyze_domain,
             commands::osint::get_osint_bookmarks,
+
+            // Privacy commands
+            commands::privacy::get_privacy_settings,
+            commands::privacy::set_privacy_settings,
+            commands::privacy::set_opsec_level,
+            commands::privacy::get_opsec_level,
+            commands::privacy::assess_site_risk,
+            commands::privacy::auto_adjust_privacy,
+            commands::privacy::get_privacy_stats,
+            commands::privacy::record_blocked_tracker,
+            commands::privacy::record_blocked_fingerprint,
+            commands::privacy::get_site_assessments,
+            commands::privacy::clear_privacy_stats,
         ])
         .run(tauri::generate_context!())
         .expect("error while running MADROX");

@@ -6,7 +6,7 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type PanelType = 'identity' | 'hivemind' | 'mcp' | 'osint' | 'settings' | null;
+export type PanelType = 'identity' | 'hivemind' | 'mcp' | 'osint' | 'privacy' | 'settings' | null;
 
 export interface Notification {
   id: string;

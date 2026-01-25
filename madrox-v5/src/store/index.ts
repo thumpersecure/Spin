@@ -14,6 +14,7 @@ import hivemindReducer from './slices/hivemindSlice';
 import mcpReducer from './slices/mcpSlice';
 import osintReducer from './slices/osintSlice';
 import uiReducer from './slices/uiSlice';
+import privacyReducer from './slices/privacySlice';
 
 export const store = configureStore({
   reducer: {
@@ -23,6 +24,7 @@ export const store = configureStore({
     mcp: mcpReducer,
     osint: osintReducer,
     ui: uiReducer,
+    privacy: privacyReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
