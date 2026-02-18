@@ -219,13 +219,25 @@ const privacySlice = createSlice({
       })
       .addCase(setOpsecLevel.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to set OPSEC level';
+        const level = action.meta.arg;
+        state.error = action.error.message
+          ? `Failed to set OPSEC level to ${level}: ${action.error.message}`
+          : `Failed to set OPSEC level to ${level}`;
       });
 
     // Update settings
     builder
+      .addCase(updatePrivacySettings.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(updatePrivacySettings.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.settings = action.payload;
+      })
+      .addCase(updatePrivacySettings.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to update privacy settings';
       });
 
     // Assess site risk

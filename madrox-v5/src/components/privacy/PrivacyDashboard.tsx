@@ -5,7 +5,7 @@
  * Real-time risk assessment and OPSEC level management.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import {
   Stack,
   Title,
@@ -24,6 +24,7 @@ import {
   Transition,
   Paper,
   Box,
+  Notification,
 } from '@mantine/core';
 import {
   IconShield,
@@ -65,30 +66,53 @@ function PrivacyDashboard() {
   const { settings, stats, currentAssessment, isLoading } = useAppSelector(
     (state) => state.privacy
   );
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
   useEffect(() => {
-    dispatch(fetchPrivacySettings());
-    dispatch(fetchPrivacyStats());
+    const settingsPromise = dispatch(fetchPrivacySettings());
+    const statsPromise = dispatch(fetchPrivacyStats());
 
     // Refresh stats every 5 seconds
-    const interval = setInterval(() => {
+    const intervalId = setInterval(() => {
       dispatch(fetchPrivacyStats());
     }, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(intervalId);
+      settingsPromise.abort();
+      statsPromise.abort();
+    };
   }, [dispatch]);
 
-  const handleOpsecChange = (value: string) => {
-    dispatch(setOpsecLevel(value as OpsecLevel));
-  };
+  const handleOpsecChange = useCallback(
+    (value: string) => {
+      setUpdateError(null);
+      dispatch(setOpsecLevel(value as OpsecLevel))
+        .unwrap()
+        .catch((err: unknown) => {
+          const message = err instanceof Error ? err.message : String(err);
+          setUpdateError(`Failed to set OPSEC level: ${message}`);
+        });
+    },
+    [dispatch]
+  );
 
-  const handleSettingToggle = (key: keyof typeof settings) => {
-    const newSettings = { ...settings, [key]: !settings[key] };
-    dispatch(updatePrivacySettings(newSettings));
-  };
+  const handleSettingToggle = useCallback(
+    (key: keyof typeof settings) => {
+      setUpdateError(null);
+      const newSettings = { ...settings, [key]: !settings[key] };
+      dispatch(updatePrivacySettings(newSettings))
+        .unwrap()
+        .catch((err: unknown) => {
+          const message = err instanceof Error ? err.message : String(err);
+          setUpdateError(`Failed to update privacy settings: ${message}`);
+        });
+    },
+    [dispatch, settings]
+  );
 
   const activeProtections = countActiveProtections(settings);
-  const totalProtections = 15;
+  const totalProtections = 16;
   const protectionPercentage = Math.round((activeProtections / totalProtections) * 100);
 
   return (
@@ -117,6 +141,17 @@ function PrivacyDashboard() {
       <Text size="xs" c="dimmed">
         {getOpsecLevelDescription(settings.opsec_level)}
       </Text>
+
+      {/* Error notification */}
+      {updateError && (
+        <Notification
+          color="red"
+          title="Privacy Update Error"
+          onClose={() => setUpdateError(null)}
+        >
+          {updateError}
+        </Notification>
+      )}
 
       {/* OPSEC Level Selector */}
       <Card padding="sm" withBorder>
@@ -388,6 +423,7 @@ function ProtectionToggle({
 
 function countActiveProtections(settings: PrivacySettings): number {
   let count = 0;
+  if (settings.auto_adjust) count++;
   if (settings.block_trackers) count++;
   if (settings.block_fingerprinting) count++;
   if (settings.spoof_canvas) count++;

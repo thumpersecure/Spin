@@ -4,7 +4,17 @@
  * Main browser content area / webview container.
  */
 
-import { Box, Center, Stack, Text, Button, Group } from '@mantine/core';
+import {
+  Box,
+  Center,
+  Stack,
+  Text,
+  Button,
+  Group,
+  Paper,
+  Kbd,
+  Divider,
+} from '@mantine/core';
 import {
   IconNetwork,
   IconPlus,
@@ -96,26 +106,93 @@ function StartPage({ onNewTab }: StartPageProps) {
         alignItems: 'center',
         justifyContent: 'center',
         padding: 40,
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <Stack align="center" gap="xl" style={{ maxWidth: 600 }}>
+      {/* Background decorative gradient orbs */}
+      <Box
+        style={{
+          position: 'absolute',
+          top: '-20%',
+          left: '-10%',
+          width: 400,
+          height: 400,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(123, 31, 235, 0.08) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }}
+      />
+      <Box
+        style={{
+          position: 'absolute',
+          bottom: '-20%',
+          right: '-10%',
+          width: 400,
+          height: 400,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(28, 223, 102, 0.08) 0%, transparent 70%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <Stack align="center" gap="xl" style={{ maxWidth: 640, zIndex: 1 }}>
         {/* Logo */}
         <Stack align="center" gap="xs">
           <Text
-            size="3rem"
-            fw={700}
+            size="4rem"
+            fw={800}
             style={{
               background: 'linear-gradient(135deg, #7b1feb 0%, #1cdf66 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
+              letterSpacing: '0.1em',
+              textShadow: '0 0 40px rgba(123, 31, 235, 0.3)',
             }}
           >
             MADROX
           </Text>
-          <Text c="dimmed" size="sm">
-            The Multiple Man - OSINT Browser v5.0
+          <Text c="dimmed" size="sm" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+            The Multiple Man -- OSINT Browser v5.0
           </Text>
         </Stack>
+
+        {/* URL Prompt */}
+        <Paper
+          p="md"
+          radius="lg"
+          withBorder
+          style={{
+            width: '100%',
+            cursor: 'pointer',
+            borderColor: 'rgba(123, 31, 235, 0.3)',
+            background: 'rgba(123, 31, 235, 0.05)',
+            transition: 'border-color 0.2s ease, background 0.2s ease',
+          }}
+          onClick={onNewTab}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(123, 31, 235, 0.6)';
+            e.currentTarget.style.background = 'rgba(123, 31, 235, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(123, 31, 235, 0.3)';
+            e.currentTarget.style.background = 'rgba(123, 31, 235, 0.05)';
+          }}
+        >
+          <Group justify="space-between">
+            <Group gap="sm">
+              <IconSearch size={18} style={{ color: '#7b1feb', opacity: 0.7 }} />
+              <Text c="dimmed" size="sm">
+                Enter a URL or search to begin investigating...
+              </Text>
+            </Group>
+            <Group gap={4}>
+              <Kbd size="xs">Ctrl</Kbd>
+              <Text size="xs" c="dimmed">+</Text>
+              <Kbd size="xs">L</Kbd>
+            </Group>
+          </Group>
+        </Paper>
 
         {/* Quick stats */}
         <Group gap="xl">
@@ -157,8 +234,8 @@ function StartPage({ onNewTab }: StartPageProps) {
         <Group>
           <Button
             leftSection={<IconPlus size={16} />}
-            variant="filled"
-            color="madroxPurple"
+            variant="gradient"
+            gradient={{ from: '#7b1feb', to: '#1cdf66' }}
             onClick={onNewTab}
           >
             New Tab
@@ -197,12 +274,44 @@ function StartPage({ onNewTab }: StartPageProps) {
           </Button>
         </Group>
 
+        <Divider
+          style={{ width: '60%', opacity: 0.3 }}
+          color="violet"
+        />
+
+        {/* Keyboard shortcut hints */}
+        <Group gap="xl">
+          <Group gap={6}>
+            <Kbd size="xs">Ctrl</Kbd>
+            <Text size="xs" c="dimmed">+</Text>
+            <Kbd size="xs">L</Kbd>
+            <Text size="xs" c="dimmed">Focus address bar</Text>
+          </Group>
+          <Group gap={6}>
+            <Kbd size="xs">Ctrl</Kbd>
+            <Text size="xs" c="dimmed">+</Text>
+            <Kbd size="xs">T</Kbd>
+            <Text size="xs" c="dimmed">New tab</Text>
+          </Group>
+          <Group gap={6}>
+            <Kbd size="xs">Ctrl</Kbd>
+            <Text size="xs" c="dimmed">+</Text>
+            <Kbd size="xs">W</Kbd>
+            <Text size="xs" c="dimmed">Close tab</Text>
+          </Group>
+        </Group>
+
         {/* Tagline */}
         <Text
           size="xs"
           c="dimmed"
           fs="italic"
-          style={{ marginTop: 20 }}
+          style={{
+            marginTop: 10,
+            background: 'linear-gradient(90deg, rgba(123, 31, 235, 0.6), rgba(28, 223, 102, 0.6))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
         >
           "One becomes many. Many become one."
         </Text>

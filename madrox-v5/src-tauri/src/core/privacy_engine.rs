@@ -383,6 +383,14 @@ pub const TRACKER_DOMAINS: &[&str] = &[
     "static.ads-twitter.com",
     "byteoversea.com",
     "ttwstatic.com",
+    "plausible.io",
+    "heap.io",
+    "intercom.io",
+    "drift.com",
+    "hubspot.com",
+    "marketo.com",
+    "pardot.com",
+    "salesforce.com",
 ];
 
 /// Trusted OSINT domains
@@ -402,6 +410,11 @@ pub const TRUSTED_OSINT_DOMAINS: &[&str] = &[
     "archive.org",
     "web.archive.org",
     "whois.domaintools.com",
+    "greynoise.io",
+    "binaryedge.io",
+    "zoomeye.org",
+    "intelx.io",
+    "pulsedive.com",
 ];
 
 /// Social media domains (high tracking)
@@ -420,6 +433,10 @@ pub const SOCIAL_MEDIA_DOMAINS: &[&str] = &[
     "discord.com",
     "telegram.org",
     "whatsapp.com",
+    "threads.net",
+    "mastodon.social",
+    "bsky.app",
+    "truth.social",
 ];
 
 /// Government/law enforcement domains
@@ -440,10 +457,10 @@ pub fn assess_domain_risk(domain: &str) -> RiskAssessment {
     let mut threats = Vec::new();
     let mut risk_score: u8 = 30; // Base score
 
-    // Check category
-    let category = if TRUSTED_OSINT_DOMAINS.iter().any(|d| domain_lower.contains(d)) {
+    // Check category and assign dynamic confidence based on category
+    let (category, mut confidence) = if TRUSTED_OSINT_DOMAINS.iter().any(|d| domain_lower.contains(d)) {
         risk_score = 10;
-        RiskCategory::Trusted
+        (RiskCategory::Trusted, 0.95_f32)
     } else if SOCIAL_MEDIA_DOMAINS.iter().any(|d| domain_lower.contains(d)) {
         risk_score = 70;
         risk_factors.push(RiskFactor {
@@ -458,7 +475,7 @@ pub fn assess_domain_risk(domain: &str) -> RiskAssessment {
         threats.push(PrivacyThreat::Fingerprinting {
             techniques: vec!["canvas".to_string(), "webgl".to_string()],
         });
-        RiskCategory::SocialMedia
+        (RiskCategory::SocialMedia, 0.90_f32)
     } else if GOVERNMENT_DOMAINS.iter().any(|d| domain_lower.ends_with(d)) {
         risk_score = 60;
         risk_factors.push(RiskFactor {
@@ -466,7 +483,7 @@ pub fn assess_domain_risk(domain: &str) -> RiskAssessment {
             severity: 6,
             description: "Potential logging and surveillance".to_string(),
         });
-        RiskCategory::Government
+        (RiskCategory::Government, 0.80_f32)
     } else if domain_lower.ends_with(".onion") {
         risk_score = 50;
         risk_factors.push(RiskFactor {
@@ -474,9 +491,9 @@ pub fn assess_domain_risk(domain: &str) -> RiskAssessment {
             severity: 5,
             description: "Tor hidden service".to_string(),
         });
-        RiskCategory::DarkWeb
+        (RiskCategory::DarkWeb, 0.70_f32)
     } else {
-        RiskCategory::General
+        (RiskCategory::General, 0.60_f32)
     };
 
     // Check for known trackers in domain
@@ -487,6 +504,8 @@ pub fn assess_domain_risk(domain: &str) -> RiskAssessment {
             severity: 8,
             description: "Domain is a known tracking service".to_string(),
         });
+        // Known trackers increase confidence (capped at 1.0)
+        confidence = (confidence + 0.10).min(1.0);
     }
 
     // Determine recommended OPSEC level
@@ -506,7 +525,7 @@ pub fn assess_domain_risk(domain: &str) -> RiskAssessment {
         risk_factors,
         threats,
         assessed_at: Utc::now(),
-        confidence: 0.85,
+        confidence,
     }
 }
 

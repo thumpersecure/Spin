@@ -19,6 +19,7 @@ import {
   Modal,
   TextInput,
   Textarea,
+  Alert,
 } from '@mantine/core';
 import {
   IconUsers,
@@ -28,6 +29,7 @@ import {
   IconEdit,
   IconCopy,
   IconArrowRight,
+  IconAlertTriangle,
 } from '@tabler/icons-react';
 
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -35,17 +37,19 @@ import {
   createIdentity,
   deleteIdentity,
   switchIdentity,
+  clearError,
   Identity,
 } from '../../store/slices/identitySlice';
 
 function IdentityPanel() {
   const dispatch = useAppDispatch();
-  const { identities, activeIdentityId, isLoading } = useAppSelector(
+  const { identities, activeIdentityId, isLoading, error } = useAppSelector(
     (state) => state.identity
   );
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  const [editingIdentity, setEditingIdentity] = useState<Identity | null>(null);
 
   const handleCreate = () => {
     if (newName.trim()) {
@@ -54,10 +58,17 @@ function IdentityPanel() {
           name: newName.trim(),
           description: newDescription.trim() || undefined,
         })
-      );
-      setNewName('');
-      setNewDescription('');
-      setIsCreateOpen(false);
+      )
+        .unwrap()
+        .then(() => {
+          setNewName('');
+          setNewDescription('');
+          setIsCreateOpen(false);
+          setEditingIdentity(null);
+        })
+        .catch(() => {
+          // Error is already captured in Redux state via rejected case
+        });
     }
   };
 
@@ -69,6 +80,33 @@ function IdentityPanel() {
     if (identityId !== 'prime') {
       dispatch(deleteIdentity(identityId));
     }
+  };
+
+  const handleClone = (identity: Identity) => {
+    dispatch(
+      createIdentity({
+        name: `Copy of ${identity.name}`,
+        description: identity.description,
+      })
+    );
+  };
+
+  const handleEdit = (identity: Identity) => {
+    setEditingIdentity(identity);
+    setNewName(identity.name);
+    setNewDescription(identity.description || '');
+    setIsCreateOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsCreateOpen(false);
+    setEditingIdentity(null);
+    setNewName('');
+    setNewDescription('');
+  };
+
+  const handleDismissError = () => {
+    dispatch(clearError());
   };
 
   return (
@@ -91,6 +129,20 @@ function IdentityPanel() {
         Each identity has a unique fingerprint and isolated session data.
       </Text>
 
+      {/* Error feedback */}
+      {error && (
+        <Alert
+          icon={<IconAlertTriangle size={16} />}
+          title="Identity Operation Failed"
+          color="red"
+          variant="light"
+          withCloseButton
+          onClose={handleDismissError}
+        >
+          {error}
+        </Alert>
+      )}
+
       <Stack gap="xs">
         {identities.map((identity) => (
           <IdentityCard
@@ -99,15 +151,17 @@ function IdentityPanel() {
             isActive={identity.id === activeIdentityId}
             onSwitch={() => handleSwitch(identity.id)}
             onDelete={() => handleDelete(identity.id)}
+            onClone={() => handleClone(identity)}
+            onEdit={() => handleEdit(identity)}
           />
         ))}
       </Stack>
 
-      {/* Create Modal */}
+      {/* Create / Edit Modal */}
       <Modal
         opened={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        title="Spawn New Dupe"
+        onClose={handleModalClose}
+        title={editingIdentity ? 'Edit Identity' : 'Spawn New Dupe'}
       >
         <Stack gap="md">
           <TextInput
@@ -124,11 +178,11 @@ function IdentityPanel() {
             onChange={(e) => setNewDescription(e.target.value)}
           />
           <Group justify="flex-end">
-            <Button variant="subtle" onClick={() => setIsCreateOpen(false)}>
+            <Button variant="subtle" onClick={handleModalClose}>
               Cancel
             </Button>
             <Button onClick={handleCreate} loading={isLoading}>
-              Spawn
+              {editingIdentity ? 'Save Changes' : 'Spawn'}
             </Button>
           </Group>
         </Stack>
@@ -142,9 +196,11 @@ interface IdentityCardProps {
   isActive: boolean;
   onSwitch: () => void;
   onDelete: () => void;
+  onClone: () => void;
+  onEdit: () => void;
 }
 
-function IdentityCard({ identity, isActive, onSwitch, onDelete }: IdentityCardProps) {
+function IdentityCard({ identity, isActive, onSwitch, onDelete, onClone, onEdit }: IdentityCardProps) {
   const isPrime = identity.id === 'prime';
 
   return (
@@ -212,10 +268,10 @@ function IdentityCard({ identity, isActive, onSwitch, onDelete }: IdentityCardPr
             <Menu.Item leftSection={<IconArrowRight size={14} />} onClick={onSwitch}>
               Switch to
             </Menu.Item>
-            <Menu.Item leftSection={<IconCopy size={14} />}>
+            <Menu.Item leftSection={<IconCopy size={14} />} onClick={onClone}>
               Clone Session
             </Menu.Item>
-            <Menu.Item leftSection={<IconEdit size={14} />}>
+            <Menu.Item leftSection={<IconEdit size={14} />} onClick={onEdit}>
               Edit
             </Menu.Item>
             {!isPrime && (

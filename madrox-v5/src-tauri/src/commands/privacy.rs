@@ -5,12 +5,10 @@
 use crate::core::privacy_engine::{
     assess_domain_risk, OpsecLevel, PrivacySettings, PrivacyStats, RiskAssessment,
 };
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::sync::RwLock;
 use tracing::{info, debug};
-
-/// Global privacy state
-static PRIVACY_STATE: RwLock<PrivacyState> = RwLock::new(PrivacyState::new());
 
 /// Privacy state container
 struct PrivacyState {
@@ -20,7 +18,7 @@ struct PrivacyState {
 }
 
 impl PrivacyState {
-    const fn new() -> Self {
+    fn new() -> Self {
         Self {
             settings: PrivacySettings {
                 opsec_level: OpsecLevel::Standard,
@@ -57,13 +55,18 @@ impl PrivacyState {
     }
 }
 
+/// Global privacy state
+lazy_static! {
+    static ref PRIVACY_STATE: RwLock<PrivacyState> = RwLock::new(PrivacyState::new());
+}
+
 /// Result type for privacy operations
 pub type PrivacyResult<T> = Result<T, String>;
 
 /// Get current privacy settings
 #[tauri::command]
 pub async fn get_privacy_settings() -> PrivacyResult<PrivacySettings> {
-    let state = PRIVACY_STATE.read().unwrap();
+    let state = PRIVACY_STATE.read().map_err(|e| format!("Lock poisoned: {}", e))?;
     Ok(state.settings.clone())
 }
 
@@ -71,7 +74,7 @@ pub async fn get_privacy_settings() -> PrivacyResult<PrivacySettings> {
 #[tauri::command]
 pub async fn set_privacy_settings(settings: PrivacySettings) -> PrivacyResult<()> {
     info!("Updating privacy settings to OPSEC level: {:?}", settings.opsec_level);
-    let mut state = PRIVACY_STATE.write().unwrap();
+    let mut state = PRIVACY_STATE.write().map_err(|e| format!("Lock poisoned: {}", e))?;
     state.settings = settings;
     Ok(())
 }
@@ -80,7 +83,7 @@ pub async fn set_privacy_settings(settings: PrivacySettings) -> PrivacyResult<()
 #[tauri::command]
 pub async fn set_opsec_level(level: OpsecLevel) -> PrivacyResult<PrivacySettings> {
     info!("Setting OPSEC level to: {:?}", level);
-    let mut state = PRIVACY_STATE.write().unwrap();
+    let mut state = PRIVACY_STATE.write().map_err(|e| format!("Lock poisoned: {}", e))?;
     state.settings = PrivacySettings::for_level(level);
     Ok(state.settings.clone())
 }
@@ -88,7 +91,7 @@ pub async fn set_opsec_level(level: OpsecLevel) -> PrivacyResult<PrivacySettings
 /// Get current OPSEC level
 #[tauri::command]
 pub async fn get_opsec_level() -> PrivacyResult<OpsecLevel> {
-    let state = PRIVACY_STATE.read().unwrap();
+    let state = PRIVACY_STATE.read().map_err(|e| format!("Lock poisoned: {}", e))?;
     Ok(state.settings.opsec_level)
 }
 
@@ -104,7 +107,7 @@ pub async fn assess_site_risk(url: String) -> PrivacyResult<RiskAssessment> {
 
     // Cache the assessment
     {
-        let mut state = PRIVACY_STATE.write().unwrap();
+        let mut state = PRIVACY_STATE.write().map_err(|e| format!("Lock poisoned: {}", e))?;
         state.stats.sites_assessed += 1;
         if assessment.risk_score >= 60 {
             state.stats.high_risk_sites_visited += 1;
@@ -126,7 +129,7 @@ pub async fn auto_adjust_privacy(url: String) -> PrivacyResult<PrivacySettings> 
     let domain = extract_domain(&url).unwrap_or_else(|| url.clone());
     let assessment = assess_domain_risk(&domain);
 
-    let mut state = PRIVACY_STATE.write().unwrap();
+    let mut state = PRIVACY_STATE.write().map_err(|e| format!("Lock poisoned: {}", e))?;
 
     if !state.settings.auto_adjust {
         return Ok(state.settings.clone());
@@ -148,7 +151,7 @@ pub async fn auto_adjust_privacy(url: String) -> PrivacyResult<PrivacySettings> 
 /// Get privacy statistics
 #[tauri::command]
 pub async fn get_privacy_stats() -> PrivacyResult<PrivacyStats> {
-    let state = PRIVACY_STATE.read().unwrap();
+    let state = PRIVACY_STATE.read().map_err(|e| format!("Lock poisoned: {}", e))?;
     Ok(state.stats.clone())
 }
 
@@ -156,7 +159,7 @@ pub async fn get_privacy_stats() -> PrivacyResult<PrivacyStats> {
 #[tauri::command]
 pub async fn record_blocked_tracker(domain: String) -> PrivacyResult<()> {
     debug!("Blocked tracker: {}", domain);
-    let mut state = PRIVACY_STATE.write().unwrap();
+    let mut state = PRIVACY_STATE.write().map_err(|e| format!("Lock poisoned: {}", e))?;
     state.stats.trackers_blocked += 1;
     Ok(())
 }
@@ -165,7 +168,7 @@ pub async fn record_blocked_tracker(domain: String) -> PrivacyResult<()> {
 #[tauri::command]
 pub async fn record_blocked_fingerprint(technique: String) -> PrivacyResult<()> {
     debug!("Blocked fingerprint attempt: {}", technique);
-    let mut state = PRIVACY_STATE.write().unwrap();
+    let mut state = PRIVACY_STATE.write().map_err(|e| format!("Lock poisoned: {}", e))?;
     state.stats.fingerprint_attempts_blocked += 1;
     Ok(())
 }
@@ -173,14 +176,14 @@ pub async fn record_blocked_fingerprint(technique: String) -> PrivacyResult<()> 
 /// Get cached site assessments
 #[tauri::command]
 pub async fn get_site_assessments() -> PrivacyResult<Vec<RiskAssessment>> {
-    let state = PRIVACY_STATE.read().unwrap();
+    let state = PRIVACY_STATE.read().map_err(|e| format!("Lock poisoned: {}", e))?;
     Ok(state.site_assessments.values().cloned().collect())
 }
 
 /// Clear privacy statistics
 #[tauri::command]
 pub async fn clear_privacy_stats() -> PrivacyResult<()> {
-    let mut state = PRIVACY_STATE.write().unwrap();
+    let mut state = PRIVACY_STATE.write().map_err(|e| format!("Lock poisoned: {}", e))?;
     state.stats = PrivacyStats::default();
     state.site_assessments.clear();
     Ok(())

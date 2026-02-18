@@ -760,9 +760,9 @@ function closeActiveTab() {
   }
 }
 
-function checkTorAndNotify() {
+async function checkTorAndNotify() {
   try {
-    const available = state.refreshTorStatus();
+    const available = await state.refreshTorStatus();
     notifyRenderer('notification', {
       type: available ? 'success' : 'warning',
       message: available ? 'Tor service is running and ready.' : 'Tor service not detected. Please start Tor.'
@@ -1114,7 +1114,7 @@ function setupViewEventHandlers(tabId, view) {
       if (currentTab && currentTab.pendingCertDecisions) {
         currentTab.pendingCertDecisions.delete(requestId);
       }
-      ipcMain.removeAllListeners(decisionChannel);
+      ipcMain.removeListener(decisionChannel, decisionHandler);
 
       // No decision received in time; block navigation (if still valid)
       if (!wc.isDestroyed()) {

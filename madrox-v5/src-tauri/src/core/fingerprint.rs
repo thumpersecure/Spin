@@ -72,6 +72,17 @@ const USER_AGENTS: &[&str] = &[
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0",
+    // 2024/2025 browser versions
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:128.0) Gecko/20100101 Firefox/128.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
+    "Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
 ];
 
 /// Common screen resolutions
@@ -82,6 +93,9 @@ const SCREEN_RESOLUTIONS: &[(u32, u32)] = &[
     (1536, 864),
     (1440, 900),
     (1280, 720),
+    (3840, 2160),
+    (1600, 900),
+    (2560, 1600),
 ];
 
 /// WebGL vendors/renderers
@@ -161,12 +175,25 @@ fn generate_fingerprint_id(user_agent: &str, width: u32, height: u32, vendor: &s
     hasher.update(rand::thread_rng().gen::<[u8; 16]>());
 
     let result = hasher.finalize();
-    let short_hash = &result[..4];
+    // Use 8 bytes of randomness instead of 4 for improved entropy
+    let short_hash = &result[..8];
 
-    // Generate a memorable ID like "Alpha-7X2"
-    let greek = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta"];
-    let index = short_hash[0] as usize % greek.len();
-    let suffix = format!("{:X}{:X}{:X}", short_hash[1] % 16, short_hash[2] % 16, short_hash[3] % 16);
+    // Extended Greek/NATO alphabet names for more varied identity naming
+    let greek = [
+        "Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta",
+        "Iota", "Kappa", "Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi",
+        "Rho", "Sigma", "Tau", "Upsilon", "Phi", "Chi", "Psi", "Omega",
+    ];
+    let index = ((short_hash[0] as usize) | ((short_hash[1] as usize) << 8)) % greek.len();
+    let suffix = format!(
+        "{:X}{:X}{:X}{:X}{:X}{:X}",
+        short_hash[2] % 16,
+        short_hash[3] % 16,
+        short_hash[4] % 16,
+        short_hash[5] % 16,
+        short_hash[6] % 16,
+        short_hash[7] % 16,
+    );
 
     format!("{}-{}", greek[index], suffix)
 }

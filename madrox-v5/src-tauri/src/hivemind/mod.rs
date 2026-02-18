@@ -6,6 +6,8 @@
 use crate::core::entity::EntityType;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::RwLock;
 use tauri::AppHandle;
 
@@ -48,16 +50,23 @@ pub struct CrossReference {
     pub last_seen: DateTime<Utc>,
 }
 
-/// Event listeners
-static LISTENERS: RwLock<Vec<Box<dyn Fn(HivemindEvent) + Send + Sync>>> = RwLock::new(Vec::new());
+/// Global counter for generating unique listener IDs
+static LISTENER_ID_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+/// Event listeners stored with unique IDs for subscribe/unsubscribe support
+static LISTENERS: RwLock<Option<HashMap<u64, Box<dyn Fn(HivemindEvent) + Send + Sync>>>> =
+    RwLock::new(None);
 
 /// Initialize the Hivemind system
 pub fn init(_app_handle: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("Initializing Hivemind collective intelligence system");
 
-    // Clear any existing listeners
+    // Clear any existing listeners and initialize the map
     let mut listeners = LISTENERS.write().unwrap();
-    listeners.clear();
+    *listeners = Some(HashMap::new());
+
+    // Reset the listener ID counter
+    LISTENER_ID_COUNTER.store(0, Ordering::SeqCst);
 
     Ok(())
 }
@@ -67,18 +76,35 @@ pub fn broadcast(event: HivemindEvent) {
     tracing::debug!("Hivemind broadcast: {:?}", event);
 
     let listeners = LISTENERS.read().unwrap();
-    for listener in listeners.iter() {
-        listener(event.clone());
+    if let Some(ref map) = *listeners {
+        for listener in map.values() {
+            listener(event.clone());
+        }
     }
 }
 
-/// Subscribe to Hivemind events
-pub fn subscribe<F>(listener: F)
+/// Subscribe to Hivemind events.
+/// Returns a unique listener ID that can be used to unsubscribe later.
+pub fn subscribe<F>(listener: F) -> u64
 where
     F: Fn(HivemindEvent) + Send + Sync + 'static,
 {
+    let id = LISTENER_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
     let mut listeners = LISTENERS.write().unwrap();
-    listeners.push(Box::new(listener));
+    let map = listeners.get_or_insert_with(HashMap::new);
+    map.insert(id, Box::new(listener));
+    id
+}
+
+/// Unsubscribe a listener by its ID.
+/// Returns true if the listener was found and removed, false otherwise.
+pub fn unsubscribe(id: u64) -> bool {
+    let mut listeners = LISTENERS.write().unwrap();
+    if let Some(ref mut map) = *listeners {
+        map.remove(&id).is_some()
+    } else {
+        false
+    }
 }
 
 /// Get Hivemind status

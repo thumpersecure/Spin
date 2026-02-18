@@ -1,6 +1,6 @@
 {
   "name": "constantine-browser",
-  "version": "4.3.0",
+  "version": "10.0.1",
   "description": "CONSTANTINE Browser - The Exorcist's Edge. The OSINT Investigation Suite with supernatural noir theme. A privacy-first browser with Tor integration, anti-fingerprinting, and comprehensive intelligence tools. Between Heaven and Hell, intelligence prevails.",
   "main": "src/main/main.js",
   "scripts": {

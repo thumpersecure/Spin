@@ -61,11 +61,20 @@ const tabsSlice = createSlice({
     },
 
     setActiveTab: (state, action: PayloadAction<string>) => {
-      state.activeTabId = action.payload;
-      state.tabs = state.tabs.map((tab) => ({
-        ...tab,
-        isActive: tab.id === action.payload,
-      }));
+      const id = action.payload;
+      // Deactivate the previously active tab
+      if (state.activeTabId) {
+        const oldTab = state.tabs.find((t) => t.id === state.activeTabId);
+        if (oldTab) {
+          oldTab.isActive = false;
+        }
+      }
+      // Activate the new tab
+      const newTab = state.tabs.find((t) => t.id === id);
+      if (newTab) {
+        newTab.isActive = true;
+      }
+      state.activeTabId = id;
     },
 
     updateTab: (state, action: PayloadAction<{ id: string; updates: Partial<Tab> }>) => {

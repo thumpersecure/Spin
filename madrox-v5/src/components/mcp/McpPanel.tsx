@@ -20,6 +20,8 @@ import {
   ScrollArea,
   Tooltip,
   ThemeIcon,
+  Alert,
+  Loader,
 } from '@mantine/core';
 import {
   IconBrain,
@@ -32,6 +34,7 @@ import {
   IconUsers,
   IconGhost,
   IconCurrencyBitcoin,
+  IconAlertTriangle,
 } from '@tabler/icons-react';
 
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -39,6 +42,7 @@ import {
   selectAgent,
   addMessage,
   invokeAgent,
+  clearError,
   Agent,
   AgentStatus,
 } from '../../store/slices/mcpSlice';
@@ -67,7 +71,7 @@ const AGENT_COLORS: Record<string, string> = {
 
 function McpPanel() {
   const dispatch = useAppDispatch();
-  const { agents, selectedAgentId, messages, isConnected } = useAppSelector(
+  const { agents, selectedAgentId, messages, isLoading, error, isConnected } = useAppSelector(
     (state) => state.mcp
   );
   const [input, setInput] = useState('');
@@ -75,27 +79,43 @@ function McpPanel() {
   const selectedAgent = agents.find((a) => a.id === selectedAgentId);
   const agentMessages = messages.filter((m) => m.agentId === selectedAgentId);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!selectedAgentId || !input.trim()) return;
 
-    // Add user message
+    const task = input.trim();
+    setInput('');
+
+    // Clear any previous error
+    dispatch(clearError());
+
+    // Add user message first, then invoke agent sequentially
     dispatch(
       addMessage({
         agentId: selectedAgentId,
         role: 'user',
-        content: input.trim(),
+        content: task,
       })
     );
 
-    // Invoke agent
-    dispatch(
-      invokeAgent({
-        agentId: selectedAgentId,
-        task: input.trim(),
-      })
-    );
-
-    setInput('');
+    // Invoke agent after message is added
+    try {
+      await dispatch(
+        invokeAgent({
+          agentId: selectedAgentId,
+          task,
+        })
+      ).unwrap();
+    } catch (err) {
+      // Error state is already set by the rejected case in the slice.
+      // Add an error message to the chat so the user sees it inline.
+      dispatch(
+        addMessage({
+          agentId: selectedAgentId,
+          role: 'agent',
+          content: `Error: ${err instanceof Error ? err.message : String(err)}`,
+        })
+      );
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -159,6 +179,18 @@ function McpPanel() {
                 </Group>
               </Card>
 
+              {error && (
+                <Alert
+                  color="red"
+                  title="Agent Error"
+                  icon={<IconAlertTriangle size={16} />}
+                  withCloseButton
+                  onClose={() => dispatch(clearError())}
+                >
+                  {error}
+                </Alert>
+              )}
+
               <ScrollArea style={{ flex: 1 }} type="hover">
                 <Stack gap="xs">
                   {agentMessages.map((message) => (
@@ -178,10 +210,18 @@ function McpPanel() {
                       <Text size="xs">{message.content}</Text>
                     </Card>
                   ))}
-                  {agentMessages.length === 0 && (
+                  {agentMessages.length === 0 && !isLoading && (
                     <Text size="xs" c="dimmed" ta="center">
                       Start a conversation with {selectedAgent.name}
                     </Text>
+                  )}
+                  {isLoading && (
+                    <Group justify="center" gap="xs" py="sm">
+                      <Loader size="xs" color="osintBlue" />
+                      <Text size="xs" c="dimmed">
+                        {selectedAgent.name} is thinking...
+                      </Text>
+                    </Group>
                   )}
                 </Stack>
               </ScrollArea>
@@ -196,13 +236,15 @@ function McpPanel() {
                   minRows={1}
                   maxRows={3}
                   style={{ flex: 1 }}
+                  disabled={isLoading}
                 />
                 <ActionIcon
                   variant="filled"
                   color="osintBlue"
                   size="lg"
                   onClick={handleSend}
-                  disabled={!input.trim()}
+                  disabled={!input.trim() || isLoading}
+                  loading={isLoading}
                 >
                   <IconSend size={18} />
                 </ActionIcon>
