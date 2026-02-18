@@ -34,7 +34,7 @@ pub fn init(app_handle: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let app_data_dir = app_handle
         .path()
         .app_data_dir()
-        .expect("Failed to get app data directory");
+        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
 
     let db_path = app_data_dir.join("madrox.db");
 
@@ -42,7 +42,8 @@ pub fn init(app_handle: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
 
     let store = SledStore::new(&db_path)?;
 
-    let mut global_store = STORE.write().unwrap();
+    let mut global_store = STORE.write()
+        .map_err(|e| format!("Storage lock poisoned: {}", e))?;
     *global_store = Some(Arc::new(store));
 
     Ok(())
@@ -50,6 +51,7 @@ pub fn init(app_handle: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
 
 /// Get the store instance
 pub fn get_store(_app_handle: &AppHandle) -> Result<Arc<SledStore>, StorageError> {
-    let store = STORE.read().unwrap();
+    let store = STORE.read()
+        .map_err(|_| StorageError::NotInitialized)?;
     store.clone().ok_or(StorageError::NotInitialized)
 }

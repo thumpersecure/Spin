@@ -287,12 +287,10 @@ const SUSPICIOUS_PATTERNS = [
 function debounce(func, wait) {
   let timeout;
   return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
     clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
+    timeout = setTimeout(() => {
+      func(...args);
+    }, wait);
   };
 }
 
@@ -1759,7 +1757,7 @@ function toggleDevTools() {
 function setupIpcHandlers() {
   // Platform & System info
   ipcMain.handle('get-platform-info', () => CONFIG.platform);
-  ipcMain.handle('check-tor-status', () => ({ available: state.refreshTorStatus() }));
+  ipcMain.handle('check-tor-status', async () => ({ available: await state.refreshTorStatus() }));
   ipcMain.handle('get-network-status', () => ({ online: state.isOnline }));
   ipcMain.handle('get-app-version', () => CONFIG.version);
 
