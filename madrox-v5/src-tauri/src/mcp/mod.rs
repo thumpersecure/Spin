@@ -74,7 +74,8 @@ pub fn init(_app_handle: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     // 2. Register available tools/skills
     // 3. Connect to Claude API if configured
 
-    tracing::info!("MCP system ready with {} agents", 5);
+    let default_config = McpConfig::default();
+    tracing::info!("MCP system ready with {} agents", default_config.max_concurrent_agents);
 
     Ok(())
 }

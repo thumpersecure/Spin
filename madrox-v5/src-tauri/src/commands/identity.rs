@@ -6,7 +6,6 @@
 use crate::core::identity::{Identity, IdentityStatus};
 use crate::storage;
 use serde::{Deserialize, Serialize};
-use tauri::State;
 use tracing::{info, warn};
 use uuid::Uuid;
 

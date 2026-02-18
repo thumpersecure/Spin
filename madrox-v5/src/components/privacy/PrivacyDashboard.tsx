@@ -79,8 +79,8 @@ function PrivacyDashboard() {
 
     return () => {
       clearInterval(intervalId);
-      settingsPromise.abort();
-      statsPromise.abort();
+      settingsPromise.abort?.();
+      statsPromise.abort?.();
     };
   }, [dispatch]);
 

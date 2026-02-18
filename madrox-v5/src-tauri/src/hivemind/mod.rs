@@ -62,7 +62,8 @@ pub fn init(_app_handle: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("Initializing Hivemind collective intelligence system");
 
     // Clear any existing listeners and initialize the map
-    let mut listeners = LISTENERS.write().unwrap();
+    let mut listeners = LISTENERS.write()
+        .map_err(|e| format!("Hivemind lock poisoned during init: {}", e))?;
     *listeners = Some(HashMap::new());
 
     // Reset the listener ID counter
@@ -75,7 +76,13 @@ pub fn init(_app_handle: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
 pub fn broadcast(event: HivemindEvent) {
     tracing::debug!("Hivemind broadcast: {:?}", event);
 
-    let listeners = LISTENERS.read().unwrap();
+    let listeners = match LISTENERS.read() {
+        Ok(l) => l,
+        Err(e) => {
+            tracing::error!("Hivemind lock poisoned during broadcast: {}", e);
+            return;
+        }
+    };
     if let Some(ref map) = *listeners {
         for listener in map.values() {
             listener(event.clone());
@@ -90,20 +97,33 @@ where
     F: Fn(HivemindEvent) + Send + Sync + 'static,
 {
     let id = LISTENER_ID_COUNTER.fetch_add(1, Ordering::SeqCst);
-    let mut listeners = LISTENERS.write().unwrap();
-    let map = listeners.get_or_insert_with(HashMap::new);
-    map.insert(id, Box::new(listener));
+    match LISTENERS.write() {
+        Ok(mut listeners) => {
+            let map = listeners.get_or_insert_with(HashMap::new);
+            map.insert(id, Box::new(listener));
+        }
+        Err(e) => {
+            tracing::error!("Hivemind lock poisoned during subscribe: {}", e);
+        }
+    }
     id
 }
 
 /// Unsubscribe a listener by its ID.
 /// Returns true if the listener was found and removed, false otherwise.
 pub fn unsubscribe(id: u64) -> bool {
-    let mut listeners = LISTENERS.write().unwrap();
-    if let Some(ref mut map) = *listeners {
-        map.remove(&id).is_some()
-    } else {
-        false
+    match LISTENERS.write() {
+        Ok(mut listeners) => {
+            if let Some(ref mut map) = *listeners {
+                map.remove(&id).is_some()
+            } else {
+                false
+            }
+        }
+        Err(e) => {
+            tracing::error!("Hivemind lock poisoned during unsubscribe: {}", e);
+            false
+        }
     }
 }
 

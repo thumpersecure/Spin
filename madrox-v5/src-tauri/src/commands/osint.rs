@@ -390,16 +390,16 @@ pub async fn analyze_username(username: String) -> OsintResult<UsernameAnalysis>
 /// Analyze a domain
 #[tauri::command]
 pub async fn analyze_domain(domain: String) -> OsintResult<DomainAnalysis> {
+    if domain.is_empty() {
+        return Err("Domain cannot be empty".to_string());
+    }
+
     // Input length limit to prevent abuse
     if domain.len() > 1000 {
         return Err("Input too long: domain must be under 1000 characters".to_string());
     }
 
     info!("Analyzing domain: {}", domain);
-
-    if domain.is_empty() {
-        return Err("Domain cannot be empty".to_string());
-    }
 
     let search_queries = vec![
         SearchQuery {
