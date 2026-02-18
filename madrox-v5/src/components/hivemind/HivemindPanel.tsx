@@ -4,6 +4,7 @@
  * View and manage the collective intelligence of all identities.
  */
 
+import { useState } from 'react';
 import {
   Stack,
   Title,
@@ -11,6 +12,7 @@ import {
   Text,
   Card,
   Badge,
+  Button,
   TextInput,
   Select,
   Divider,
@@ -37,6 +39,7 @@ import { useAppDispatch, useAppSelector } from '../../store';
 import {
   setFilterType,
   setSearchQuery,
+  clearError,
   Entity,
   EntityType,
   CrossReference,
@@ -56,11 +59,14 @@ const ENTITY_TYPE_OPTIONS = [
   { value: 'ethereum_address', label: 'Ethereum' },
 ];
 
+const PAGE_SIZE = 20;
+
 function HivemindPanel() {
   const dispatch = useAppDispatch();
-  const { entities, crossReferences, filterType, searchQuery } = useAppSelector(
+  const { entities, crossReferences, filterType, searchQuery, error } = useAppSelector(
     (state) => state.hivemind
   );
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   // Filter entities
   const filteredEntities = entities.filter((entity) => {
@@ -70,6 +76,28 @@ function HivemindPanel() {
       entity.value.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesType && matchesSearch;
   });
+
+  // Reset visible count when filters change
+  const handleFilterType = (value: string | null) => {
+    dispatch(setFilterType((value as EntityType) || 'all'));
+    setVisibleCount(PAGE_SIZE);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchQuery(e.target.value));
+    setVisibleCount(PAGE_SIZE);
+  };
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + PAGE_SIZE);
+  };
+
+  const handleDismissError = () => {
+    dispatch(clearError());
+  };
+
+  const visibleEntities = filteredEntities.slice(0, visibleCount);
+  const hasMore = filteredEntities.length > visibleCount;
 
   return (
     <Stack gap="md">
@@ -84,6 +112,20 @@ function HivemindPanel() {
       <Text size="xs" c="dimmed">
         All intelligence discovered by any identity is synchronized here.
       </Text>
+
+      {/* Error feedback */}
+      {error && (
+        <Alert
+          icon={<IconAlertTriangle size={16} />}
+          title="Hivemind Error"
+          color="red"
+          variant="light"
+          withCloseButton
+          onClose={handleDismissError}
+        >
+          {error}
+        </Alert>
+      )}
 
       {/* Cross-reference alert */}
       {crossReferences.length > 0 && (
@@ -103,14 +145,14 @@ function HivemindPanel() {
           placeholder="Search entities..."
           leftSection={<IconSearch size={16} />}
           value={searchQuery}
-          onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+          onChange={handleSearchChange}
           style={{ flex: 1 }}
           size="xs"
         />
         <Select
           data={ENTITY_TYPE_OPTIONS}
           value={filterType}
-          onChange={(value) => dispatch(setFilterType((value as EntityType) || 'all'))}
+          onChange={handleFilterType}
           size="xs"
           style={{ width: 140 }}
         />
@@ -133,9 +175,9 @@ function HivemindPanel() {
 
       <Divider label={`Entities (${filteredEntities.length})`} labelPosition="left" />
 
-      {/* Entities list */}
+      {/* Entities list with pagination */}
       <Stack gap="xs">
-        {filteredEntities.slice(0, 20).map((entity) => (
+        {visibleEntities.map((entity) => (
           <EntityCard key={entity.hash} entity={entity} />
         ))}
         {filteredEntities.length === 0 && (
@@ -143,10 +185,20 @@ function HivemindPanel() {
             No entities found
           </Text>
         )}
-        {filteredEntities.length > 20 && (
-          <Text size="xs" c="dimmed" ta="center">
-            Showing 20 of {filteredEntities.length} entities
-          </Text>
+        {hasMore && (
+          <>
+            <Text size="xs" c="dimmed" ta="center">
+              Showing {visibleCount} of {filteredEntities.length} entities
+            </Text>
+            <Button
+              variant="subtle"
+              size="xs"
+              fullWidth
+              onClick={handleLoadMore}
+            >
+              Load More ({filteredEntities.length - visibleCount} remaining)
+            </Button>
+          </>
         )}
       </Stack>
     </Stack>
@@ -194,8 +246,19 @@ interface EntityCardProps {
 }
 
 function EntityCard({ entity }: EntityCardProps) {
-  const handleCopy = () => {
-    navigator.clipboard.writeText(entity.value);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [copyError, setCopyError] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(entity.value);
+      setCopySuccess(true);
+      setCopyError(false);
+      setTimeout(() => setCopySuccess(false), 1500);
+    } catch {
+      setCopyError(true);
+      setTimeout(() => setCopyError(false), 2000);
+    }
   };
 
   return (
@@ -215,8 +278,13 @@ function EntityCard({ entity }: EntityCardProps) {
           </Stack>
         </Group>
         <Group gap={4}>
-          <Tooltip label="Copy">
-            <ActionIcon variant="subtle" size="xs" onClick={handleCopy}>
+          <Tooltip label={copySuccess ? 'Copied!' : copyError ? 'Copy failed' : 'Copy'}>
+            <ActionIcon
+              variant="subtle"
+              size="xs"
+              onClick={handleCopy}
+              color={copySuccess ? 'green' : copyError ? 'red' : undefined}
+            >
               <IconCopy size={14} />
             </ActionIcon>
           </Tooltip>

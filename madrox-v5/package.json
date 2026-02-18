@@ -1,6 +1,6 @@
 {
   "name": "madrox",
-  "version": "5.0.0",
+  "version": "10.0.1",
   "description": "MADROX - The Multiple Man OSINT Browser",
   "private": true,
   "type": "module",

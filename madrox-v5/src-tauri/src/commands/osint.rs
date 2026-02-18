@@ -50,13 +50,27 @@ pub struct OsintBookmark {
 /// Analyze a phone number
 #[tauri::command]
 pub async fn analyze_phone(phone: String) -> OsintResult<PhoneAnalysis> {
+    // Input length limit to prevent abuse
+    if phone.len() > 1000 {
+        return Err("Input too long: phone number must be under 1000 characters".to_string());
+    }
+
     info!("Analyzing phone number: {}", phone);
 
     // Clean the input
     let cleaned: String = phone.chars().filter(|c| c.is_digit(10) || *c == '+').collect();
 
     if cleaned.is_empty() {
-        return Err("Invalid phone number".to_string());
+        return Err("Invalid phone number: no digits found".to_string());
+    }
+
+    // Validate minimum digit count (at least 7 digits for a valid phone number)
+    let digit_count = cleaned.chars().filter(|c| c.is_ascii_digit()).count();
+    if digit_count < 7 {
+        return Err(format!(
+            "Invalid phone number: expected at least 7 digits, found {}",
+            digit_count
+        ));
     }
 
     // Generate various formats
@@ -173,16 +187,42 @@ pub struct DomainAnalysis {
 /// Analyze an email address
 #[tauri::command]
 pub async fn analyze_email(email: String) -> OsintResult<EmailAnalysis> {
+    // Input length limit to prevent abuse
+    if email.len() > 1000 {
+        return Err("Input too long: email must be under 1000 characters".to_string());
+    }
+
     info!("Analyzing email: {}", email);
 
     // Parse email
     let parts: Vec<&str> = email.split('@').collect();
     if parts.len() != 2 {
-        return Err("Invalid email format".to_string());
+        return Err("Invalid email format: expected exactly one '@' character".to_string());
     }
 
     let local_part = parts[0].to_string();
     let domain = parts[1].to_string();
+
+    // Validate local part is not empty
+    if local_part.is_empty() {
+        return Err("Invalid email format: local part (before @) cannot be empty".to_string());
+    }
+
+    // Validate domain format
+    if domain.is_empty() {
+        return Err("Invalid email format: domain (after @) cannot be empty".to_string());
+    }
+    if !domain.contains('.') {
+        return Err("Invalid email format: domain must contain at least one dot".to_string());
+    }
+    // Check that domain doesn't start or end with a dot/hyphen and has valid characters
+    if domain.starts_with('.') || domain.starts_with('-') || domain.ends_with('.') || domain.ends_with('-') {
+        return Err("Invalid email format: domain cannot start or end with '.' or '-'".to_string());
+    }
+    // Ensure domain labels are not empty (no consecutive dots)
+    if domain.contains("..") {
+        return Err("Invalid email format: domain contains consecutive dots".to_string());
+    }
 
     // Check common free providers
     let free_providers = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "protonmail.com", "icloud.com"];
@@ -248,6 +288,11 @@ pub async fn analyze_email(email: String) -> OsintResult<EmailAnalysis> {
 /// Analyze a username across platforms
 #[tauri::command]
 pub async fn analyze_username(username: String) -> OsintResult<UsernameAnalysis> {
+    // Input length limit to prevent abuse
+    if username.len() > 1000 {
+        return Err("Input too long: username must be under 1000 characters".to_string());
+    }
+
     info!("Analyzing username: {}", username);
 
     if username.is_empty() {
@@ -345,6 +390,11 @@ pub async fn analyze_username(username: String) -> OsintResult<UsernameAnalysis>
 /// Analyze a domain
 #[tauri::command]
 pub async fn analyze_domain(domain: String) -> OsintResult<DomainAnalysis> {
+    // Input length limit to prevent abuse
+    if domain.len() > 1000 {
+        return Err("Input too long: domain must be under 1000 characters".to_string());
+    }
+
     info!("Analyzing domain: {}", domain);
 
     if domain.is_empty() {

@@ -4,7 +4,7 @@
  * Browser navigation bar with URL input and controls.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   Group,
   ActionIcon,
@@ -34,30 +34,49 @@ import { updateTab } from '../../store/slices/tabsSlice';
 function NavBar() {
   const dispatch = useAppDispatch();
   const { tabs, activeTabId } = useAppSelector((state) => state.tabs);
-  const activeTab = tabs.find((t) => t.id === activeTabId);
+  const activeTab = useMemo(() => tabs.find((t) => t.id === activeTabId), [tabs, activeTabId]);
 
   const [urlInput, setUrlInput] = useState(activeTab?.url || '');
-  const [isSecure, setIsSecure] = useState(true);
+
+  // Derive isSecure from the active tab's actual URL
+  const isSecure = useMemo(() => {
+    const url = activeTab?.url || '';
+    return url.startsWith('https://') || url === '' || url === 'about:blank';
+  }, [activeTab?.url]);
+
+  // Sync URL input when active tab changes
+  useEffect(() => {
+    if (activeTab?.url !== undefined) {
+      setUrlInput(activeTab.url);
+    }
+  }, [activeTab?.url, activeTabId]);
 
   const handleNavigate = useCallback(async () => {
     if (!activeTabId || !urlInput.trim()) return;
 
+    let normalizedUrl = urlInput.trim();
+    // Auto-prepend https:// if no protocol specified
+    if (!/^https?:\/\//i.test(normalizedUrl) && !normalizedUrl.startsWith('about:')) {
+      normalizedUrl = `https://${normalizedUrl}`;
+      setUrlInput(normalizedUrl);
+    }
+
     try {
       const url = await invoke<string>('navigate', {
-        request: { url: urlInput },
+        request: { url: normalizedUrl },
       });
 
-      dispatch(
-        updateTab({
-          id: activeTabId,
-          updates: {
-            url,
-            isLoading: true,
-          },
-        })
-      );
-
-      setIsSecure(url.startsWith('https://'));
+      if (url) {
+        dispatch(
+          updateTab({
+            id: activeTabId,
+            updates: {
+              url,
+              isLoading: true,
+            },
+          })
+        );
+      }
     } catch (error) {
       console.error('Navigation failed:', error);
     }
@@ -94,7 +113,43 @@ function NavBar() {
   };
 
   const handleHome = () => {
-    setUrlInput('about:blank');
+    const homeUrl = 'about:blank';
+    setUrlInput(homeUrl);
+    if (activeTabId) {
+      dispatch(updateTab({ id: activeTabId, updates: { url: homeUrl } }));
+    }
+  };
+
+  const handleScreenshot = async () => {
+    try {
+      await invoke('get_page_content', { format: 'screenshot' });
+    } catch (error) {
+      console.error('Screenshot failed:', error);
+    }
+  };
+
+  const handleSavePdf = async () => {
+    try {
+      await invoke('get_page_content', { format: 'pdf' });
+    } catch (error) {
+      console.error('Save PDF failed:', error);
+    }
+  };
+
+  const handleViewSource = async () => {
+    try {
+      await invoke<string>('get_page_content', { format: 'source' });
+    } catch (error) {
+      console.error('View source failed:', error);
+    }
+  };
+
+  const handleSavePage = async () => {
+    try {
+      await invoke('get_page_content', { format: 'html' });
+    } catch (error) {
+      console.error('Save page failed:', error);
+    }
   };
 
   return (
@@ -164,9 +219,6 @@ function NavBar() {
           input: {
             backgroundColor: 'var(--mantine-color-dark-7)',
             borderColor: 'var(--mantine-color-dark-5)',
-            '&:focus': {
-              borderColor: 'var(--mantine-color-madroxPurple-6)',
-            },
           },
         }}
       />
@@ -181,17 +233,17 @@ function NavBar() {
 
         <Menu.Dropdown>
           <Menu.Label>Page Actions</Menu.Label>
-          <Menu.Item leftSection={<IconCamera size={16} />}>
+          <Menu.Item leftSection={<IconCamera size={16} />} onClick={handleScreenshot}>
             Screenshot
           </Menu.Item>
-          <Menu.Item leftSection={<IconDownload size={16} />}>
+          <Menu.Item leftSection={<IconDownload size={16} />} onClick={handleSavePdf}>
             Save as PDF
           </Menu.Item>
-          <Menu.Item leftSection={<IconCode size={16} />}>
+          <Menu.Item leftSection={<IconCode size={16} />} onClick={handleViewSource}>
             View Source
           </Menu.Item>
           <Menu.Divider />
-          <Menu.Item leftSection={<IconDeviceFloppy size={16} />}>
+          <Menu.Item leftSection={<IconDeviceFloppy size={16} />} onClick={handleSavePage}>
             Save Page
           </Menu.Item>
         </Menu.Dropdown>

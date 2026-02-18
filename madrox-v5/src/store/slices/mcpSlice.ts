@@ -167,9 +167,12 @@ const mcpSlice = createSlice({
     // Invoke agent
     builder
       .addCase(invokeAgent.pending, (state, action) => {
-        const agent = state.agents.find((a) => a.id === action.meta.arg.agentId);
-        if (agent) {
-          agent.status = 'busy';
+        const agentId = action.meta.arg?.agentId;
+        if (agentId) {
+          const agent = state.agents.find((a) => a.id === agentId);
+          if (agent) {
+            agent.status = 'busy';
+          }
         }
       })
       .addCase(invokeAgent.fulfilled, (state, action) => {
@@ -187,12 +190,17 @@ const mcpSlice = createSlice({
         });
       })
       .addCase(invokeAgent.rejected, (state, action) => {
-        const agentId = action.meta.arg.agentId;
-        const agent = state.agents.find((a) => a.id === agentId);
-        if (agent) {
-          agent.status = 'error';
+        const agentId = action.meta.arg?.agentId;
+        if (agentId) {
+          const agent = state.agents.find((a) => a.id === agentId);
+          if (agent) {
+            agent.status = 'error';
+          }
         }
-        state.error = action.error.message || 'Agent invocation failed';
+        const agentLabel = agentId ? `Agent "${agentId}"` : 'Agent';
+        state.error = action.error.message
+          ? `${agentLabel} invocation failed: ${action.error.message}`
+          : `${agentLabel} invocation failed`;
       });
   },
 });

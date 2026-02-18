@@ -5,6 +5,10 @@
 use crate::core::entity::EntityType;
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::collections::HashSet;
+
+/// Maximum input text size (100KB) to prevent regex DoS
+const MAX_INPUT_SIZE: usize = 100 * 1024;
 
 lazy_static! {
     // Email pattern
@@ -111,8 +115,18 @@ pub fn extract_type(text: &str, entity_type: &EntityType) -> Vec<String> {
 }
 
 /// Extract all entity types from text
+///
+/// Input text is truncated to MAX_INPUT_SIZE (100KB) to prevent regex DoS attacks.
 pub fn extract_all(text: &str) -> Vec<(EntityType, String)> {
+    // Enforce length limit to prevent regex DoS
+    let text = if text.len() > MAX_INPUT_SIZE {
+        &text[..MAX_INPUT_SIZE]
+    } else {
+        text
+    };
+
     let mut results = Vec::new();
+    let mut seen = HashSet::<(String, String)>::new();
 
     // Extract each type
     let types = [
@@ -148,13 +162,13 @@ pub fn extract_all(text: &str) -> Vec<(EntityType, String)> {
                 }
             }
 
-            results.push((entity_type.clone(), value));
+            // HashSet-based dedup: only add if (type, value) pair is new
+            let key = (format!("{:?}", entity_type), value.clone());
+            if seen.insert(key) {
+                results.push((entity_type.clone(), value));
+            }
         }
     }
-
-    // Deduplicate
-    results.sort_by(|a, b| format!("{:?}{}", a.0, a.1).cmp(&format!("{:?}{}", b.0, b.1)));
-    results.dedup();
 
     results
 }

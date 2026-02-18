@@ -178,6 +178,14 @@ const osintSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+
+    clearAnalysis: (state) => {
+      state.phoneAnalysis = null;
+      state.emailAnalysis = null;
+      state.usernameAnalysis = null;
+      state.domainAnalysis = null;
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     // Analyze phone
@@ -192,6 +200,7 @@ const osintSlice = createSlice({
       })
       .addCase(analyzePhone.rejected, (state, action) => {
         state.isLoading = false;
+        state.phoneAnalysis = null;
         state.error = action.error.message || 'Failed to analyze phone number';
       });
 
@@ -207,6 +216,7 @@ const osintSlice = createSlice({
       })
       .addCase(analyzeEmail.rejected, (state, action) => {
         state.isLoading = false;
+        state.emailAnalysis = null;
         state.error = action.error.message || 'Failed to analyze email';
       });
 
@@ -222,6 +232,7 @@ const osintSlice = createSlice({
       })
       .addCase(analyzeUsername.rejected, (state, action) => {
         state.isLoading = false;
+        state.usernameAnalysis = null;
         state.error = action.error.message || 'Failed to analyze username';
       });
 
@@ -237,6 +248,7 @@ const osintSlice = createSlice({
       })
       .addCase(analyzeDomain.rejected, (state, action) => {
         state.isLoading = false;
+        state.domainAnalysis = null;
         state.error = action.error.message || 'Failed to analyze domain';
       });
 
@@ -255,6 +267,7 @@ export const {
   clearUsernameAnalysis,
   clearDomainAnalysis,
   clearAllAnalysis,
+  clearAnalysis,
   setActiveTab,
   addRecentSearch,
   clearRecentSearches,

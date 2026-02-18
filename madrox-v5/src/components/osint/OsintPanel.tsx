@@ -25,7 +25,9 @@ import {
   Paper,
   ThemeIcon,
   Transition,
+  Alert,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import {
   IconSearch,
   IconPhone,
@@ -51,6 +53,7 @@ import {
   clearEmailAnalysis,
   clearUsernameAnalysis,
   clearDomainAnalysis,
+  clearError,
 } from '../../store/slices/osintSlice';
 
 function OsintPanel() {
@@ -63,6 +66,7 @@ function OsintPanel() {
     bookmarks,
     bookmarkCategories,
     isLoading,
+    error,
   } = useAppSelector((state) => state.osint);
 
   const [phoneInput, setPhoneInput] = useState('');
@@ -74,26 +78,43 @@ function OsintPanel() {
     dispatch(fetchBookmarks());
   }, [dispatch]);
 
+  // Show notification when an OSINT query fails
+  useEffect(() => {
+    if (error) {
+      notifications.show({
+        title: 'OSINT Query Failed',
+        message: error,
+        color: 'red',
+        icon: <IconAlertTriangle size={16} />,
+        autoClose: 5000,
+      });
+    }
+  }, [error]);
+
   const handlePhoneAnalyze = () => {
     if (phoneInput.trim()) {
+      dispatch(clearError());
       dispatch(analyzePhone(phoneInput.trim()));
     }
   };
 
   const handleEmailAnalyze = () => {
     if (emailInput.trim()) {
+      dispatch(clearError());
       dispatch(analyzeEmail(emailInput.trim()));
     }
   };
 
   const handleUsernameAnalyze = () => {
     if (usernameInput.trim()) {
+      dispatch(clearError());
       dispatch(analyzeUsername(usernameInput.trim()));
     }
   };
 
   const handleDomainAnalyze = () => {
     if (domainInput.trim()) {
+      dispatch(clearError());
       dispatch(analyzeDomain(domainInput.trim()));
     }
   };
@@ -104,6 +125,18 @@ function OsintPanel() {
         <IconSearch size={20} style={{ color: 'var(--mantine-color-osintBlue-6)' }} />
         <Title order={4}>OSINT Tools</Title>
       </Group>
+
+      {error && (
+        <Alert
+          color="red"
+          title="Query Error"
+          icon={<IconAlertTriangle size={16} />}
+          withCloseButton
+          onClose={() => dispatch(clearError())}
+        >
+          {error}
+        </Alert>
+      )}
 
       <Tabs defaultValue="phone">
         <Tabs.List grow>
@@ -287,18 +320,22 @@ function OsintPanel() {
 
                     <Divider label="Platform Links" labelPosition="left" />
                     <SimpleGrid cols={2} spacing="xs">
-                      {usernameAnalysis?.platforms.map((platform, i) => (
-                        <Paper key={i} p="xs" withBorder>
-                          <Group justify="space-between">
-                            <Text size="xs">{platform.platform}</Text>
-                            <Anchor href={platform.url} target="_blank" rel="noopener noreferrer">
-                              <ActionIcon variant="subtle" size="xs">
-                                <IconExternalLink size={14} />
-                              </ActionIcon>
-                            </Anchor>
-                          </Group>
-                        </Paper>
-                      ))}
+                      {usernameAnalysis?.platforms?.length ? (
+                        usernameAnalysis.platforms.map((platform, i) => (
+                          <Paper key={i} p="xs" withBorder>
+                            <Group justify="space-between">
+                              <Text size="xs">{platform.platform}</Text>
+                              <Anchor href={platform.url} target="_blank" rel="noopener noreferrer">
+                                <ActionIcon variant="subtle" size="xs">
+                                  <IconExternalLink size={14} />
+                                </ActionIcon>
+                              </Anchor>
+                            </Group>
+                          </Paper>
+                        ))
+                      ) : (
+                        <Text size="xs" c="dimmed">No platforms found.</Text>
+                      )}
                     </SimpleGrid>
 
                     <Divider label="Search Tools" labelPosition="left" />
@@ -349,17 +386,17 @@ function OsintPanel() {
                     </Group>
 
                     <SimpleGrid cols={3} spacing="xs">
-                      <Anchor href={domainAnalysis?.whois_url} target="_blank">
+                      <Anchor href={domainAnalysis?.whois_url} target="_blank" rel="noopener noreferrer">
                         <Paper p="xs" withBorder style={{ textAlign: 'center', cursor: 'pointer' }}>
                           <Text size="xs" fw={500}>WHOIS</Text>
                         </Paper>
                       </Anchor>
-                      <Anchor href={domainAnalysis?.dns_url} target="_blank">
+                      <Anchor href={domainAnalysis?.dns_url} target="_blank" rel="noopener noreferrer">
                         <Paper p="xs" withBorder style={{ textAlign: 'center', cursor: 'pointer' }}>
                           <Text size="xs" fw={500}>DNS</Text>
                         </Paper>
                       </Anchor>
-                      <Anchor href={domainAnalysis?.subdomains_url} target="_blank">
+                      <Anchor href={domainAnalysis?.subdomains_url} target="_blank" rel="noopener noreferrer">
                         <Paper p="xs" withBorder style={{ textAlign: 'center', cursor: 'pointer' }}>
                           <Text size="xs" fw={500}>Subdomains</Text>
                         </Paper>
