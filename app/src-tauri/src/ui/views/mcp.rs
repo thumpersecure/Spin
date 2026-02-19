@@ -4,13 +4,13 @@
 
 use iced::{
     widget::{button, column, container, row, rule, scrollable, text, text_input},
-    Alignment, Element, Fill, Length, Padding,
+    Alignment, Element, Fill, Padding,
 };
 
 use crate::ui::messages::Message;
 use crate::ui::state::{AppState, ChatRole};
 use crate::ui::theme::colors;
-use crate::ui::views::identity::{active_btn_style, ghost_btn_style, input_style, panel_header};
+use crate::ui::views::identity::{active_btn_style, input_style, panel_header};
 
 pub fn mcp_panel(state: &AppState) -> Element<Message> {
     let header = panel_header("MCP Agents");
@@ -22,10 +22,11 @@ pub fn mcp_panel(state: &AppState) -> Element<Message> {
             .color(colors::TEXT_MUTED)
             .into()
     } else {
-        let mut btns = row![].spacing(4).wrap();
-        for agent in &state.agents {
-            let is_selected = state.selected_agent.as_deref() == Some(&agent.id);
-            btns = btns.push(
+        let buttons: Vec<Element<Message>> = state
+            .agents
+            .iter()
+            .map(|agent| {
+                let is_selected = state.selected_agent.as_deref() == Some(&agent.id);
                 button(text(&agent.name).size(11).color(if is_selected {
                     colors::TEXT
                 } else {
@@ -46,10 +47,11 @@ pub fn mcp_panel(state: &AppState) -> Element<Message> {
                         radius: 4.0.into(),
                     },
                     ..Default::default()
-                }),
-            );
-        }
-        btns.into()
+                })
+                .into()
+            })
+            .collect();
+        iced::widget::Row::with_children(buttons).spacing(4).into()
     };
 
     // Chat history
@@ -129,12 +131,3 @@ pub fn mcp_panel(state: &AppState) -> Element<Message> {
     .into()
 }
 
-// Allow row to wrap (iced 0.13)
-trait RowWrap {
-    fn wrap(self) -> Self;
-}
-impl<'a, Message: Clone + 'a> RowWrap for iced::widget::Row<'a, Message> {
-    fn wrap(self) -> Self {
-        self // iced 0.13: wrapping rows via Flex are WIP; this is a no-op for now
-    }
-}

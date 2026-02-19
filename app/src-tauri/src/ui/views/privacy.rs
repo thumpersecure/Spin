@@ -4,7 +4,7 @@
 
 use iced::{
     widget::{button, column, container, row, rule, text},
-    Alignment, Element, Fill, Length, Padding,
+    Alignment, Element, Fill, Padding,
 };
 
 use crate::core::privacy_engine::OpsecLevel;

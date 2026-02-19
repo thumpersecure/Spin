@@ -4,13 +4,13 @@
 
 use iced::{
     widget::{button, column, container, row, rule, scrollable, text, text_input},
-    Alignment, Element, Fill, Length, Padding,
+    Alignment, Element, Fill, Padding,
 };
 
 use crate::ui::messages::Message;
 use crate::ui::state::{AppState, OsintMode};
 use crate::ui::theme::colors;
-use crate::ui::views::identity::{active_btn_style, ghost_btn_style, input_style, panel_header};
+use crate::ui::views::identity::{active_btn_style, input_style, panel_header};
 
 pub fn osint_panel(state: &AppState) -> Element<Message> {
     let header = panel_header("OSINT Tools");
