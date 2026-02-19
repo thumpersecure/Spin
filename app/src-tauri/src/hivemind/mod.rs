@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::RwLock;
-use tauri::AppHandle;
 
 /// Hivemind event types
 #[derive(Debug, Clone, Serialize)]
@@ -58,7 +57,7 @@ static LISTENERS: RwLock<Option<HashMap<u64, Box<dyn Fn(HivemindEvent) + Send + 
     RwLock::new(None);
 
 /// Initialize the Hivemind system
-pub fn init(_app_handle: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+pub fn init() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("Initializing Hivemind collective intelligence system");
 
     // Clear any existing listeners and initialize the map

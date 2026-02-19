@@ -345,16 +345,14 @@ impl CefManager {
     }
 }
 
-/// Initialize the global CEF manager
-pub fn init(app_handle: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+/// Initialize the global CEF manager.
+///
+/// `data_dir` is the application data directory (e.g. `~/.local/share/spin`).
+/// CEF context data is stored under `<data_dir>/cef/`.
+pub fn init(data_dir: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("Initializing CEF (Chromium Embedded Framework) module");
 
-    let app_data_dir = app_handle
-        .path()
-        .app_data_dir()
-        .map_err(|e| format!("Failed to get app data dir: {}", e))?;
-
-    let cef_data_dir = app_data_dir.join("cef");
+    let cef_data_dir = data_dir.join("cef");
 
     let mut manager = CefManager::new(cef_data_dir);
     manager.initialize()?;
@@ -419,4 +417,3 @@ fn validate_url(url: &str) -> Result<String, String> {
     }
 }
 
-use tauri::Manager;

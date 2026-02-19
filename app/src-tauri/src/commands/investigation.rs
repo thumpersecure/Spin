@@ -14,7 +14,6 @@ use tracing::info;
 pub type InvestigationResult<T> = Result<T, String>;
 
 /// Create a new investigation
-#[tauri::command]
 pub async fn create_investigation(
     name: String,
     description: String,
@@ -33,7 +32,6 @@ pub async fn create_investigation(
 }
 
 /// Get all investigations (summaries)
-#[tauri::command]
 pub async fn get_all_investigations() -> InvestigationResult<Vec<InvestigationSummary>> {
     investigation::with_investigations(|store| {
         Ok(store.values().map(|inv| inv.to_summary()).collect())
@@ -41,7 +39,6 @@ pub async fn get_all_investigations() -> InvestigationResult<Vec<InvestigationSu
 }
 
 /// Get a single investigation by ID (full data)
-#[tauri::command]
 pub async fn get_investigation(
     id: String,
 ) -> InvestigationResult<crate::investigation::Investigation> {
@@ -54,7 +51,6 @@ pub async fn get_investigation(
 }
 
 /// Add a timeline event to an investigation
-#[tauri::command]
 pub async fn add_timeline_event(
     investigation_id: String,
     event_type: String,
@@ -101,7 +97,6 @@ pub async fn add_timeline_event(
 }
 
 /// Add a node to the investigation graph
-#[tauri::command]
 pub async fn add_graph_node(
     investigation_id: String,
     node_id: String,
@@ -138,7 +133,6 @@ pub async fn add_graph_node(
 }
 
 /// Add an edge to the investigation graph
-#[tauri::command]
 pub async fn add_graph_edge(
     investigation_id: String,
     source: String,
@@ -176,7 +170,6 @@ pub async fn add_graph_edge(
 }
 
 /// Get the graph data for an investigation
-#[tauri::command]
 pub async fn get_investigation_graph(
     investigation_id: String,
 ) -> InvestigationResult<InvestigationGraph> {
@@ -189,7 +182,6 @@ pub async fn get_investigation_graph(
 }
 
 /// Get timeline events for an investigation
-#[tauri::command]
 pub async fn get_investigation_timeline(
     investigation_id: String,
     event_type_filter: Option<String>,
@@ -213,7 +205,6 @@ pub async fn get_investigation_timeline(
 }
 
 /// Update investigation status
-#[tauri::command]
 pub async fn update_investigation_status(
     investigation_id: String,
     status: String,
@@ -231,7 +222,6 @@ pub async fn update_investigation_status(
 }
 
 /// Delete an investigation
-#[tauri::command]
 pub async fn delete_investigation(investigation_id: String) -> InvestigationResult<()> {
     info!("Deleting investigation: {}", investigation_id);
 
@@ -244,7 +234,6 @@ pub async fn delete_investigation(investigation_id: String) -> InvestigationResu
 }
 
 /// Export investigation as JSON
-#[tauri::command]
 pub async fn export_investigation(
     investigation_id: String,
 ) -> InvestigationResult<InvestigationExport> {

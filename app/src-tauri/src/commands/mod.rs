@@ -1,6 +1,7 @@
 //! Spin Command Handlers
 //!
-//! IPC command handlers for communication with the React frontend.
+//! Service-layer functions called directly from the iced UI (no IPC needed).
+//! Previously exposed over Tauri IPC to the React frontend.
 //! Spin v12 - Jessica Jones
 
 pub mod browser;
