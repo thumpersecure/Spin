@@ -4,7 +4,7 @@
 
 use iced::{
     widget::{button, column, container, row, rule, scrollable, text},
-    Alignment, Element, Fill, Length, Padding,
+    Alignment, Element, Fill, Padding,
 };
 
 use crate::core::entity::EntityType;
@@ -52,7 +52,7 @@ pub fn hivemind_panel(state: &AppState) -> Element<Message> {
             let row_view = row![
                 container(text(type_label).size(10).color(type_color))
                     .padding(Padding::new(2.0).left(6.0).right(6.0))
-                    .style(|_| iced::widget::container::Style {
+                    .style(move |_| iced::widget::container::Style {
                         background: Some(iced::Background::Color(iced::Color {
                             a: 0.15,
                             ..type_color
@@ -122,11 +122,10 @@ fn entity_type_label(et: &EntityType) -> &'static str {
         EntityType::CreditCard => "CC",
         EntityType::Ssn => "SSN",
         EntityType::Date => "DATE",
-        EntityType::Coordinates => "GEO",
+        EntityType::Coordinate => "GEO",
         EntityType::MacAddress => "MAC",
         EntityType::Uuid => "UUID",
         EntityType::Hashtag => "#TAG",
-        EntityType::SocialHandle => "@USER",
         EntityType::Custom(_) => "CUSTOM",
         _ => "OTHER",
     }

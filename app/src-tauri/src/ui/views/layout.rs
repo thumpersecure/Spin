@@ -14,7 +14,7 @@
 
 use iced::{
     widget::{column, container, row},
-    Element, Fill, Length,
+    Element, Fill,
 };
 
 use crate::ui::messages::Message;

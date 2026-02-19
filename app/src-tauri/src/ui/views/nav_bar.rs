@@ -3,9 +3,8 @@
 //! Replaces NavBar.tsx from the React frontend.
 
 use iced::{
-    keyboard,
     widget::{button, container, row, text, text_input},
-    Element, Fill, Length, Padding,
+    Element, Fill, Padding,
 };
 
 use crate::ui::messages::Message;
