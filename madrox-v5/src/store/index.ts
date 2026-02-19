@@ -15,6 +15,8 @@ import mcpReducer from './slices/mcpSlice';
 import osintReducer from './slices/osintSlice';
 import uiReducer from './slices/uiSlice';
 import privacyReducer from './slices/privacySlice';
+import investigationReducer from './slices/investigationSlice';
+import sessionReducer from './slices/sessionSlice';
 
 export const store = configureStore({
   reducer: {
@@ -25,6 +27,8 @@ export const store = configureStore({
     osint: osintReducer,
     ui: uiReducer,
     privacy: privacyReducer,
+    investigation: investigationReducer,
+    session: sessionReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

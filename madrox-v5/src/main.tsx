@@ -1,7 +1,7 @@
 /**
- * MADROX v5.0 - Entry Point
+ * MADROX v12.0.0 "Jessica Jones" - Entry Point
  *
- * "I am Legion, for we are many."
+ * "Every case starts with a question. Every answer leads to another."
  */
 
 import React from 'react';
