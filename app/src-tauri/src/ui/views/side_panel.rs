@@ -3,8 +3,8 @@
 //! Replaces SidePanel.tsx + the panel-routing in App.tsx.
 
 use iced::{
-    widget::{button, column, container, row, rule, text, vertical_rule},
-    Alignment, Element, Fill, Length, Padding,
+    widget::{button, column, container, row, text, vertical_rule},
+    Element, Fill, Padding,
 };
 
 use crate::ui::messages::Message;

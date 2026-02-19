@@ -23,7 +23,7 @@ use crate::ui::views::{browser_view, nav_bar, side_panel, tab_bar, title_bar};
 use crate::ui::theme::colors;
 
 pub fn main_layout(state: &AppState) -> Element<Message> {
-    let sidebar_width = if state.sidebar_collapsed { 48.0 } else { 280.0 };
+    let _sidebar_width = if state.sidebar_collapsed { 48.0 } else { 280.0 };
 
     let chrome = column![
         // Custom title bar (frameless window drag area)

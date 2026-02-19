@@ -3,6 +3,7 @@
 //! Each identity has a unique browser fingerprint to prevent tracking
 //! and maintain separation between dupes.
 
+use rand::seq::SliceRandom;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};

@@ -3,8 +3,8 @@
 //! Replaces SettingsPanel.tsx from the React frontend.
 
 use iced::{
-    widget::{button, checkbox, column, container, row, rule, text, text_input},
-    Alignment, Element, Fill, Length, Padding,
+    widget::{button, column, container, row, rule, text, text_input},
+    Alignment, Element, Fill, Padding,
 };
 
 use crate::ui::messages::Message;
@@ -17,12 +17,6 @@ pub fn settings_panel(state: &AppState) -> Element<Message> {
 
     // Claude API key section
     let api_label = text("Claude API Key").size(12).color(colors::TEXT_MUTED);
-
-    let key_display = if state.api_key_visible {
-        state.claude_api_key.clone()
-    } else {
-        "•".repeat(state.claude_api_key.len().min(32))
-    };
 
     let api_input = text_input("sk-ant-…", &state.claude_api_key)
         .on_input(Message::ApiKeyChanged)
@@ -58,7 +52,7 @@ pub fn settings_panel(state: &AppState) -> Element<Message> {
         .align_y(Alignment::Center);
 
     // Version info
-    let version = text("Spin v12.0.3 — Jessica Jones Edition")
+    let version = text("Spin v12.1.3 — Jessica Jones Edition")
         .size(11)
         .color(colors::TEXT_MUTED);
 

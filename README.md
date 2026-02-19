@@ -1,4 +1,4 @@
-# Spin v12.0.3
+# Spin v12.1.3
 
 ```
 +=========================================================================================+
@@ -27,7 +27,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-12.0.3-8B008B?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-12.1.3-8B008B?style=for-the-badge)
 ![Codename](https://img.shields.io/badge/codename-Jessica_Jones-4B0082?style=for-the-badge)
 ![iced](https://img.shields.io/badge/iced-0.13-blueviolet?style=for-the-badge)
 ![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge)
@@ -43,7 +43,7 @@
 **A private investigator doesn't need superpowers. She needs the right tools,**
 **the right identities, and the nerve to dig where nobody else dares.**
 
-[Case Files](#case-files) | [What's New](#whats-new-in-v1203) | [The Office](#architecture--the-office) | [Getting Started](#getting-started) | [Field Manual](#field-manual)
+[Case Files](#case-files) | [What's New](#whats-new-in-v1213) | [The Office](#architecture--the-office) | [Getting Started](#getting-started) | [Field Manual](#field-manual)
 
 ---
 
@@ -140,7 +140,7 @@ Sometimes you need to hand off a case. Sometimes you need a second pair of eyes 
 
 Every good PI keeps meticulous notes. Spin does it automatically. Every entity discovered, every connection made, every pivot point in your investigation -- logged, timestamped, and visualized.
 
-- **D3.js Force-Directed Graph** -- Entity relationship visualization that reveals connections invisible to the naked eye
+- **Force-Directed Entity Graph** -- Native Rust entity relationship visualization (iced 0.13) that reveals connections invisible to the naked eye
 - **Timeline Events** -- Chronological investigation playback
 - **Graph Nodes & Edges** -- Entities as nodes, relationships as edges, weighted by confidence
 - **Export** -- Take your evidence board digital and portable
@@ -227,7 +227,7 @@ Auto-adjusts based on site risk assessment. Trusted OSINT sites (Shodan, HIBP, C
 
 ```
 +=========================================================================================+
-|                       S P I N   v 1 2 . 0 . 3                                          |
+|                       S P I N   v 1 2 . 1 . 3                                          |
 |                    " J E S S I C A   J O N E S "                                        |
 +=========================================================================================+
 |                                                                                         |
@@ -400,7 +400,7 @@ Click any identity card. Tabs, cookies, sessions -- **completely isolated**. Lik
 
 1. Open the **Investigation** panel
 2. View the chronological timeline of your investigation
-3. Switch to **Graph** view for D3.js entity relationship visualization
+3. Switch to **Graph** view for native Rust entity relationship visualization
 4. Click nodes to expand connections, drag to rearrange
 5. Export your investigation state at any time
 
@@ -421,13 +421,24 @@ Click any identity card. Tabs, cookies, sessions -- **completely isolated**. Lik
 
 ---
 
-## What's New in v12.0.3
+## What's New in v12.1.3
 
 > *"New tools. Same attitude."*
 
-### "Jessica Jones" Release
+### v12.1.3 — Bug Fix Release
 
-This release delivers the four major capabilities that were on the roadmap -- embedded Chromium, session cloning, investigation visualization, and full AI integration -- along with a complete architectural overhaul that eliminates the NPM dependency chain entirely.
+- Fixed `EntityType::Coordinate` variant name (was incorrectly referenced as `Coordinates`)
+- Removed non-existent `EntityType::SocialHandle` match arm from Hivemind panel
+- Fixed borrow-checker error in entity type color closure (added `move` semantics)
+- Fixed `Row::with_children()` usage — iced 0.13 `Row::wrap()` returns `row::Wrapping` which has no `push()`; replaced with Vec-collection pattern
+- Fixed `SliceRandom` trait not in scope for fingerprint device memory selection
+- Fixed `InvestigationsLoaded` type mismatch: `create_investigation` returns `Investigation`, converted to `InvestigationSummary` via `.to_summary()`
+- Fixed `SaveApiKey` handler: `set_claude_api_key` returns `Result<bool>`, not `Result<()`>`
+- Removed all unused imports (`Length`, `keyboard`, `checkbox`, `button`, `ghost_btn_style`) across view files
+
+### v12.0 — "Jessica Jones" Initial Release
+
+This release delivered the four major capabilities on the roadmap -- embedded Chromium, session cloning, investigation visualization, and full AI integration -- along with a complete architectural overhaul that eliminates the NPM dependency chain entirely.
 
 **Pure Rust GUI (iced 0.13 + wry 0.44)**
 - Replaced React/TypeScript/Vite/NPM frontend with a native Rust GUI
@@ -448,7 +459,7 @@ This release delivers the four major capabilities that were on the roadmap -- em
 - Domain filtering for selective cloning
 
 **Investigation Timeline & Graph**
-- D3.js force-directed entity relationship graph visualization
+- Native Rust force-directed entity relationship graph visualization (iced 0.13)
 - Chronological investigation timeline with event tracking
 - Graph nodes and edges with confidence-weighted relationships
 - Full investigation state export
@@ -482,7 +493,7 @@ This release delivers the four major capabilities that were on the roadmap -- em
 ## Version History
 
 ```
-v12.0.3 ████████████████████  CURRENT -- "Jessica Jones"
+v12.1.3 ████████████████████  CURRENT -- "Jessica Jones"
         └─ Pure Rust GUI (iced + wry), CEF, Session Cloning, Investigation Graph, Claude MCP
 
 v5.0    ████████████████████
@@ -508,7 +519,7 @@ v1.0    ████████████████████
 > *"I don't plan ahead. But sometimes the case demands it."*
 
 ```
-v12.0.3 ████████████████████  CURRENT -- "Jessica Jones"
+v12.1.3 ████████████████████  CURRENT -- "Jessica Jones"
         └─ Pure Rust, CEF, Session Cloning, Investigation Graph, Claude MCP Server
 
 v13.0   ░░░░░░░░░░░░░░░░░░░░  NEXT
@@ -568,12 +579,12 @@ MIT License - See [LICENSE](LICENSE) for details.
 ║    │  Identities... managed.              │              ║
 ║    └──────────────────────────────────────┘              ║
 ║                                                          ║
-║            Spin v12.0.3 - "Jessica Jones"                ║
+║            Spin v12.1.3 - "Jessica Jones"                ║
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝
 ```
 
-**Spin v12.0.3** - *"Jessica Jones"*
+**Spin v12.1.3** - *"Jessica Jones"*
 
 *"I'm not a hero. I'm a private investigator. Now get out of my office."*
 

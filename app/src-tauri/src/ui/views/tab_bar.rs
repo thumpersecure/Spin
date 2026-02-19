@@ -4,7 +4,7 @@
 
 use iced::{
     widget::{button, container, horizontal_space, row, scrollable, text},
-    Element, Fill, Length, Padding,
+    Element, Fill, Padding,
 };
 
 use crate::ui::messages::Message;
@@ -34,7 +34,7 @@ pub fn tab_bar(state: &AppState) -> Element<Message> {
         )
         .on_press(Message::SelectTab(i))
         .padding(Padding::ZERO.top(6.0).bottom(6.0).left(10.0).right(4.0))
-        .style(move |theme, status| {
+        .style(move |_theme, _status| {
             let base = button::Style {
                 background: Some(iced::Background::Color(if is_active {
                     colors::BG_INPUT

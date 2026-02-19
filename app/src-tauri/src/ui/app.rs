@@ -460,7 +460,7 @@ impl SpinApp {
                 Task::perform(
                     commands::investigation::create_investigation(name, String::new()),
                     |res| match res {
-                        Ok(inv) => Message::InvestigationsLoaded(vec![inv]),
+                        Ok(inv) => Message::InvestigationsLoaded(vec![inv.to_summary()]),
                         Err(e) => Message::SetStatus(format!("Error: {}", e)),
                     },
                 )
@@ -487,7 +487,7 @@ impl SpinApp {
                 Task::perform(
                     commands::mcp::set_claude_api_key(key),
                     |res| match res {
-                        Ok(()) => Message::SetStatus("Claude API key saved.".to_string()),
+                        Ok(_) => Message::SetStatus("Claude API key saved.".to_string()),
                         Err(e) => Message::SetStatus(format!("Error: {}", e)),
                     },
                 )
