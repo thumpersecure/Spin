@@ -294,7 +294,7 @@ sudo apt install libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev
 ```bash
 # Clone the repository
 git clone https://github.com/thumpersecure/Spin.git
-cd Spin/madrox-v5
+cd Spin/app
 
 # Install dependencies
 npm install

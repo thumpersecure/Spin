@@ -26,3 +26,5 @@ npm-debug.log*
 # Electron
 .electron/
 coverage/
+app/src-tauri/target/
+app/node_modules/
