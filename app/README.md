@@ -8,39 +8,45 @@ The **Jessica Jones** release transforms Spin into a full-fledged investigation 
 
 - **Embedded Chromium (CEF)** with per-identity fingerprint control
 - **Secure Session Cloning** between identities with integrity verification
-- **Investigation Timeline & Graph** - D3.js force-directed entity visualization
+- **Investigation Timeline & Graph** - force-directed entity visualization
 - **Claude AI MCP Server** - 8 specialized agents with shared context tool routing
-- **9 new Rust modules**, 30+ new IPC commands, 2 new Redux slices
+- **Pure Rust GUI** - iced 0.13 + wry 0.44, zero JavaScript runtime
 
 See the [root README](../README.md) for full documentation.
 
 ## Quick Start
 
 ```bash
-cd app
-npm install
-npm run tauri:dev
+cd app/src-tauri
+cargo run
+```
+
+For a release build:
+
+```bash
+cd app/src-tauri
+cargo build --release
+./target/release/spin
 ```
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Runtime | Tauri 2.0 |
-| Frontend | React 19 + TypeScript 5.x |
-| State | Redux Toolkit 2.x |
-| UI | Mantine 8 + Tabler Icons 3 |
+| GUI | iced 0.13 (Elm-style) |
+| WebView | wry 0.44 (embedded Chromium) |
+| State | AppState + Message enum |
 | Backend | Rust 1.75+ |
 | Browser | Chromium (CEF) |
 | Database | sled (embedded KV) |
 | AI | Claude API (MCP) |
-| Build | Vite 7.x |
+| Build | Cargo |
 
 ## Architecture
 
 ```
-React Frontend (9 Redux slices)
-    ↕ Tauri IPC (70+ commands)
+iced 0.13 GUI (AppState + Message enum)
+    ↕ Direct Rust fn calls (no IPC)
 Rust Backend
 ├── cef/           # Chromium Embedded Framework
 ├── session/       # Session cloning

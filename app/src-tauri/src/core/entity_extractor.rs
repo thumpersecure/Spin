@@ -38,7 +38,7 @@ lazy_static! {
 
     // URL pattern
     static ref URL_REGEX: Regex = Regex::new(
-        r"https?://[^\s<>\[\]{}|\\^`\"]+"
+        r#"https?://[^\s<>\[\]{}|\\^`\"]+"#
     ).unwrap();
 
     // Username pattern (common formats: @user, /u/user)
