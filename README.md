@@ -29,9 +29,9 @@
 
 ![Version](https://img.shields.io/badge/version-12.0.3-8B008B?style=for-the-badge)
 ![Codename](https://img.shields.io/badge/codename-Jessica_Jones-4B0082?style=for-the-badge)
-![Tauri](https://img.shields.io/badge/Tauri-2.0-blue?style=for-the-badge)
-![React](https://img.shields.io/badge/React-19-cyan?style=for-the-badge)
+![iced](https://img.shields.io/badge/iced-0.13-blueviolet?style=for-the-badge)
 ![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge)
+![Zero NPM](https://img.shields.io/badge/NPM-zero-red?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=for-the-badge)
 ![OSINT](https://img.shields.io/badge/OSINT-Investigation_Browser-purple?style=for-the-badge)
@@ -43,7 +43,7 @@
 **A private investigator doesn't need superpowers. She needs the right tools,**
 **the right identities, and the nerve to dig where nobody else dares.**
 
-[Case Files](#-case-files) | [What's New](#-whats-new-in-v1203) | [The Office](#%EF%B8%8F-architecture--the-office) | [Getting Started](#-getting-started) | [Field Manual](#-field-manual)
+[Case Files](#case-files) | [What's New](#whats-new-in-v1203) | [The Office](#architecture--the-office) | [Getting Started](#getting-started) | [Field Manual](#field-manual)
 
 ---
 
@@ -232,29 +232,29 @@ Auto-adjusts based on site risk assessment. Trusted OSINT sites (Shodan, HIBP, C
 +=========================================================================================+
 |                                                                                         |
 |   +-------------------------------------------------------------------------+           |
-|   |                      R E A C T   F R O N T E N D                        |           |
+|   |                   i c e d   0 . 1 3   G U I   ( P u r e   R u s t )     |           |
 |   |  +----------+ +----------+ +----------+ +----------+ +----------+       |           |
 |   |  | Browser  | | Identity | | Hivemind | |   MCP    | | Privacy  |       |           |
 |   |  |   Tabs   | |  Panel   | |  Panel   | |  Panel   | |Dashboard |       |           |
 |   |  +-----+----+ +-----+----+ +----+-----+ +----+-----+ +----+-----+       |           |
 |   |  +----------+ +----------+ +----------+                                 |           |
-|   |  |Investig. | | Session  | |  OSINT   |                                 |           |
-|   |  | Timeline | | Manager  | |  Panel   |                                 |           |
+|   |  |Investig. | | Settings | |  OSINT   |                                 |           |
+|   |  | Timeline | |  Panel   | |  Panel   |                                 |           |
 |   |  +-----+----+ +-----+----+ +----+-----+                                 |           |
 |   |        +----------+---+----------+---+----------+---+----------+        |           |
 |   |                                  |                                      |           |
 |   |         +------------------------+------------------------+             |           |
-|   |         |            REDUX TOOLKIT STORE                  |             |           |
+|   |         |   AppState + Message enum (Elm architecture)    |             |           |
 |   |         |   [tabs] [identity] [hivemind] [mcp] [osint]    |             |           |
-|   |         |   [ui] [privacy] [investigation] [session]      |             |           |
+|   |         |   [ui] [privacy] [investigation] [settings]     |             |           |
 |   |         +------------------------+------------------------+             |           |
 |   +----------------------------------+----------------------------------+   |           |
-|                                      | IPC (Tauri Commands)                 |           |
+|                                      | Direct Rust fn calls (no IPC)        |           |
 |   +----------------------------------+----------------------------------+   |           |
-|   |               T A U R I   R U S T   B A C K E N D                   |   |           |
+|   |                    R U S T   B A C K E N D                           |   |           |
 |   |              +-----------------------------+                        |   |           |
-|   |              |      COMMAND HANDLERS       |                        |   |           |
-|   |              |       (30+ IPC Commands)     |                        |   |           |
+|   |              |     SERVICE LAYER           |                        |   |           |
+|   |              |   (commands/ modules)        |                        |   |           |
 |   |              +-------------+---------------+                        |   |           |
 |   |    +----------+-----+------+------+----------+----------+           |   |           |
 |   |    v          v     v      v      v          v          v           |   |           |
@@ -270,6 +270,8 @@ Auto-adjusts based on site risk assessment. Trusted OSINT sites (Shodan, HIBP, C
 |   |                 +-------------------------+                         |   |           |
 |   +---------------------------------------------------------------------+   |           |
 |                                                                             |           |
+|   Embedded browser window handled by wry 0.44 (WebView)                    |           |
+|                                                                             |           |
 +=========================================================================================+
 ```
 
@@ -277,18 +279,16 @@ Auto-adjusts based on site risk assessment. Trusted OSINT sites (Shodan, HIBP, C
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
-| **Runtime** | Tauri 2.0 | Secure desktop framework |
-| **Frontend** | React 19 + TypeScript 5.x | Modern reactive UI |
-| **UI Library** | Mantine 8 | Component library |
-| **State** | Redux Toolkit 2.x | Predictable state management |
-| **Backend** | Rust 1.75+ | Performance, safety, and system access |
+| **GUI Framework** | iced 0.13 | Pure Rust native GUI (Elm architecture) |
+| **Browser View** | wry 0.44 | Embedded WebView for browsing pane |
+| **Language** | Rust 1.75+ | Performance, safety, and system access |
+| **State** | AppState + Message enum | Replaces Redux — Elm-style update loop |
 | **Browser Engine** | CEF (Chromium Embedded Framework) | Full fingerprint-controlled browsing |
 | **Database** | sled | Embedded key-value store |
-| **Visualization** | D3.js | Force-directed graph and timeline |
 | **AI** | Claude API (MCP) | 8 specialized investigation agents |
-| **Build** | Vite 7 | Fast development and bundling |
+| **Build** | Cargo | Zero NPM — pure Rust toolchain |
 
-The frontend handles the UI, identity management, and investigation visualization. The Rust backend handles the heavy lifting: CEF orchestration, fingerprint injection, session cloning, MCP server routing, and all the security-critical operations that should never run in a renderer process.
+v12 is **100% Rust, zero NPM**. The iced GUI framework handles all UI natively. The wry WebView provides the embedded browser pane. The Rust service layer replaces the old Tauri IPC bridge — all commands are direct async function calls from the update loop.
 
 ---
 
@@ -303,12 +303,9 @@ The frontend handles the UI, identity management, and investigation visualizatio
 │   Option A: Interactive Installer (recommended)              │
 │   $ bash install.sh                                          │
 │                                                              │
-│   Option B: Manual Install                                   │
+│   Option B: Manual (Cargo)                                   │
 │   $ git clone https://github.com/thumpersecure/Spin.git     │
-│   $ cd Spin/app && npm install && npm run tauri:dev          │
-│                                                              │
-│   Option C: Web Version (no install needed)                  │
-│   Visit: https://thumpersecure.github.io/Spin               │
+│   $ cd Spin/app/src-tauri && cargo run                       │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
 ```
@@ -317,12 +314,24 @@ The frontend handles the UI, identity management, and investigation visualizatio
 
 ```bash
 # Required
-Node.js 20+
-Rust 1.75+
-Tauri CLI 2.0+
+Rust 1.75+    (https://rustup.rs)
+Git
 
-# Linux (Parrot OS / Debian-based)
-sudo apt install libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
+# Linux (Debian/Ubuntu/Parrot/Kali)
+sudo apt install \
+    libgtk-3-dev libwebkit2gtk-4.1-dev \
+    libayatana-appindicator3-dev librsvg2-dev \
+    libssl-dev libxdo-dev build-essential
+
+# Linux (Fedora/RHEL)
+sudo dnf install gtk3-devel webkit2gtk4.1-devel \
+    libappindicator-gtk3-devel librsvg2-devel openssl-devel
+
+# Linux (Arch/Manjaro)
+sudo pacman -S gtk3 webkit2gtk-4.1 libappindicator-gtk3 librsvg openssl
+
+# macOS — no extra dependencies required (Xcode CLT handles it)
+xcode-select --install
 ```
 
 ### Installation (Interactive)
@@ -330,7 +339,6 @@ sudo apt install libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev
 The recommended way to install Spin:
 
 ```bash
-# Download and run the interactive installer
 git clone https://github.com/thumpersecure/Spin.git
 cd Spin
 bash install.sh
@@ -343,16 +351,14 @@ The installer handles everything: dependency checking, old version detection, sy
 ```bash
 # Clone the repository
 git clone https://github.com/thumpersecure/Spin.git
-cd Spin/app
+cd Spin/app/src-tauri
 
-# Install dependencies
-npm install
-
-# Development mode (hot reload)
-npm run tauri:dev
+# Development mode (compiles and runs)
+cargo run
 
 # Production build
-npm run tauri:build
+cargo build --release
+# Binary: ./target/release/spin
 ```
 
 ### Platform Binaries
@@ -365,12 +371,6 @@ Pre-built binaries are available via [GitHub Releases](https://github.com/thumpe
 | **macOS** | `.dmg` | Drag to Applications |
 | **Linux** | `.AppImage`, `.deb` | AppImage or Debian package |
 
-### Web Version
-
-Don't want to install anything? Try the [Spin Web Mini Toolkit](https://thumpersecure.github.io/Spin) -- a lightweight, client-side OSINT toolkit that runs entirely in your browser.
-
-> *"Sometimes you can't install software on a client's machine. That's what the web version is for."*
-
 ---
 
 ## Field Manual
@@ -379,9 +379,9 @@ Don't want to install anything? Try the [Spin Web Mini Toolkit](https://thumpers
 
 ### Spawning Identities (Dupes)
 
-1. Click **Identities** in the title bar (or `Ctrl+I`)
-2. Click **"Spawn Dupe"**
-3. Name your cover (e.g., "Ghost", "Analyst", "Burner")
+1. Click **Identities** in the side panel
+2. Type a name in the input field (e.g., "Ghost", "Analyst", "Burner")
+3. Click **Create**
 4. Spin generates a unique fingerprint automatically
 
 ### Switching Identities
@@ -427,7 +427,14 @@ Click any identity card. Tabs, cookies, sessions -- **completely isolated**. Lik
 
 ### "Jessica Jones" Release
 
-This release delivers the four major capabilities that were on the roadmap -- embedded Chromium, session cloning, investigation visualization, and full AI integration -- along with significant backend expansion.
+This release delivers the four major capabilities that were on the roadmap -- embedded Chromium, session cloning, investigation visualization, and full AI integration -- along with a complete architectural overhaul that eliminates the NPM dependency chain entirely.
+
+**Pure Rust GUI (iced 0.13 + wry 0.44)**
+- Replaced React/TypeScript/Vite/NPM frontend with a native Rust GUI
+- iced 0.13 Elm-style architecture: `AppState` struct + `Message` enum replaces 9 Redux slices
+- wry 0.44 provides the embedded browser WebView pane
+- Zero NPM packages — single `cargo build` from clone to binary
+- All UI panels ported to Rust: title bar, tabs, nav bar, identity, hivemind, MCP, OSINT, privacy, investigation, settings
 
 **Embedded Chromium via CEF**
 - Full Chromium Embedded Framework integration with per-identity browser contexts
@@ -452,12 +459,6 @@ This release delivers the four major capabilities that were on the roadmap -- em
 - Full Claude API integration with streaming responses
 - Shared context window across all agents for cross-referencing
 
-**Backend Expansion**
-- 9 new Rust modules (CEF core, session cloner, investigation tracker, MCP server, and more)
-- 30+ new Tauri IPC commands
-- 2 new Redux slices: `investigation` and `session`
-- 3 new React component families: Investigation (Timeline, Graph, Export), Session (ClonePanel, CloneHistory, IntegrityView), and CEF (BrowserInstance, FingerprintConfig, ContextManager)
-
 ---
 
 ## Security Model
@@ -466,16 +467,14 @@ This release delivers the four major capabilities that were on the roadmap -- em
 
 | Feature | Implementation |
 |---------|----------------|
-| **Context Isolation** | Full Tauri sandbox + CEF process isolation |
-| **No Node.js in Renderer** | Pure browser context, no backend access |
+| **Zero JavaScript Runtime** | Pure Rust — no JS execution surface in the host app |
+| **Context Isolation** | CEF process isolation — each identity is a sandboxed Chromium process |
 | **Encrypted Storage** | sled with optional encryption at rest |
-| **Input Validation** | All IPC messages validated with length limits (1000 char cap) |
+| **Input Validation** | All inputs validated in the Rust service layer with length limits (1000 char cap) |
 | **URL Filtering** | Dangerous protocols blocked (`javascript:`, `data:`, `file:`, `vbscript:`, `blob:`) |
-| **CSP** | Strict Content Security Policy headers |
 | **Lock Safety** | All RwLock operations use error propagation, zero panics |
 | **Session Integrity** | SHA-256 hashing on all cloned session data |
 | **Sensitive Cookie Filtering** | Auth tokens and credentials stripped during session clone |
-| **External Links** | `rel="noopener noreferrer"` enforced on all external anchors |
 | **CEF Sandboxing** | Each Chromium instance runs in isolated process space |
 
 ---
@@ -484,10 +483,7 @@ This release delivers the four major capabilities that were on the roadmap -- em
 
 ```
 v12.0.3 ████████████████████  CURRENT -- "Jessica Jones"
-        └─ Embedded Chromium, Session Cloning, Investigation Graph, Claude MCP
-
-v10.0.1 ████████████████████
-        └─ Stability, optimization, and enhancement release
+        └─ Pure Rust GUI (iced + wry), CEF, Session Cloning, Investigation Graph, Claude MCP
 
 v5.0    ████████████████████
         └─ "The Multiple Man" (Tauri + React)
@@ -513,7 +509,7 @@ v1.0    ████████████████████
 
 ```
 v12.0.3 ████████████████████  CURRENT -- "Jessica Jones"
-        └─ CEF, Session Cloning, Investigation Graph, Claude MCP Server
+        └─ Pure Rust, CEF, Session Cloning, Investigation Graph, Claude MCP Server
 
 v13.0   ░░░░░░░░░░░░░░░░░░░░  NEXT
         └─ Collaborative investigations (multi-user hivemind),
@@ -533,9 +529,8 @@ MIT License - See [LICENSE](LICENSE) for details.
 ## Acknowledgments
 
 - **Jessica Jones / Alias Investigations** -- The PI who proved you don't need a cape to get results
-- **Tauri Team** -- For the secure desktop framework
-- **React Team** -- For React 19
-- **Mantine** -- For the component library
+- **iced-rs** -- For the pure Rust GUI framework
+- **wry** -- For the cross-platform WebView
 - **D3.js** -- For making data visible
 - **Anthropic / Claude** -- For the AI that powers the MCP agents
 - **The OSINT Community** -- For the tools, techniques, and tradecraft
@@ -588,6 +583,6 @@ MIT License - See [LICENSE](LICENSE) for details.
 ![GitHub Stars](https://img.shields.io/github/stars/thumpersecure/Spin?style=flat-square&color=4B0082)
 ![Last Commit](https://img.shields.io/github/last-commit/thumpersecure/Spin?style=flat-square)
 
-[Report Issue](https://github.com/thumpersecure/Spin/issues) | [Releases](https://github.com/thumpersecure/Spin/releases) | [Web App](https://thumpersecure.github.io/Spin)
+[Report Issue](https://github.com/thumpersecure/Spin/issues) | [Releases](https://github.com/thumpersecure/Spin/releases)
 
 </div>
