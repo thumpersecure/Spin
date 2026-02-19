@@ -151,10 +151,10 @@ function StartPage({ onNewTab }: StartPageProps) {
               textShadow: '0 0 40px rgba(123, 31, 235, 0.3)',
             }}
           >
-            MADROX
+            SPIN
           </Text>
           <Text c="dimmed" size="sm" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-            Jessica Jones -- OSINT Investigation Browser v12.0
+            Jessica Jones v12 -- OSINT Investigation Browser
           </Text>
         </Stack>
 

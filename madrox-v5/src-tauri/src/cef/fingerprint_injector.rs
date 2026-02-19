@@ -55,7 +55,7 @@ pub fn generate_injection_script(fingerprint: &Fingerprint, config: &InjectionCo
 
     script.push_str("(function() {\n");
     script.push_str("  'use strict';\n");
-    script.push_str("  // MADROX Jessica Jones v12 - Fingerprint Injection\n");
+    script.push_str("  // Spin Jessica Jones v12 - Fingerprint Injection\n");
     script.push_str("  // This script runs before any page JavaScript\n\n");
 
     if config.spoof_navigator {

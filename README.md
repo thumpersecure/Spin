@@ -1,13 +1,13 @@
-# MADROX v12.0.0
+# Spin v12.0.0
 
 ```
 +=========================================================================================+
 |                                                                                         |
-|   ###   ###  #####  ####  ####   #####  ##  ##                                          |
-|   ## # # ##  ##  ## ## ## ## ##  ##   ##  ####                                           |
-|   ##  #  ##  ###### ##  # ####  ##   ##   ##                                            |
-|   ##     ##  ##  ## ## ## ## ##  ##   ##  ####                                           |
-|   ##     ##  ##  ## ####  ##  #  #####  ##  ##                                           |
+|      ####  ####   ##  ##  ##                                                            |
+|     ##     ## ##   ##  ### ##                                                            |
+|      ####  ####   ##  ## ###                                                            |
+|         ## ##     ##  ##  ##                                                            |
+|      ####  ##    #### ##  ##                                                            |
 |                                                                                         |
 |         ______________________________________________________                          |
 |        |                                                      |                         |
@@ -63,7 +63,7 @@
 |    biggest vulnerability, she turned her investigation methods into          |
 |    something different -- a browser.                                         |
 |                                                                              |
-|    MADROX takes the PI's instinct and weaponizes it. Multiple               |
+|    Spin takes the PI's instinct and weaponizes it. Multiple                  |
 |    identities for multiple angles of approach. AI agents that work           |
 |    like a team of researchers who never sleep. A privacy engine that         |
 |    adjusts on the fly, because in this line of work, getting burned          |
@@ -125,7 +125,7 @@ Sometimes you need to hand off a case. Sometimes you need a second pair of eyes 
 
 **Track every step. See every connection.**
 
-Every good PI keeps meticulous notes. MADROX does it automatically. Every entity discovered, every connection made, every pivot point in your investigation -- logged, timestamped, and visualized.
+Every good PI keeps meticulous notes. Spin does it automatically. Every entity discovered, every connection made, every pivot point in your investigation -- logged, timestamped, and visualized.
 
 - **D3.js Force-Directed Graph** -- Entity relationship visualization that reveals connections invisible to the naked eye
 - **Timeline Events** -- Chronological investigation playback
@@ -140,7 +140,7 @@ It's like having a wall of photos connected by red string -- except it never run
 
 **8 specialized agents. One shared brain.**
 
-You don't work alone in this business. MADROX gives you a full investigation team powered by Claude API through the Model Context Protocol. Shared context means every agent knows what the others have found. Smart tool routing means the right agent handles the right job.
+You don't work alone in this business. Spin gives you a full investigation team powered by Claude API through the Model Context Protocol. Shared context means every agent knows what the others have found. Smart tool routing means the right agent handles the right job.
 
 | Agent | Specialty | Think of them as... |
 |-------|-----------|---------------------|
@@ -169,7 +169,7 @@ Each identity is a complete cover story: unique fingerprint, isolated cookies, i
 
 **Cross-identity entity synchronization.**
 
-What one identity discovers, all identities can access. When multiple identities independently find the same entity, MADROX flags it as **HIGH CONFIDENCE** intelligence. Real-time sync. Paginated views. The collective memory of every cover you've ever run.
+What one identity discovers, all identities can access. When multiple identities independently find the same entity, Spin flags it as **HIGH CONFIDENCE** intelligence. Real-time sync. Paginated views. The collective memory of every cover you've ever run.
 
 ---
 
@@ -208,7 +208,7 @@ Auto-adjusts based on site risk assessment. Trusted OSINT sites (Shodan, HIBP, C
 
 ```
 +=========================================================================================+
-|                          M A D R O X   v 1 2 . 0 . 0                                   |
+|                       S P I N   v 1 2 . 0 . 0                                          |
 |                    " J E S S I C A   J O N E S "                                        |
 +=========================================================================================+
 |                                                                                         |
@@ -321,7 +321,7 @@ Coming soon: Pre-built binaries for Windows, macOS, and Linux.
 1. Click **Identities** in the title bar (or `Ctrl+I`)
 2. Click **"Spawn Dupe"**
 3. Name your cover (e.g., "Ghost", "Analyst", "Burner")
-4. MADROX generates a unique fingerprint automatically
+4. Spin generates a unique fingerprint automatically
 
 ### Switching Identities
 
@@ -429,19 +429,19 @@ v10.0.1 ████████████████████
         └─ Stability, optimization, and enhancement release
 
 v5.0    ████████████████████
-        └─ MADROX - The Multiple Man (Tauri + React)
+        └─ "The Multiple Man" (Tauri + React)
 
 v4.x    ████████████████████
-        └─ CONSTANTINE - The Exorcist's Edge (Electron + Svelte)
+        └─ "The Exorcist's Edge" (Electron + Svelte)
 
 v3.x    ████████████████████
-        └─ Carmen Sandiego - International Red
+        └─ "Carmen Sandiego" - International Red
 
 v2.0    ████████████████████
-        └─ Tracey Edition - Hollywood Noir
+        └─ "Tracey Edition" - Hollywood Noir
 
 v1.0    ████████████████████
-        └─ Dick Tracy Edition - Classic Detective Yellow
+        └─ "Dick Tracy Edition" - Classic Detective Yellow
 ```
 
 ---
@@ -472,7 +472,6 @@ MIT License - See [LICENSE](LICENSE) for details.
 ## Acknowledgments
 
 - **Jessica Jones / Alias Investigations** -- The PI who proved you don't need a cape to get results
-- **Jamie Madrox / Multiple Man** -- The mutant who inspired the multi-identity architecture
 - **Tauri Team** -- For the secure desktop framework
 - **React Team** -- For React 19
 - **Mantine** -- For the component library
@@ -484,7 +483,7 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**MADROX v12.0.0** - *"Jessica Jones"*
+**Spin v12.0.0** - *"Jessica Jones"*
 
 *Alias Investigations. Cases solved. Questions answered. Secrets found.*
 

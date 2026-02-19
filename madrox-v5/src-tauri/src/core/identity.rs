@@ -36,10 +36,10 @@ impl Default for ProxyConfig {
     }
 }
 
-/// A MADROX identity (dupe)
+/// A Spin identity (dupe)
 ///
-/// Like Jamie Madrox's duplicates, each identity operates independently
-/// but shares intelligence through the Hivemind.
+/// Each identity operates independently with its own fingerprint,
+/// session data, and browsing context, sharing intelligence through the Hivemind.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Identity {
     /// Unique identifier

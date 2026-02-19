@@ -1,13 +1,13 @@
 /**
- * MADROX Theme
+ * Spin Theme
  *
- * Dark, mysterious theme inspired by Jamie Madrox.
+ * Dark, mysterious theme for the Spin OSINT browser.
  * Deep purples, glowing greens, and shadowy blues.
  */
 
 import { createTheme, MantineColorsTuple } from '@mantine/core';
 
-// MADROX Purple - Primary color for duplication/identity
+// Primary purple - identity/investigation accent color
 const madroxPurple: MantineColorsTuple = [
   '#f3e8ff',
   '#e2cffc',
@@ -188,7 +188,7 @@ export const madroxTheme = createTheme({
   },
 
   other: {
-    // Custom MADROX-specific tokens
+    // Custom Spin theme tokens
     glowPurple: '0 0 20px rgba(123, 31, 235, 0.4)',
     glowGreen: '0 0 20px rgba(28, 223, 102, 0.4)',
     glowBlue: '0 0 20px rgba(56, 141, 255, 0.4)',

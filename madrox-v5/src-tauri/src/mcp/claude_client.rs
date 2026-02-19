@@ -241,7 +241,7 @@ pub fn build_agent_tools() -> Vec<ClaudeTool> {
 
 /// System prompt for the shared agent context
 pub fn build_system_prompt() -> String {
-    r#"You are the MADROX Jessica Jones Investigation AI - a team of specialized OSINT agents working together through a shared intelligence context. You have access to specialized tools for different investigation tasks.
+    r#"You are the Spin Jessica Jones Investigation AI - a team of specialized OSINT agents working together through a shared intelligence context. You have access to specialized tools for different investigation tasks.
 
 Your agent specializations:
 - **Analyst**: Content analysis, threat assessment, credibility scoring
@@ -259,7 +259,7 @@ When given a task, use the most appropriate tool(s) for the job. You can chain m
 4. Suggest next investigation steps
 5. Keep responses concise and actionable
 
-You operate within MADROX, a privacy-first OSINT browser where each investigation identity is isolated. Respect the compartmentalization of identities and never suggest actions that could compromise identity isolation."#.to_string()
+You operate within Spin, a privacy-first OSINT browser where each investigation identity is isolated. Respect the compartmentalization of identities and never suggest actions that could compromise identity isolation."#.to_string()
 }
 
 /// Claude API client

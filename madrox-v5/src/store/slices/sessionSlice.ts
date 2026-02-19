@@ -1,10 +1,10 @@
 /**
  * Session Cloning State Slice
  *
- * Manages session data cloning between MADROX identities.
+ * Manages session data cloning between Spin identities.
  * "You can't just duplicate a person... but you can duplicate their footprint."
  *
- * MADROX v12 - Jessica Jones Upgrade
+ * Spin v12 - Jessica Jones Upgrade
  */
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';

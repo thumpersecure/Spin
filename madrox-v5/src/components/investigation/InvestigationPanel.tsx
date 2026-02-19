@@ -1,7 +1,7 @@
 /**
  * InvestigationPanel Component
  *
- * Main panel for MADROX investigation cases.
+ * Main panel for Spin investigation cases.
  * "Jessica Jones" investigation timeline and graph visualization.
  * Manage cases, view timelines, and explore entity relationship graphs.
  */

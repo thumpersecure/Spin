@@ -1,6 +1,6 @@
 //! Identity (Dupe) Management Commands
 //!
-//! Like Jamie Madrox, MADROX can spawn multiple identities (dupes),
+//! Spin can spawn multiple identities (dupes),
 //! each with unique fingerprints and isolated sessions.
 
 use crate::core::identity::{Identity, IdentityStatus};

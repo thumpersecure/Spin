@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "MADROX",
+  "productName": "Spin",
   "version": "12.0.0",
   "identifier": "com.madrox.browser",
   "build": {
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "MADROX - Jessica Jones",
+        "title": "Spin - Jessica Jones",
         "width": 1400,
         "height": 900,
         "minWidth": 1000,
@@ -41,9 +41,9 @@
     ],
     "targets": "all",
     "category": "Utility",
-    "shortDescription": "MADROX OSINT Browser",
+    "shortDescription": "Spin OSINT Investigation Browser",
     "longDescription": "A privacy-first OSINT investigation browser with multi-identity support and hivemind entity synchronization.",
-    "copyright": "2025 MADROX Team",
+    "copyright": "2025 Spin Team",
     "linux": {
       "appimage": {
         "bundleMediaFramework": true

@@ -1,8 +1,8 @@
 /**
- * MADROX Redux Store
+ * Spin Redux Store
  *
- * Centralized state management for the MADROX browser.
- * "One becomes many. Many become one."
+ * Centralized state management for the Spin OSINT browser.
+ * "Every case starts with a question."
  */
 
 import { configureStore } from '@reduxjs/toolkit';

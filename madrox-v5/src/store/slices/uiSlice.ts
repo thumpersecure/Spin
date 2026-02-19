@@ -31,7 +31,7 @@ const initialState: UiState = {
   isPanelOpen: false,
   isFullscreen: false,
   notifications: [],
-  theme: 'dark', // MADROX is always dark
+  theme: 'dark', // Spin is always dark
   sidebarWidth: 320,
   isDevToolsOpen: false,
 };

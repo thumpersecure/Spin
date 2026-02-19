@@ -1,7 +1,7 @@
 /**
- * MADROX App Root Component
+ * Spin App Root Component
  *
- * The Multiple Man awaits your command.
+ * Alias Investigations. Case file open.
  */
 
 import { useEffect } from 'react';

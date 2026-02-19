@@ -1,6 +1,6 @@
 //! Hivemind Commands
 //!
-//! The Hivemind is MADROX's collective intelligence system.
+//! The Hivemind is Spin's collective intelligence system.
 //! All discovered entities are shared across all identities in real-time.
 
 use crate::core::entity::{Entity, EntityType, EntitySource};

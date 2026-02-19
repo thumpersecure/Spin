@@ -1,8 +1,8 @@
 [package]
 name = "madrox"
 version = "12.0.0"
-description = "MADROX Jessica Jones - OSINT Investigation Browser"
-authors = ["MADROX Team"]
+description = "Spin v12 Jessica Jones - OSINT Investigation Browser"
+authors = ["Spin Team"]
 edition = "2021"
 license = "MIT"
 

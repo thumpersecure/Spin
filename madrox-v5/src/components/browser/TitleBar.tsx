@@ -1,7 +1,7 @@
 /**
  * TitleBar Component
  *
- * Custom window title bar with MADROX branding.
+ * Custom window title bar with Spin branding.
  */
 
 import { Group, Text, ActionIcon, Box, Badge } from '@mantine/core';
@@ -71,10 +71,10 @@ function TitleBar() {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            MADROX
+            SPIN
           </Text>
           <Text size="xs" c="dimmed">
-            v5.0
+            JJ v12
           </Text>
         </Group>
 

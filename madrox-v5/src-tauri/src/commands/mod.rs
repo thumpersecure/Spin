@@ -1,7 +1,7 @@
-//! MADROX Command Handlers
+//! Spin Command Handlers
 //!
 //! IPC command handlers for communication with the React frontend.
-//! Jessica Jones v12.0.0
+//! Spin v12 - Jessica Jones
 
 pub mod browser;
 pub mod cef;

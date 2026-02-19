@@ -93,7 +93,7 @@ function SettingsPanel() {
       <Divider />
 
       <Text size="xs" c="dimmed" ta="center">
-        MADROX v5.0.0 - The Multiple Man
+        Spin v12.0.0 - Jessica Jones
       </Text>
     </Stack>
   );

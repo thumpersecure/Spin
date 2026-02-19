@@ -1,4 +1,4 @@
-//! MADROX v12.0.0 "Jessica Jones" - OSINT Investigation Browser
+//! Spin v12.0.0 "Jessica Jones" - OSINT Investigation Browser
 //!
 //! A privacy-first OSINT browser with embedded Chromium (CEF), multi-identity
 //! session isolation, investigation timeline/graph visualization, and
@@ -19,7 +19,7 @@ use tauri::Manager;
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-/// Initialize the MADROX Jessica Jones application
+/// Initialize the Spin Jessica Jones application
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Initialize tracing
@@ -28,12 +28,12 @@ pub fn run() {
         .with(tracing_subscriber::EnvFilter::from_default_env())
         .init();
 
-    info!("Initializing MADROX v12.0.0 - Jessica Jones");
+    info!("Initializing Spin v12.0.0 - Jessica Jones");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-            info!("Setting up MADROX Jessica Jones...");
+            info!("Setting up Spin Jessica Jones...");
 
             let app_handle = app.handle().clone();
 
@@ -55,7 +55,7 @@ pub fn run() {
             // Initialize MCP server with Claude API
             mcp::init(&app_handle)?;
 
-            info!("MADROX Jessica Jones ready. Case file open.");
+            info!("Spin Jessica Jones ready. Case file open.");
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -144,5 +144,5 @@ pub fn run() {
             commands::privacy::clear_privacy_stats,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running MADROX");
+        .expect("error while running Spin");
 }

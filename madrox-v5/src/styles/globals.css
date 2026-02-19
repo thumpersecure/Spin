@@ -1,14 +1,14 @@
 /**
- * MADROX Global Styles
+ * Spin Global Styles
  *
- * "One becomes many. Many become one."
+ * "Every case starts with a question."
  */
 
 /* Import Mantine core styles */
 @import '@mantine/core/styles.css';
 @import '@mantine/notifications/styles.css';
 
-/* MADROX CSS Variables */
+/* Spin CSS Variables */
 :root {
   --madrox-glow-purple: 0 0 20px rgba(123, 31, 235, 0.4);
   --madrox-glow-green: 0 0 20px rgba(28, 223, 102, 0.4);

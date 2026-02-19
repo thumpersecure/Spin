@@ -4,7 +4,7 @@
  * Manages OSINT investigation timelines and relationship graphs.
  * "Alias Investigations. Cases nobody else will touch."
  *
- * MADROX v12 - Jessica Jones Upgrade
+ * Spin v12 - Jessica Jones Upgrade
  */
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';

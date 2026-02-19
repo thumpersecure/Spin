@@ -1,8 +1,8 @@
 /**
  * IdentityPanel Component
  *
- * Manage MADROX identities (dupes).
- * "I am Legion, for we are many."
+ * Manage Spin identities (dupes).
+ * "Every cover tells a different story."
  */
 
 import { useState } from 'react';

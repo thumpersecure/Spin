@@ -1,10 +1,10 @@
-# MADROX v12.0.0 "Jessica Jones"
+# Spin v12.0.0 "Jessica Jones"
 
 > *"Every case starts with a question. Every answer leads to another."*
 
 ## OSINT Investigation Browser
 
-The **Jessica Jones** release transforms MADROX into a full-fledged investigation platform:
+The **Jessica Jones** release transforms Spin into a full-fledged investigation platform:
 
 - **Embedded Chromium (CEF)** with per-identity fingerprint control
 - **Secure Session Cloning** between identities with integrity verification

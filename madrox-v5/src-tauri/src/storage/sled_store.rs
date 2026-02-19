@@ -1,6 +1,6 @@
 //! Sled Database Store
 //!
-//! High-performance embedded database for MADROX data.
+//! High-performance embedded database for Spin data.
 
 use crate::core::entity::Entity;
 use crate::core::identity::Identity;

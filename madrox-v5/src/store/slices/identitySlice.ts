@@ -1,8 +1,8 @@
 /**
  * Identity State Slice
  *
- * Manages MADROX identities (dupes).
- * "I am Legion, for we are many."
+ * Manages Spin identities (dupes).
+ * "Every cover tells a different story."
  */
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';

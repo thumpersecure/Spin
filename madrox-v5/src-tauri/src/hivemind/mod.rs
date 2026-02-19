@@ -1,6 +1,6 @@
 //! Hivemind Module
 //!
-//! The Hivemind is MADROX's collective intelligence system.
+//! The Hivemind is Spin's collective intelligence system.
 //! All entities discovered by any identity are shared across the swarm.
 
 use crate::core::entity::EntityType;

@@ -1,4 +1,4 @@
-//! MADROX Core Modules
+//! Spin Core Modules
 //!
 //! Core functionality for identity management, entity extraction, fingerprinting,
 //! and dynamic privacy protection.
