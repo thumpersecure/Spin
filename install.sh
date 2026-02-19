@@ -6,6 +6,9 @@
 # Usage: curl -fsSL https://raw.githubusercontent.com/thumpersecure/Spin/main/install.sh | bash
 #    or: bash install.sh
 #
+# Zero NPM — Pure Rust (iced 0.13 + wry 0.44)
+# Only requires: git, rust/cargo, system GUI libraries
+#
 
 set -euo pipefail
 
@@ -24,7 +27,8 @@ REPO_URL="https://github.com/thumpersecure/Spin.git"
 REPO_API="https://api.github.com/repos/thumpersecure/Spin"
 INSTALL_DIR="$HOME/Spin"
 APP_DIR="$INSTALL_DIR/app"
-MIN_NODE_VERSION=20
+CARGO_DIR="$APP_DIR/src-tauri"
+BIN_PATH="$CARGO_DIR/target/release/spin"
 MIN_RUST_VERSION="1.75"
 CURRENT_VERSION="12.0.3"
 
@@ -37,6 +41,8 @@ print_banner() {
     echo "  ║       OSINT Investigation Browser                ║"
     echo "  ║                                                  ║"
     echo "  ║  \"Every case starts with a question.\"            ║"
+    echo "  ║                                                  ║"
+    echo "  ║  Zero NPM · Pure Rust · iced 0.13 · wry          ║"
     echo "  ║                                                  ║"
     echo "  ╚══════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -99,27 +105,8 @@ check_git() {
     fi
 }
 
-check_node() {
-    if command -v node &>/dev/null; then
-        local ver
-        ver=$(node --version | sed 's/v//')
-        local major
-        major=$(echo "$ver" | cut -d. -f1)
-        if [ "$major" -ge "$MIN_NODE_VERSION" ]; then
-            success "Node.js found: v$ver (>= $MIN_NODE_VERSION required)"
-            return 0
-        else
-            warn "Node.js v$ver found, but v$MIN_NODE_VERSION+ required"
-            return 1
-        fi
-    else
-        warn "Node.js not found"
-        return 1
-    fi
-}
-
 check_rust() {
-    if command -v rustc &>/dev/null; then
+    if command -v rustc &>/dev/null && command -v cargo &>/dev/null; then
         local ver
         ver=$(rustc --version | grep -oP '\d+\.\d+\.\d+' | head -1)
         if version_ge "$ver" "$MIN_RUST_VERSION"; then
@@ -135,61 +122,12 @@ check_rust() {
     fi
 }
 
-check_tauri_cli() {
-    if command -v cargo-tauri &>/dev/null || cargo tauri --version &>/dev/null 2>&1; then
-        success "Tauri CLI found"
-        return 0
-    else
-        warn "Tauri CLI not found"
-        return 1
-    fi
-}
-
 # --- Install Functions ---
-
-install_node_macos() {
-    if command -v brew &>/dev/null; then
-        info "Installing Node.js via Homebrew..."
-        brew install node
-    else
-        info "Installing Homebrew first..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        brew install node
-    fi
-}
-
-install_node_linux() {
-    local distro
-    distro=$(detect_linux_distro)
-    info "Installing Node.js 20.x for $distro..."
-    case "$distro" in
-        ubuntu|debian|parrot|kali|linuxmint|pop)
-            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-            ;;
-        fedora|rhel|centos|rocky|alma)
-            curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
-            sudo dnf install -y nodejs
-            ;;
-        arch|manjaro|endeavouros)
-            sudo pacman -S --noconfirm nodejs npm
-            ;;
-        *)
-            error "Unsupported distro: $distro. Install Node.js 20+ manually."
-            return 1
-            ;;
-    esac
-}
 
 install_rust() {
     info "Installing Rust via rustup..."
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     source "$HOME/.cargo/env" 2>/dev/null || true
-}
-
-install_tauri_cli() {
-    info "Installing Tauri CLI..."
-    cargo install tauri-cli
 }
 
 install_linux_deps() {
@@ -288,11 +226,12 @@ create_desktop_shortcut() {
     os=$(detect_os)
 
     if [ "$os" = "linux" ]; then
+        local icon_path="$INSTALL_DIR/assets/icon.png"
         local desktop_entry="[Desktop Entry]
 Name=Spin Browser
 Comment=OSINT Investigation Browser - Jessica Jones v12.0.3
-Exec=bash -c 'cd $APP_DIR && npm run tauri:dev'
-Icon=$APP_DIR/public/spin.svg
+Exec=$BIN_PATH
+Icon=$icon_path
 Terminal=false
 Type=Application
 Categories=Network;WebBrowser;Security;
@@ -312,7 +251,9 @@ StartupNotify=true"
         fi
 
     elif [ "$os" = "macos" ]; then
-        info "On macOS, you can drag the built app to /Applications after running 'npm run tauri:build'"
+        info "On macOS, copy the built binary to your PATH:"
+        echo "  sudo cp $BIN_PATH /usr/local/bin/spin"
+        echo "  spin"
     fi
 }
 
@@ -327,22 +268,12 @@ do_install() {
     echo -e "${BOLD}Step 1: Checking dependencies...${NC}"
     echo ""
 
-    local need_node=false
     local need_rust=false
-    local need_tauri=false
 
     check_git || { error "Git is required. Please install it first."; exit 1; }
 
-    if ! check_node; then
-        need_node=true
-    fi
-
     if ! check_rust; then
         need_rust=true
-    fi
-
-    if ! check_tauri_cli; then
-        need_tauri=true
     fi
 
     echo ""
@@ -351,26 +282,12 @@ do_install() {
     local os
     os=$(detect_os)
 
-    if [ "$need_node" = true ]; then
-        if ask_yes_no "Install Node.js 20+?"; then
-            if [ "$os" = "macos" ]; then
-                install_node_macos
-            else
-                install_node_linux
-            fi
-            check_node || { error "Node.js installation failed."; exit 1; }
-        else
-            error "Node.js 20+ is required. Aborting."
-            exit 1
-        fi
-    fi
-
     if [ "$need_rust" = true ]; then
         if ask_yes_no "Install Rust?"; then
             install_rust
             check_rust || { error "Rust installation failed."; exit 1; }
         else
-            error "Rust 1.75+ is required. Aborting."
+            error "Rust $MIN_RUST_VERSION+ is required. Aborting."
             exit 1
         fi
     fi
@@ -380,17 +297,11 @@ do_install() {
     echo -e "${BOLD}Step 2: System libraries...${NC}"
     echo ""
     if [ "$os" = "linux" ]; then
-        if ask_yes_no "Install system libraries (GTK, WebKit2GTK, etc.)?"; then
+        if ask_yes_no "Install system libraries (GTK3, WebKit2GTK, etc.)?"; then
             install_linux_deps
         fi
     elif [ "$os" = "macos" ]; then
         install_macos_deps
-    fi
-
-    if [ "$need_tauri" = true ]; then
-        if ask_yes_no "Install Tauri CLI?"; then
-            install_tauri_cli
-        fi
     fi
 
     # Step 3: Clone or update repo
@@ -420,37 +331,33 @@ do_install() {
         success "Cloned to $INSTALL_DIR"
     fi
 
-    # Step 4: Install npm dependencies
+    # Step 4: Fetch Rust dependencies
     echo ""
-    echo -e "${BOLD}Step 4: Installing app dependencies...${NC}"
+    echo -e "${BOLD}Step 4: Fetching Rust dependencies...${NC}"
     echo ""
 
-    cd "$APP_DIR"
-    npm install
-    success "npm dependencies installed"
+    cd "$CARGO_DIR"
+    cargo fetch
+    success "Rust dependencies fetched"
 
     # Step 5: Build verification
     echo ""
     echo -e "${BOLD}Step 5: Verifying build...${NC}"
     echo ""
 
-    info "Running TypeScript check..."
-    if npx tsc --noEmit 2>/dev/null; then
-        success "TypeScript compilation: OK"
+    info "Running cargo check..."
+    if cargo check 2>&1; then
+        success "Rust build check: OK"
     else
-        warn "TypeScript check had issues (may still work)"
-    fi
-
-    info "Building frontend..."
-    if npm run build 2>/dev/null; then
-        success "Frontend build: OK"
-    else
-        warn "Frontend build had issues"
+        warn "cargo check had issues — see above. The build may still succeed."
     fi
 
     # Step 6: Desktop shortcut
     echo ""
     if ask_yes_no "Create a desktop shortcut?"; then
+        info "Building release binary first (required for shortcut)..."
+        cargo build --release
+        success "Built: $BIN_PATH"
         create_desktop_shortcut
     fi
 
@@ -460,11 +367,12 @@ do_install() {
     echo -e "${GREEN}║                                                  ║${NC}"
     echo -e "${GREEN}║   Installation complete!                         ║${NC}"
     echo -e "${GREEN}║                                                  ║${NC}"
-    echo -e "${GREEN}║   To start Spin:                                 ║${NC}"
-    echo -e "${GREEN}║     cd ~/Spin/app && npm run tauri:dev           ║${NC}"
+    echo -e "${GREEN}║   To run Spin (dev):                             ║${NC}"
+    echo -e "${GREEN}║     cd ~/Spin/app/src-tauri && cargo run         ║${NC}"
     echo -e "${GREEN}║                                                  ║${NC}"
     echo -e "${GREEN}║   To build for production:                       ║${NC}"
-    echo -e "${GREEN}║     cd ~/Spin/app && npm run tauri:build         ║${NC}"
+    echo -e "${GREEN}║     cd ~/Spin/app/src-tauri                      ║${NC}"
+    echo -e "${GREEN}║     cargo build --release                        ║${NC}"
     echo -e "${GREEN}║                                                  ║${NC}"
     echo -e "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
     echo ""
@@ -486,31 +394,26 @@ verify_install() {
         all_ok=false
     fi
 
-    if [ -f "$APP_DIR/package.json" ]; then
-        success "package.json found"
+    if [ -f "$CARGO_DIR/Cargo.toml" ]; then
+        local ver
+        ver=$(grep -m1 '^version' "$CARGO_DIR/Cargo.toml" | cut -d'"' -f2)
+        success "Rust crate found: v$ver"
     else
-        error "package.json missing"
+        error "Cargo.toml missing at $CARGO_DIR"
         all_ok=false
     fi
 
-    if [ -d "$APP_DIR/node_modules" ]; then
-        success "node_modules installed"
+    if [ -f "$CARGO_DIR/Cargo.lock" ]; then
+        success "Cargo.lock present (dependencies resolved)"
     else
-        error "node_modules missing - run: cd $APP_DIR && npm install"
-        all_ok=false
+        warn "Cargo.lock missing — run: cd $CARGO_DIR && cargo fetch"
     fi
 
-    if [ -d "$APP_DIR/dist" ]; then
-        success "Frontend built successfully"
+    if [ -f "$BIN_PATH" ]; then
+        success "Release binary built: $BIN_PATH"
     else
-        warn "Frontend not built yet - will build on first run"
-    fi
-
-    if [ -f "$APP_DIR/src-tauri/Cargo.toml" ]; then
-        success "Rust backend found"
-    else
-        error "Rust backend missing"
-        all_ok=false
+        warn "Release binary not built yet"
+        info "Build it with: cd $CARGO_DIR && cargo build --release"
     fi
 
     echo ""
@@ -522,37 +425,6 @@ verify_install() {
     echo ""
 }
 
-# --- Fallback (minimal install) ---
-
-do_fallback() {
-    echo ""
-    echo -e "${YELLOW}Fallback: Minimal frontend-only install${NC}"
-    echo ""
-    info "This installs just the React frontend (no Rust/Tauri needed)."
-    info "You won't get the native desktop app, but you can preview the UI."
-    echo ""
-
-    if ! check_node; then
-        error "Node.js 20+ is still required for the fallback. Install it and retry."
-        exit 1
-    fi
-
-    if [ ! -d "$INSTALL_DIR/.git" ]; then
-        git clone "$REPO_URL" "$INSTALL_DIR"
-    fi
-
-    cd "$APP_DIR"
-    npm install
-    echo ""
-    success "Fallback install complete."
-    echo ""
-    info "To preview the UI (browser only, no native features):"
-    echo "  cd ~/Spin/app && npm run dev"
-    echo ""
-    info "Open http://localhost:5173 in your browser."
-    echo ""
-}
-
 # --- Check for Updates ---
 
 check_for_updates() {
@@ -560,10 +432,10 @@ check_for_updates() {
     info "Checking for updates..."
     echo ""
 
-    # Check local version from package.json if installed
+    # Read local version from Cargo.toml
     local local_version="(not installed)"
-    if [ -f "$APP_DIR/package.json" ]; then
-        local_version=$(grep -o '"version": "[^"]*"' "$APP_DIR/package.json" | head -1 | cut -d'"' -f4)
+    if [ -f "$CARGO_DIR/Cargo.toml" ]; then
+        local_version=$(grep -m1 '^version' "$CARGO_DIR/Cargo.toml" | cut -d'"' -f2)
     fi
 
     info "Installed version: ${BOLD}$local_version${NC}"
@@ -589,11 +461,11 @@ check_for_updates() {
                     cd "$INSTALL_DIR"
                     git fetch origin main
                     git pull origin main
-                    cd "$APP_DIR"
-                    npm install
+                    cd "$CARGO_DIR"
+                    cargo fetch
                     success "Updated to latest version."
                     echo ""
-                    info "Restart Spin to use the new version."
+                    info "Rebuild with: cd $CARGO_DIR && cargo build --release"
                 fi
             else
                 success "Your version ($local_version) is ahead of the latest release ($latest_version)."
@@ -618,9 +490,10 @@ check_for_updates() {
             warn "Your installation is $behind commit(s) behind origin/main."
             if ask_yes_no "Pull latest changes?"; then
                 git pull origin main
-                cd "$APP_DIR"
-                npm install
+                cd "$CARGO_DIR"
+                cargo fetch
                 success "Repository updated."
+                info "Rebuild with: cd $CARGO_DIR && cargo build --release"
             fi
         else
             success "Repository is up to date with origin/main."
@@ -642,7 +515,7 @@ main() {
     echo "  3) Check for updates"
     echo "  4) Uninstall Spin"
     echo "  5) Verify installation"
-    echo "  6) Fallback: frontend-only (no Rust needed)"
+    echo "  6) Build release binary"
     echo "  7) Exit"
     echo ""
     read -rp "$(echo -e "${CYAN}Choose [1-7]:${NC} ")" choice
@@ -665,9 +538,10 @@ main() {
             fi
             cd "$INSTALL_DIR"
             git pull origin main
-            cd "$APP_DIR"
-            npm install
+            cd "$CARGO_DIR"
+            cargo fetch
             success "Updated successfully."
+            info "Rebuild with: cd $CARGO_DIR && cargo build --release"
             verify_install
             ;;
         3)
@@ -680,7 +554,15 @@ main() {
             verify_install
             ;;
         6)
-            do_fallback
+            if [ ! -f "$CARGO_DIR/Cargo.toml" ]; then
+                error "Spin is not installed. Use option 1 to install first."
+                exit 1
+            fi
+            cd "$CARGO_DIR"
+            info "Building release binary..."
+            cargo build --release
+            success "Built: $BIN_PATH"
+            info "Run with: $BIN_PATH"
             ;;
         7)
             info "Goodbye."
