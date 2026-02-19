@@ -3,8 +3,8 @@
 //! Replaces TitleBar.tsx from the React frontend.
 
 use iced::{
-    widget::{button, container, horizontal_space, row, text},
-    Element, Fill, Length, Padding,
+    widget::{container, horizontal_space, row, text},
+    Element, Fill, Padding,
 };
 
 use crate::ui::messages::Message;
