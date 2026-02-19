@@ -1,7 +1,7 @@
 [package]
 name = "madrox"
-version = "10.0.1"
-description = "MADROX - The Multiple Man OSINT Browser"
+version = "12.0.0"
+description = "MADROX Jessica Jones - OSINT Investigation Browser"
 authors = ["MADROX Team"]
 edition = "2021"
 license = "MIT"
@@ -37,7 +37,7 @@ rand = "0.8"
 sha2 = "0.10"
 base64 = "0.22"
 
-# HTTP client for MCP
+# HTTP client for MCP/Claude API
 reqwest = { version = "0.12", features = ["json"] }
 
 # Async channels for Hivemind sync

@@ -1,27 +1,34 @@
-# MADROX v10.0.1
+# MADROX v12.0.0
 
 ```
-+=====================================================================================+
-|                                                                                       |
-|   ###   ###  #####  ####  ####   #####  ##  ##                                        |
-|   ## # # ##  ##  ## ## ## ## ##  ##   ##  ####                                         |
-|   ##  #  ##  ###### ##  # ####  ##   ##   ##                                          |
-|   ##     ##  ##  ## ## ## ## ##  ##   ##  ####                                         |
-|   ##     ##  ##  ## ####  ##  #  #####  ##  ##                                        |
-|                                                                                       |
-|                    T H E   M U L T I P L E   M A N                                    |
-|                         O S I N T   B R O W S E R                                     |
-|                                                                                       |
-|   ---------------------------------------------------------------------------         |
-|                                                                                       |
-|     "In the shadows where others see one... I see MANY."                              |
-|                                                                                       |
-+=====================================================================================+
++=========================================================================================+
+|                                                                                         |
+|   ###   ###  #####  ####  ####   #####  ##  ##                                          |
+|   ## # # ##  ##  ## ## ## ## ##  ##   ##  ####                                           |
+|   ##  #  ##  ###### ##  # ####  ##   ##   ##                                            |
+|   ##     ##  ##  ## ## ## ## ##  ##   ##  ####                                           |
+|   ##     ##  ##  ## ####  ##  #  #####  ##  ##                                           |
+|                                                                                         |
+|         ______________________________________________________                          |
+|        |                                                      |                         |
+|        |          J E S S I C A   J O N E S                    |                         |
+|        |     O S I N T   I N V E S T I G A T I O N             |                         |
+|        |              B R O W S E R                             |                         |
+|        |______________________________________________________|                         |
+|                                                                                         |
+|            "Every case starts with a question.                                          |
+|             Every answer hides behind a screen.                                         |
+|             I just know which screens to look at."                                      |
+|                                                                                         |
+|                     -- Alias Investigations --                                          |
+|                                                                                         |
++=========================================================================================+
 ```
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-10.0.1-purple?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-12.0.0-8B008B?style=for-the-badge)
+![Codename](https://img.shields.io/badge/codename-Jessica_Jones-4B0082?style=for-the-badge)
 ![Tauri](https://img.shields.io/badge/Tauri-2.0-blue?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-19-cyan?style=for-the-badge)
 ![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge)
@@ -29,206 +36,222 @@
 
 ---
 
-### *"I am Legion, for we are many."*
+### *"I'm not the hero type. I just find the truth that others can't -- or won't."*
 
-**The next-generation OSINT investigation browser with multi-identity support,**
-**AI-powered agents, dynamic privacy protection, and hivemind intelligence synchronization.**
+**A private investigator doesn't need superpowers. She needs the right tools,**
+**the right identities, and the nerve to dig where nobody else dares.**
 
-[Features](#-features) | [What's New](#-whats-new-in-v1001) | [Architecture](#%EF%B8%8F-architecture) | [Installation](#-installation) | [Usage](#-usage)
+[Case Files](#-case-files) | [What's New](#-whats-new-in-v1200) | [The Office](#%EF%B8%8F-architecture--the-office) | [Getting Started](#-getting-started) | [Field Manual](#-field-manual)
 
 ---
 
 </div>
-
-## What's New in v10.0.1
-
-This release delivers a comprehensive stability, optimization, and enhancement pass across the entire codebase -- both the active v5 Tauri+React stack and the v4 Electron+Svelte legacy stack.
-
-### Bug Fixes
-
-**Frontend (React/TypeScript)**
-- **NavBar**: Fixed stale URL state -- URL bar now syncs correctly when switching tabs. Removed unused `isSecure` state variable; security indicator now derived from actual tab URL. Auto-prepends `https://` when no protocol is specified. All page action menu items (Screenshot, Save PDF, View Source, Save Page) now have functional click handlers.
-- **OsintPanel**: Fixed null reference crash when `usernameAnalysis.platforms` is undefined. Added `rel="noopener noreferrer"` to all external links for security. Added error notifications with dismissible alerts for failed OSINT queries.
-- **McpPanel**: Fixed race condition where message addition and agent invocation dispatched simultaneously. Agent invocations are now sequential with proper error handling. Added loading indicator and disabled input while agent is processing.
-- **PrivacyDashboard**: Fixed memory leak -- `setInterval` for stats polling now properly cleaned up on component unmount along with in-flight async thunks. `countActiveProtections` now counts all 16 protection fields correctly. Added error handling with user feedback for setting changes.
-- **BrowserView**: Enhanced placeholder with MADROX branding, gradient theme orbs, clickable URL prompt, and keyboard shortcut hints (Ctrl+L, Ctrl+T, Ctrl+W).
-- **IdentityPanel**: Added functional handlers for Clone Session (spawns copy of identity) and Edit (pre-fills form with existing identity data). Added dismissible error alerts for identity operations.
-- **HivemindPanel**: Added pagination with "Load More" button (20 entities per page) replacing the hardcoded 20-entity limit. Pagination resets when filters change. Added clipboard copy error handling with success/failure visual feedback.
-
-**Redux State Management**
-- **tabsSlice**: Optimized `setActiveTab` -- now mutates only 2 tab objects instead of rebuilding the entire array on every tab switch.
-- **mcpSlice**: Added null safety for `action.meta.arg.agentId` in pending/rejected reducers. Error messages now include agent context (e.g., "Agent 'analyst' invocation failed: ...").
-- **osintSlice**: Failed analyses now clear stale results so users don't see outdated data. Added `clearAnalysis` action for UI reset flows.
-- **privacySlice**: Added full pending/rejected lifecycle for `updatePrivacySettings`. `setOpsecLevel` rejected errors now include the requested level in the message.
-
-**Rust Backend**
-- **Privacy commands**: Replaced all 11 `RwLock::unwrap()` calls with proper error propagation (`map_err`). Changed from `const fn` initialization to `lazy_static!` for stable Rust compatibility.
-- **Browser commands**: Added URL validation blocking dangerous protocols (`javascript:`, `data:`, `file:`, `vbscript:`, `blob:`). Improved stub implementations with informative responses.
-- **OSINT commands**: Added input length limits (1000 chars) to all analysis functions. Phone analysis now requires minimum 7 digits. Email validation checks domain format (dot presence, no consecutive dots, no leading/trailing dots or hyphens).
-
-**v4 Legacy (Electron)**
-- **Critical**: Fixed `checkTorAndNotify()` -- `state.refreshTorStatus()` was not awaited, causing Tor status to always report as available (Promise object is truthy). Now properly async/awaited.
-- **Critical**: Fixed `removeAllListeners(decisionChannel)` in certificate error timeout to `removeListener(decisionChannel, decisionHandler)` -- prevents removing unrelated listeners on the same channel.
-
-### Optimizations
-
-- **Entity extraction**: Replaced O(n log n) sort+dedup with O(n) HashSet-based deduplication. Added 100KB input length cap to prevent regex DoS.
-- **Tab switching**: Reduced from O(n) full-array rebuild to O(1) targeted mutation of 2 tab objects via Immer.
-- **NavBar**: Memoized active tab lookup with `useMemo` to prevent unnecessary re-renders.
-
-### Enhancements
-
-- **Fingerprint generation**: Extended Greek alphabet names from 8 to 24 (Alpha through Omega). Increased ID entropy from 4 to 8 bytes with 6-char hex suffix. Added 10 modern user agents (Chrome 124-131, Firefox 128/131, Edge 128, Safari 18). Added 3 new screen resolutions (4K, 1600x900, 2560x1600).
-- **Privacy engine**: Dynamic confidence scoring by category (Trusted: 0.95, Social: 0.90, Government: 0.80, DarkWeb: 0.70, General: 0.60, +0.10 for known trackers). Added 8 modern tracker domains (Plausible, Heap, Intercom, Drift, HubSpot, Marketo, Pardot, Salesforce). Added 4 new social platforms (Threads, Mastodon, Bluesky, Truth Social). Added 5 new trusted OSINT domains (GreyNoise, BinaryEdge, ZoomEye, IntelX, Pulsedive).
-- **Hivemind**: Added `unsubscribe(id)` mechanism with HashMap-based listener storage, preventing memory leaks from accumulated event listeners.
-
----
 
 ## The Story
 
 ```
 +------------------------------------------------------------------------------+
 |                                                                              |
-|    In a world where digital footprints are currency...                       |
-|    Where every click leaves a trace...                                       |
-|    Where investigators need to become INVISIBLE...                           |
+|    Alias Investigations.                                                     |
 |                                                                              |
-|    One browser dared to be DIFFERENT.                                        |
+|    The sign on the door is cracked. The whiskey is cheap. But the            |
+|    results? Those are worth every penny.                                     |
 |                                                                              |
-|    Like Jamie Madrox of X-Men fame--the Multiple Man who spawns             |
-|    duplicates of himself--MADROX creates multiple independent                |
-|    browser identities. Each one unique. Each one untraceable.                |
-|    Each one connected through the HIVEMIND.                                  |
+|    Jessica Jones doesn't do capes and costumes. She does stakeouts,          |
+|    background checks, and the kind of digging that makes powerful            |
+|    people nervous. In a world where your digital footprint is your           |
+|    biggest vulnerability, she turned her investigation methods into          |
+|    something different -- a browser.                                         |
 |                                                                              |
-|    What one identity discovers... ALL identities know.                       |
+|    MADROX takes the PI's instinct and weaponizes it. Multiple               |
+|    identities for multiple angles of approach. AI agents that work           |
+|    like a team of researchers who never sleep. A privacy engine that         |
+|    adjusts on the fly, because in this line of work, getting burned          |
+|    means more than a bad Yelp review.                                        |
 |                                                                              |
-|    This is not just a browser.                                               |
-|    This is a FORCE MULTIPLIER for OSINT investigations.                      |
+|    Every investigation needs a starting point.                               |
+|    This browser IS the starting point.                                       |
+|                                                                              |
+|    "It's called doing the work. Now shut up and let me concentrate."         |
 |                                                                              |
 +------------------------------------------------------------------------------+
 ```
 
 ---
 
-## Features
+## Case Files
 
-### Identity Dupes -- *The Multiple Man System*
-
-Each identity is a complete isolated universe:
-
-| Component | Isolation |
-|-----------|-----------|
-| **Fingerprint** | Unique canvas, WebGL, fonts, screen, audio |
-| **Cookies** | Completely separate cookie jar |
-| **Network** | Independent proxy/Tor circuit |
-| **History** | Isolated browsing history |
-| **User Agent** | Distinct platform & browser spoof |
-| **Timezone** | Configurable timezone spoof |
-
-### Hivemind -- *Collective Intelligence*
-
-**Real-time entity synchronization across ALL identities.**
-
-When multiple identities discover the same entity, MADROX marks it as **HIGH CONFIDENCE** intelligence. Paginated entity views with load-more support, clipboard copy with visual feedback, and proper unsubscribe mechanisms prevent memory leaks.
-
-### Dynamic Privacy Engine -- *AI-Powered Protection*
-
-| Level | Description |
-|-------|-------------|
-| MINIMAL | Trusted sites, basic protection |
-| STANDARD | General browsing, tracker blocking |
-| ENHANCED | Sensitive research, fingerprint spoofing |
-| MAXIMUM | High-risk investigation, full spoofing + Tor |
-| PARANOID | Assume active adversary, all protections enabled |
-
-**Automatic OPSEC adjustment** based on site risk assessment with dynamic confidence scoring:
-
-| Protection | Description |
-|------------|-------------|
-| **Tracker Blocking** | 70+ known tracker domains blocked |
-| **Canvas Noise** | Random noise injection |
-| **WebGL Spoof** | Fake GPU/renderer info |
-| **Audio Spoof** | Audio context fingerprint masking |
-| **WebRTC Block** | IP leak prevention |
-| **Timezone Spoof** | Configurable timezone |
-| **Screen Spoof** | Fake screen dimensions |
-| **Tor Integration** | One-click Tor routing |
-| **DNS over HTTPS** | Encrypted DNS queries |
-
-**Site Risk Categories:**
-- Trusted OSINT (Shodan, HIBP, Censys, GreyNoise, IntelX)
-- General websites
-- Social media platforms (including Threads, Mastodon, Bluesky)
-- Government domains
-- Surveillance/hostile sites
-- Dark web (.onion)
-
-### MCP Agents -- *Your AI Investigation Team*
-
-**40+ specialized skills** across 8 AI agents powered by Model Context Protocol (MCP):
-
-| Agent | Skills |
-|-------|--------|
-| **Analyst** | Content analysis, threat assessment, credibility scoring, sentiment analysis |
-| **Gatherer** | Entity extraction, deep scraping, archive search, data categorization |
-| **Correlator** | Relationship mapping, pattern detection, anomaly detection, network visualization |
-| **Reporter** | Report generation, evidence compilation, export (PDF/JSON), executive summary |
-| **OPSEC** | Leak detection, fingerprint analysis, identity correlation, countermeasures |
-| **Social Intel** | Profile analysis, connection mapping, username search (500+ platforms) |
-| **Dark Web** | Onion crawl, market monitoring, breach lookup, forum intelligence |
-| **Crypto Tracer** | Wallet analysis, transaction trace, mixer detection, address clustering |
-
-### OSINT Toolkit -- *Professional Intelligence Tools*
-
-- **Phone Intel** -- Multi-format analysis with minimum 7-digit validation, carrier lookup
-- **Email Intel** -- Domain validation, breach check, provider detection, disposable detection
-- **Username Hunt** -- 12+ platforms instant check, 500+ via tools
-- **Domain Recon** -- WHOIS, DNS, subdomains, tech stack, history
+> *"Every case has its tools. These are mine."*
 
 ---
 
-## Architecture
+### Case File 001 -- Embedded Chromium (CEF)
+
+**Full browser engine under your complete control.**
+
+Every identity gets its own isolated Chromium context -- think of it as a separate investigator walking into a room with a completely different face. No two look alike. No two leave the same trail.
+
+| Fingerprint Vector | Spoofing |
+|--------------------|----------|
+| **Canvas** | Unique noise injection per identity |
+| **WebGL** | Fake GPU vendor/renderer strings |
+| **Audio** | Audio context fingerprint masking |
+| **Fonts** | Custom font enumeration per identity |
+| **Timezone** | Configurable timezone spoofing |
+| **WebRTC** | IP leak prevention, STUN/TURN control |
+| **Navigator** | Platform, language, hardware concurrency |
+
+Each Chromium instance runs in its own sandbox. Cookies, cache, localStorage -- all compartmentalized. Like working a case from multiple angles without any of your covers knowing about each other.
+
+---
+
+### Case File 002 -- Session Cloning
+
+**Clone sessions between identities -- securely.**
+
+Sometimes you need to hand off a case. Sometimes you need a second pair of eyes looking at the same evidence from a different angle. Session cloning lets you duplicate an identity's entire session state to another identity.
+
+- **Cookies** -- Full cookie jar transfer with sensitive cookie filtering
+- **localStorage** -- Complete key-value state migration
+- **History** -- Browsing trail duplication
+- **Integrity Hashing** -- SHA-256 verification ensures nothing was tampered with in transit
+- **Domain Filtering** -- Clone only what you need, leave the rest behind
+
+> *"Trust, but verify. Especially when the evidence is digital."*
+
+---
+
+### Case File 003 -- Investigation Timeline & Graph
+
+**Track every step. See every connection.**
+
+Every good PI keeps meticulous notes. MADROX does it automatically. Every entity discovered, every connection made, every pivot point in your investigation -- logged, timestamped, and visualized.
+
+- **D3.js Force-Directed Graph** -- Entity relationship visualization that reveals connections invisible to the naked eye
+- **Timeline Events** -- Chronological investigation playback
+- **Graph Nodes & Edges** -- Entities as nodes, relationships as edges, weighted by confidence
+- **Export** -- Take your evidence board digital and portable
+
+It's like having a wall of photos connected by red string -- except it never runs out of wall space, and the string draws itself.
+
+---
+
+### Case File 004 -- Claude AI MCP Server
+
+**8 specialized agents. One shared brain.**
+
+You don't work alone in this business. MADROX gives you a full investigation team powered by Claude API through the Model Context Protocol. Shared context means every agent knows what the others have found. Smart tool routing means the right agent handles the right job.
+
+| Agent | Specialty | Think of them as... |
+|-------|-----------|---------------------|
+| **Analyst** | Content analysis, threat assessment, credibility scoring, sentiment | Your profiler |
+| **Gatherer** | Entity extraction, deep scraping, archive search, categorization | Your field operative |
+| **Correlator** | Relationship mapping, pattern detection, anomaly detection | Your conspiracy board |
+| **Reporter** | Report generation, evidence compilation, PDF/JSON export | Your paralegal |
+| **OPSEC** | Leak detection, fingerprint analysis, identity correlation | Your counter-surveillance |
+| **Social Intel** | Profile analysis, connection mapping, username search (500+ platforms) | Your social butterfly |
+| **Dark Web** | Onion crawl, market monitoring, breach lookup, forum intel | Your underworld contact |
+| **Crypto Tracer** | Wallet analysis, transaction tracing, mixer detection, clustering | Your forensic accountant |
+
+> *"I don't have a team. I have something better -- agents that don't argue, don't sleep, and don't leak to the press."*
+
+---
+
+### Case File 005 -- Identity Dupes
+
+**Multiple isolated browser identities with unique fingerprints.**
+
+Each identity is a complete cover story: unique fingerprint, isolated cookies, independent network stack, separate history. Like running multiple undercover operatives who never know about each other. 24 NATO alphabet codenames with cryptographic hex suffixes ensure no two dupes are ever confused.
+
+---
+
+### Case File 006 -- Hivemind
+
+**Cross-identity entity synchronization.**
+
+What one identity discovers, all identities can access. When multiple identities independently find the same entity, MADROX flags it as **HIGH CONFIDENCE** intelligence. Real-time sync. Paginated views. The collective memory of every cover you've ever run.
+
+---
+
+### Case File 007 -- Dynamic Privacy Engine
+
+**5 OPSEC levels. Because paranoia is just good tradecraft.**
+
+| Level | Description | When to use it |
+|-------|-------------|----------------|
+| **MINIMAL** | Basic protection | Trusted OSINT platforms |
+| **STANDARD** | Tracker blocking, basic spoofing | General browsing |
+| **ENHANCED** | Fingerprint spoofing, full tracker block | Sensitive research |
+| **MAXIMUM** | Full spoofing + Tor routing | High-risk investigation |
+| **PARANOID** | Assume active adversary, everything enabled | When they're watching back |
+
+Auto-adjusts based on site risk assessment. Trusted OSINT sites (Shodan, HIBP, Censys, GreyNoise, IntelX) get lighter treatment. Dark web and hostile domains get the full lockdown. Dynamic confidence scoring adapts in real time.
+
+> *"Paranoid? I prefer 'professionally cautious.'"*
+
+---
+
+### Case File 008 -- OSINT Toolkit
+
+**Professional intelligence tools for professional investigators.**
+
+- **Phone Intel** -- Multi-format analysis, carrier lookup, minimum 7-digit validation
+- **Email Intel** -- Domain validation, breach check, provider detection, disposable detection
+- **Username Hunt** -- 12+ platforms instant, 500+ via extended tools
+- **Domain Recon** -- WHOIS, DNS, subdomains, tech stack, historical records
+
+---
+
+## Architecture -- The Office
+
+> *"Every PI needs an office. This is mine."*
 
 ```
-+=====================================================================================+
-|                              M A D R O X   v 1 0 . 0 . 1                            |
-+======================================================================================+
-|                                                                                      |
-|   +----------------------------------------------------------------------+           |
-|   |                      R E A C T   F R O N T E N D                     |           |
-|   |  +----------+ +----------+ +----------+ +----------+ +----------+    |           |
-|   |  | Browser  | | Identity | | Hivemind | |   MCP    | | Privacy  |    |           |
-|   |  |   Tabs   | |  Panel   | |  Panel   | |  Panel   | |Dashboard |    |           |
-|   |  +----+-----+ +----+-----+ +----+-----+ +----+-----+ +----+-----+    |           |
-|   |       +-------------+------------+------------+-----------+           |           |
-|   |                              |                                        |           |
-|   |         +--------------------+--------------------+                   |           |
-|   |         |         REDUX TOOLKIT STORE             |                   |           |
-|   |         |    [tabs] [identity] [hivemind] [mcp]   |                   |           |
-|   |         |         [osint] [ui] [privacy]          |                   |           |
-|   |         +--------------------+--------------------+                   |           |
-|   +------------------------------+----------------------------------------+           |
-|                                  | IPC (Tauri Commands)                              |
-|   +------------------------------+----------------------------------------+           |
-|   |               T A U R I   R U S T   B A C K E N D                     |           |
-|   |              +---------------------------+                            |           |
-|   |              |       COMMAND HANDLERS    |                            |           |
-|   |              +-------------+-------------+                            |           |
-|   |    +----------+----------+-+----------+----------+                    |           |
-|   |    v          v          v          v            v                    |           |
-|   | +-------+ +--------+ +-------+ +--------+ +---------+                |           |
-|   | |Identity| |Hivemind| |  MCP  | | OSINT  | | Privacy |                |           |
-|   | | Engine | |  Core  | | Bridge| | Tools  | | Engine  |                |           |
-|   | +---+---+ +---+----+ +---+---+ +---+----+ +---+-----+                |           |
-|   |     +----------+----------+----------+---------+                      |           |
-|   |                              |                                        |           |
-|   |                 +------------+------------+                           |           |
-|   |                 |    SLED DATABASE        |                           |           |
-|   |                 |  [Embedded Key-Value]   |                           |           |
-|   |                 +-------------------------+                           |           |
-|   +-----------------------------------------------------------------------+           |
-|                                                                                      |
-+======================================================================================+
++=========================================================================================+
+|                          M A D R O X   v 1 2 . 0 . 0                                   |
+|                    " J E S S I C A   J O N E S "                                        |
++=========================================================================================+
+|                                                                                         |
+|   +-------------------------------------------------------------------------+           |
+|   |                      R E A C T   F R O N T E N D                        |           |
+|   |  +----------+ +----------+ +----------+ +----------+ +----------+       |           |
+|   |  | Browser  | | Identity | | Hivemind | |   MCP    | | Privacy  |       |           |
+|   |  |   Tabs   | |  Panel   | |  Panel   | |  Panel   | |Dashboard |       |           |
+|   |  +-----+----+ +-----+----+ +----+-----+ +----+-----+ +----+-----+       |           |
+|   |  +----------+ +----------+ +----------+                                 |           |
+|   |  |Investig. | | Session  | |  OSINT   |                                 |           |
+|   |  | Timeline | | Manager  | |  Panel   |                                 |           |
+|   |  +-----+----+ +-----+----+ +----+-----+                                 |           |
+|   |        +----------+---+----------+---+----------+---+----------+        |           |
+|   |                                  |                                      |           |
+|   |         +------------------------+------------------------+             |           |
+|   |         |            REDUX TOOLKIT STORE                  |             |           |
+|   |         |   [tabs] [identity] [hivemind] [mcp] [osint]    |             |           |
+|   |         |   [ui] [privacy] [investigation] [session]      |             |           |
+|   |         +------------------------+------------------------+             |           |
+|   +----------------------------------+----------------------------------+   |           |
+|                                      | IPC (Tauri Commands)                 |           |
+|   +----------------------------------+----------------------------------+   |           |
+|   |               T A U R I   R U S T   B A C K E N D                   |   |           |
+|   |              +-----------------------------+                        |   |           |
+|   |              |      COMMAND HANDLERS       |                        |   |           |
+|   |              |       (30+ IPC Commands)     |                        |   |           |
+|   |              +-------------+---------------+                        |   |           |
+|   |    +----------+-----+------+------+----------+----------+           |   |           |
+|   |    v          v     v      v      v          v          v           |   |           |
+|   | +-------+ +------+ +----+ +----+ +-------+ +-------+ +------+      |   |           |
+|   | |Identity| |Hive- | |MCP | |CEF | |Invest.| |Session| |Privacy|      |   |           |
+|   | | Engine | | mind | |Srvr| |Core| |Timeline| |Clone | |Engine |      |   |           |
+|   | +---+---+ +--+---+ +-+--+ +-+--+ +---+---+ +--+---+ +---+---+      |   |           |
+|   |     +--------+-------+------+--------+--------+--------+           |   |           |
+|   |                              |                                      |   |           |
+|   |                 +------------+------------+                         |   |           |
+|   |                 |    SLED DATABASE        |                         |   |           |
+|   |                 |  [Embedded Key-Value]   |                         |   |           |
+|   |                 +-------------------------+                         |   |           |
+|   +---------------------------------------------------------------------+   |           |
+|                                                                             |           |
++=========================================================================================+
 ```
 
 ### Tech Stack
@@ -236,16 +259,23 @@ When multiple identities discover the same entity, MADROX marks it as **HIGH CON
 | Layer | Technology | Purpose |
 |-------|------------|---------|
 | **Runtime** | Tauri 2.0 | Secure desktop framework |
-| **Frontend** | React 19 + TypeScript | Modern UI |
-| **UI Library** | Mantine 8 | Beautiful components |
-| **State** | Redux Toolkit | Predictable state |
-| **Backend** | Rust | Performance & safety |
+| **Frontend** | React 19 + TypeScript 5.x | Modern reactive UI |
+| **UI Library** | Mantine 8 | Component library |
+| **State** | Redux Toolkit 2.x | Predictable state management |
+| **Backend** | Rust 1.75+ | Performance, safety, and system access |
+| **Browser Engine** | CEF (Chromium Embedded Framework) | Full fingerprint-controlled browsing |
 | **Database** | sled | Embedded key-value store |
-| **Build** | Vite 7 | Fast bundling |
+| **Visualization** | D3.js | Force-directed graph and timeline |
+| **AI** | Claude API (MCP) | 8 specialized investigation agents |
+| **Build** | Vite 7 | Fast development and bundling |
+
+The frontend handles the UI, identity management, and investigation visualization. The Rust backend handles the heavy lifting: CEF orchestration, fingerprint injection, session cloning, MCP server routing, and all the security-critical operations that should never run in a renderer process.
 
 ---
 
-## Installation
+## Getting Started
+
+> *"You don't need a license to investigate. You just need to know where to look."*
 
 ### Prerequisites
 
@@ -259,7 +289,7 @@ Tauri CLI 2.0+
 sudo apt install libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev
 ```
 
-### From Source
+### Installation
 
 ```bash
 # Clone the repository
@@ -269,7 +299,7 @@ cd Spin/madrox-v5
 # Install dependencies
 npm install
 
-# Development mode
+# Development mode (hot reload)
 npm run tauri:dev
 
 # Production build
@@ -282,72 +312,126 @@ Coming soon: Pre-built binaries for Windows, macOS, and Linux.
 
 ---
 
-## Usage
+## Field Manual
+
+> *"I could tell you how to do this, but then I'd have to bill you."*
 
 ### Spawning Identities (Dupes)
 
-1. Click **Identities** in title bar (or `Ctrl+I`)
+1. Click **Identities** in the title bar (or `Ctrl+I`)
 2. Click **"Spawn Dupe"**
-3. Name your identity (e.g., "Ghost", "Analyst", "Burner")
-4. MADROX generates unique fingerprint automatically (24 NATO alphabet names, 6-char hex suffix)
+3. Name your cover (e.g., "Ghost", "Analyst", "Burner")
+4. MADROX generates a unique fingerprint automatically
 
 ### Switching Identities
 
-Click any identity card. Tabs, cookies, and sessions are **completely isolated**.
+Click any identity card. Tabs, cookies, sessions -- **completely isolated**. Like walking into a room as a different person.
 
-### Cloning and Editing Identities
+### Cloning Sessions
 
-- **Clone**: Right-click identity > Clone Session to create a copy
-- **Edit**: Right-click identity > Edit to modify name and description
+1. Select the source identity
+2. Right-click > **Clone Session**
+3. Select the target identity
+4. Choose what to clone: cookies, localStorage, history
+5. Session data is integrity-verified via SHA-256 before transfer
 
-### Using the Hivemind
+### Investigation Timeline
 
-- **Filter** by entity type (email, phone, IP, etc.)
-- **Search** for specific values
-- **Cross-references** highlighted in orange (high confidence)
-- **Paginate** through entities with Load More (20 per page)
+1. Open the **Investigation** panel
+2. View the chronological timeline of your investigation
+3. Switch to **Graph** view for D3.js entity relationship visualization
+4. Click nodes to expand connections, drag to rearrange
+5. Export your investigation state at any time
 
 ### AI Agents (MCP)
 
-1. Open **MCP** panel
-2. Select an agent
-3. Describe your task
-4. Agent processes and responds (with loading indicator and error handling)
+1. Open the **MCP** panel
+2. Select your agent (Analyst, Gatherer, Correlator, etc.)
+3. Describe your task in natural language
+4. Agents share context -- findings from one are available to all
+5. Review results, export reports
 
 ### Dynamic Privacy
 
 1. Open **Privacy** panel (shield icon)
-2. Select OPSEC level or use auto-adjust
+2. Select OPSEC level or let auto-adjust handle it
 3. Toggle individual protections as needed
 4. Monitor real-time blocking stats
 
 ---
 
+## What's New in v12.0.0
+
+> *"New tools. Same attitude."*
+
+### "Jessica Jones" Release
+
+This release delivers the four major capabilities that were on the roadmap -- embedded Chromium, session cloning, investigation visualization, and full AI integration -- along with significant backend expansion.
+
+**Embedded Chromium via CEF**
+- Full Chromium Embedded Framework integration with per-identity browser contexts
+- Complete fingerprint injection pipeline: Canvas, WebGL, Audio, Font, Timezone, WebRTC, Navigator
+- Sandboxed execution with isolated cookie jars, cache, and localStorage per identity
+
+**Secure Session Cloning**
+- Clone cookies, localStorage, and history between identities
+- Sensitive cookie filtering prevents credential leakage during transfer
+- SHA-256 integrity hashing verifies session data was not tampered with
+- Domain filtering for selective cloning
+
+**Investigation Timeline & Graph**
+- D3.js force-directed entity relationship graph visualization
+- Chronological investigation timeline with event tracking
+- Graph nodes and edges with confidence-weighted relationships
+- Full investigation state export
+
+**Claude API Integration (MCP Server)**
+- 8 specialized AI agents with shared investigation context
+- Smart tool routing directs queries to the appropriate agent
+- Full Claude API integration with streaming responses
+- Shared context window across all agents for cross-referencing
+
+**Backend Expansion**
+- 9 new Rust modules (CEF core, session cloner, investigation tracker, MCP server, and more)
+- 30+ new Tauri IPC commands
+- 2 new Redux slices: `investigation` and `session`
+- 3 new React component families: Investigation (Timeline, Graph, Export), Session (ClonePanel, CloneHistory, IntegrityView), and CEF (BrowserInstance, FingerprintConfig, ContextManager)
+
+---
+
 ## Security Model
+
+> *"I don't trust anyone. It's not personal -- it's professional."*
 
 | Feature | Implementation |
 |---------|----------------|
-| **Context Isolation** | Full Tauri sandbox |
-| **No Node.js in Renderer** | Pure browser context |
-| **Encrypted Storage** | sled with optional encryption |
-| **Input Validation** | All IPC messages validated with length limits |
-| **URL Filtering** | Dangerous protocols blocked (javascript:, data:, file:, vbscript:, blob:) |
-| **CSP** | Strict Content Security Policy |
-| **Lock Safety** | All RwLock operations use error propagation, no panics |
-| **External Links** | `rel="noopener noreferrer"` on all external anchors |
+| **Context Isolation** | Full Tauri sandbox + CEF process isolation |
+| **No Node.js in Renderer** | Pure browser context, no backend access |
+| **Encrypted Storage** | sled with optional encryption at rest |
+| **Input Validation** | All IPC messages validated with length limits (1000 char cap) |
+| **URL Filtering** | Dangerous protocols blocked (`javascript:`, `data:`, `file:`, `vbscript:`, `blob:`) |
+| **CSP** | Strict Content Security Policy headers |
+| **Lock Safety** | All RwLock operations use error propagation, zero panics |
+| **Session Integrity** | SHA-256 hashing on all cloned session data |
+| **Sensitive Cookie Filtering** | Auth tokens and credentials stripped during session clone |
+| **External Links** | `rel="noopener noreferrer"` enforced on all external anchors |
+| **CEF Sandboxing** | Each Chromium instance runs in isolated process space |
 
 ---
 
 ## Version History
 
 ```
-v10.0.1 ████████████████████  CURRENT
+v12.0.0 ████████████████████  CURRENT -- "Jessica Jones"
+        └─ Embedded Chromium, Session Cloning, Investigation Graph, Claude MCP
+
+v10.0.1 ████████████████████
         └─ Stability, optimization, and enhancement release
 
-v5.0    ████████████████████  Previous
-        └─ Multi-identity, Hivemind, MCP Agents, Dynamic Privacy (Tauri + React)
+v5.0    ████████████████████
+        └─ MADROX - The Multiple Man (Tauri + React)
 
-v4.x    ████████████████████  Legacy
+v4.x    ████████████████████
         └─ CONSTANTINE - The Exorcist's Edge (Electron + Svelte)
 
 v3.x    ████████████████████
@@ -364,24 +448,17 @@ v1.0    ████████████████████
 
 ## Roadmap
 
+> *"I don't plan ahead. But sometimes the case demands it."*
+
 ```
-v10.0.1 ████████████████████  CURRENT
-        └─ Stability, optimization, and enhancement release
+v12.0.0 ████████████████████  CURRENT -- "Jessica Jones"
+        └─ CEF, Session Cloning, Investigation Graph, Claude MCP Server
 
-v10.1   ░░░░░░░░░░░░░░░░░░░░  NEXT
-        └─ Embedded Chromium webview (full fingerprint control)
-
-v10.2   ░░░░░░░░░░░░░░░░░░░░
-        └─ Session cloning between identities
-
-v10.3   ░░░░░░░░░░░░░░░░░░░░
-        └─ Investigation timeline and graph visualization
-
-v10.4   ░░░░░░░░░░░░░░░░░░░░
-        └─ Full MCP server with Claude API integration
-
-v11.0   ░░░░░░░░░░░░░░░░░░░░  FUTURE
-        └─ Collaborative investigations (multi-user hivemind)
+v13.0   ░░░░░░░░░░░░░░░░░░░░  NEXT
+        └─ Collaborative investigations (multi-user hivemind),
+           real-time shared case boards, team identity management,
+           and encrypted peer-to-peer evidence sharing.
+           Codename TBD.
 ```
 
 ---
@@ -394,24 +471,27 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-- **Jamie Madrox / Multiple Man** - The mutant who inspired this project
-- **Tauri Team** - For the incredible framework
-- **React Team** - For React 19
-- **Mantine** - For the beautiful UI components
-- **The OSINT Community** - For the tools and techniques
+- **Jessica Jones / Alias Investigations** -- The PI who proved you don't need a cape to get results
+- **Jamie Madrox / Multiple Man** -- The mutant who inspired the multi-identity architecture
+- **Tauri Team** -- For the secure desktop framework
+- **React Team** -- For React 19
+- **Mantine** -- For the component library
+- **D3.js** -- For making data visible
+- **Anthropic / Claude** -- For the AI that powers the MCP agents
+- **The OSINT Community** -- For the tools, techniques, and tradecraft
 
 ---
 
 <div align="center">
 
-**MADROX v10.0.1** - *The Multiple Man OSINT Browser*
+**MADROX v12.0.0** - *"Jessica Jones"*
 
-*Disappear into the crowd. Become everyone. Trust no one.*
+*Alias Investigations. Cases solved. Questions answered. Secrets found.*
 
-*"One becomes many. Many become one. The investigation continues."*
+*"I'm not a hero. I'm a private investigator. Now get out of my office."*
 
 ---
 
-[Report Issue](https://github.com/thumpersecure/Spin/issues) | [spin osint]
+[Report Issue](https://github.com/thumpersecure/Spin/issues) | [Spin OSINT]
 
 </div>

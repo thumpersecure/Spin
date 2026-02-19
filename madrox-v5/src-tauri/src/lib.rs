@@ -1,19 +1,25 @@
-//! MADROX v5.0 - The Multiple Man OSINT Browser
+//! MADROX v12.0.0 "Jessica Jones" - OSINT Investigation Browser
 //!
-//! Like Jamie Madrox, this browser can spawn multiple identities (dupes)
-//! that work independently while sharing intelligence through the Hivemind.
+//! A privacy-first OSINT browser with embedded Chromium (CEF), multi-identity
+//! session isolation, investigation timeline/graph visualization, and
+//! Claude-powered MCP agents.
+//!
+//! "Every case starts with a question. Every answer leads to another."
 
+pub mod cef;
 pub mod commands;
 pub mod core;
 pub mod hivemind;
+pub mod investigation;
 pub mod mcp;
+pub mod session;
 pub mod storage;
 
 use tauri::Manager;
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-/// Initialize the MADROX application
+/// Initialize the MADROX Jessica Jones application
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Initialize tracing
@@ -22,24 +28,34 @@ pub fn run() {
         .with(tracing_subscriber::EnvFilter::from_default_env())
         .init();
 
-    info!("Initializing MADROX v5.0 - The Multiple Man");
+    info!("Initializing MADROX v12.0.0 - Jessica Jones");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-            info!("Setting up MADROX...");
+            info!("Setting up MADROX Jessica Jones...");
+
+            let app_handle = app.handle().clone();
 
             // Initialize storage
-            let app_handle = app.handle().clone();
             storage::init(&app_handle)?;
+
+            // Initialize CEF (Chromium Embedded Framework)
+            cef::init(&app_handle)?;
+
+            // Initialize session cloning module
+            session::init(&app_handle)?;
 
             // Initialize Hivemind sync
             hivemind::init(&app_handle)?;
 
-            // Initialize MCP server
+            // Initialize investigation timeline module
+            investigation::init(&app_handle)?;
+
+            // Initialize MCP server with Claude API
             mcp::init(&app_handle)?;
 
-            info!("MADROX ready. Prime identity active.");
+            info!("MADROX Jessica Jones ready. Case file open.");
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -59,18 +75,53 @@ pub fn run() {
             commands::hivemind::extract_entities_from_text,
             commands::hivemind::clear_entities,
 
-            // Browser commands
+            // Browser commands (legacy fallback)
             commands::browser::navigate,
             commands::browser::go_back,
             commands::browser::go_forward,
             commands::browser::reload,
             commands::browser::get_page_content,
 
-            // MCP commands
+            // CEF browser commands (Chromium)
+            commands::cef::create_browser_context,
+            commands::cef::cef_navigate,
+            commands::cef::cef_go_back,
+            commands::cef::cef_go_forward,
+            commands::cef::cef_reload,
+            commands::cef::get_browser_instance,
+            commands::cef::get_navigation_history,
+            commands::cef::destroy_browser_context,
+            commands::cef::get_fingerprint_script,
+
+            // Session cloning commands
+            commands::session::clone_session,
+            commands::session::get_session_data,
+            commands::session::export_session,
+            commands::session::import_session,
+            commands::session::clear_session,
+
+            // Investigation timeline & graph commands
+            commands::investigation::create_investigation,
+            commands::investigation::get_all_investigations,
+            commands::investigation::get_investigation,
+            commands::investigation::add_timeline_event,
+            commands::investigation::add_graph_node,
+            commands::investigation::add_graph_edge,
+            commands::investigation::get_investigation_graph,
+            commands::investigation::get_investigation_timeline,
+            commands::investigation::update_investigation_status,
+            commands::investigation::delete_investigation,
+            commands::investigation::export_investigation,
+
+            // MCP commands (with Claude API)
             commands::mcp::get_agents,
             commands::mcp::invoke_agent,
             commands::mcp::get_agent_skills,
             commands::mcp::execute_skill,
+            commands::mcp::set_claude_api_key,
+            commands::mcp::get_claude_status,
+            commands::mcp::clear_claude_history,
+            commands::mcp::set_claude_model,
 
             // OSINT commands
             commands::osint::analyze_phone,

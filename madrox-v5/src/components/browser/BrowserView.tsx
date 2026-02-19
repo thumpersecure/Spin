@@ -21,6 +21,7 @@ import {
   IconSearch,
   IconBrain,
   IconUsers,
+  IconTimeline,
 } from '@tabler/icons-react';
 
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -153,7 +154,7 @@ function StartPage({ onNewTab }: StartPageProps) {
             MADROX
           </Text>
           <Text c="dimmed" size="sm" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-            The Multiple Man -- OSINT Browser v5.0
+            Jessica Jones -- OSINT Investigation Browser v12.0
           </Text>
         </Stack>
 
@@ -272,6 +273,14 @@ function StartPage({ onNewTab }: StartPageProps) {
           >
             Agents
           </Button>
+          <Button
+            leftSection={<IconTimeline size={16} />}
+            variant="light"
+            color="grape"
+            onClick={() => dispatch(togglePanel('investigation'))}
+          >
+            Cases
+          </Button>
         </Group>
 
         <Divider
@@ -313,7 +322,7 @@ function StartPage({ onNewTab }: StartPageProps) {
             WebkitTextFillColor: 'transparent',
           }}
         >
-          "One becomes many. Many become one."
+          "Every case starts with a question. Every answer leads to another."
         </Text>
       </Stack>
     </Box>
