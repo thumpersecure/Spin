@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spin Web - OSINT Mini Toolkit</title>
+  <meta name="description" content="Spin Web - A lightweight OSINT investigation toolkit. Analyze phones, emails, usernames, and domains. Client-side privacy.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%237b1feb'/><text x='50' y='72' font-family='system-ui' font-size='60' font-weight='900' fill='white' text-anchor='middle'>S</text></svg>">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">S</div>
+      <h1>Spin Web <span>OSINT Mini Toolkit</span></h1>
+    </div>
+    <div class="header-right">
+      <span class="badge">v12.0.3 &middot; Jessica Jones</span>
+      <span class="badge" style="color:var(--spin-purple-light)">100% Client-Side</span>
+      <a href="https://github.com/thumpersecure/Spin" target="_blank" rel="noopener" class="btn-desktop">Desktop App</a>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <button class="nav-tab active" data-panel="dashboard" onclick="switchPanel('dashboard')">Dashboard</button>
+    <button class="nav-tab" data-panel="phone-tool" onclick="switchPanel('phone-tool')">Phone Intel</button>
+    <button class="nav-tab" data-panel="email-tool" onclick="switchPanel('email-tool')">Email Analysis</button>
+    <button class="nav-tab" data-panel="username-tool" onclick="switchPanel('username-tool')">Username Recon</button>
+    <button class="nav-tab" data-panel="domain-tool" onclick="switchPanel('domain-tool')">Domain Recon</button>
+    <button class="nav-tab" data-panel="extractor" onclick="switchPanel('extractor')">Entity Extractor</button>
+    <button class="nav-tab" data-panel="hivemind" onclick="switchPanel('hivemind')">Hivemind</button>
+    <button class="nav-tab" data-panel="bookmarks" onclick="switchPanel('bookmarks')">OSINT Bookmarks</button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- ═══ Dashboard ═══ -->
+    <section id="dashboard" class="panel active">
+      <div class="stats-grid">
+        <div class="stat-card purple">
+          <div class="stat-value" id="entity-count">0</div>
+          <div class="stat-label">Entities Collected</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-value" id="entity-types-count">0</div>
+          <div class="stat-label">Entity Types</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-value">8</div>
+          <div class="stat-label">OSINT Categories</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-value">50+</div>
+          <div class="stat-label">Bookmarked Tools</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon purple">S</div>
+            Welcome to Spin Web
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.9rem;line-height:1.7">
+          <strong style="color:var(--text-bright)">Spin</strong> is a privacy-first OSINT investigation toolkit.
+          This is the <strong style="color:var(--spin-purple-light)">web mini version</strong> &mdash; a lightweight,
+          client-side toolkit that runs entirely in your browser. No data is sent to any server.
+          All analysis happens locally using JavaScript.
+        </p>
+        <p style="color:var(--text-dim);font-size:0.9rem;margin-top:0.75rem;line-height:1.7">
+          For the full experience &mdash; including multi-identity browsing, AI-powered agents, real-time entity sync,
+          investigation timelines, and advanced privacy controls &mdash;
+          <a href="https://github.com/thumpersecure/Spin" target="_blank" rel="noopener" style="color:var(--spin-blue)">install the desktop app</a>.
+        </p>
+      </div>
+
+      <h3 style="font-size:0.95rem;margin-bottom:1rem;color:var(--text-bright)">Quick Tools</h3>
+      <div class="tools-grid">
+        <div class="tool-card" onclick="switchPanel('phone-tool')">
+          <h3><span class="card-icon green">P</span> Phone Intelligence</h3>
+          <p>Analyze phone numbers &mdash; country detection, carrier info, format conversion, and search links.</p>
+        </div>
+        <div class="tool-card" onclick="switchPanel('email-tool')">
+          <h3><span class="card-icon blue">@</span> Email Analysis</h3>
+          <p>Analyze email addresses &mdash; provider detection, disposable check, pattern analysis.</p>
+        </div>
+        <div class="tool-card" onclick="switchPanel('username-tool')">
+          <h3><span class="card-icon purple">U</span> Username Recon</h3>
+          <p>Search usernames across 16+ platforms &mdash; social media, code, and gaming.</p>
+        </div>
+        <div class="tool-card" onclick="switchPanel('domain-tool')">
+          <h3><span class="card-icon orange">D</span> Domain Recon</h3>
+          <p>Domain intelligence &mdash; WHOIS, DNS, SSL certs, historical data, and more.</p>
+        </div>
+        <div class="tool-card" onclick="switchPanel('extractor')">
+          <h3><span class="card-icon red">E</span> Entity Extractor</h3>
+          <p>Paste any text to automatically extract emails, phones, IPs, domains, crypto addresses.</p>
+        </div>
+        <div class="tool-card" onclick="switchPanel('hivemind')">
+          <h3><span class="card-icon green">H</span> Hivemind</h3>
+          <p>View, search, filter, and export all collected entities from your investigations.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Phone Intelligence ═══ -->
+    <section id="phone-tool" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon green">P</div>
+            Phone Intelligence
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem">
+          Analyze phone numbers for country, carrier, format, and generate investigation search links.
+        </p>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <div class="input-row">
+            <input type="text" id="phone-input" placeholder="e.g. +1 (555) 123-4567 or 442071234567">
+            <button class="btn" onclick="analyzePhone()">Analyze</button>
+          </div>
+        </div>
+        <div class="results" id="phone-results"></div>
+      </div>
+    </section>
+
+    <!-- ═══ Email Analysis ═══ -->
+    <section id="email-tool" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon blue">@</div>
+            Email Analysis
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem">
+          Analyze email addresses for provider, disposable detection, pattern analysis, and OSINT search links.
+        </p>
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-row">
+            <input type="email" id="email-input" placeholder="e.g. user@example.com">
+            <button class="btn" onclick="analyzeEmail()">Analyze</button>
+          </div>
+        </div>
+        <div class="results" id="email-results"></div>
+      </div>
+    </section>
+
+    <!-- ═══ Username Recon ═══ -->
+    <section id="username-tool" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon purple">U</div>
+            Username Reconnaissance
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem">
+          Search a username across 16+ platforms. Click any platform link to check if the profile exists.
+        </p>
+        <div class="form-group">
+          <label>Username</label>
+          <div class="input-row">
+            <input type="text" id="username-input" placeholder="e.g. johndoe42">
+            <button class="btn" onclick="analyzeUsername()">Search</button>
+          </div>
+        </div>
+        <div class="results" id="username-results"></div>
+      </div>
+    </section>
+
+    <!-- ═══ Domain Recon ═══ -->
+    <section id="domain-tool" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon orange">D</div>
+            Domain Reconnaissance
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem">
+          Analyze domains and access reconnaissance tools &mdash; WHOIS, DNS, SSL certs, and historical data.
+        </p>
+        <div class="form-group">
+          <label>Domain</label>
+          <div class="input-row">
+            <input type="text" id="domain-input" placeholder="e.g. example.com or subdomain.example.com">
+            <button class="btn" onclick="analyzeDomain()">Analyze</button>
+          </div>
+        </div>
+        <div class="results" id="domain-results"></div>
+      </div>
+    </section>
+
+    <!-- ═══ Entity Extractor ═══ -->
+    <section id="extractor" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon red">E</div>
+            Entity Extractor
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem">
+          Paste any text below and Spin will automatically extract emails, phone numbers, IP addresses,
+          domains, URLs, crypto addresses, hashtags, and usernames.
+        </p>
+        <div class="form-group">
+          <label>Text to Analyze</label>
+          <textarea id="extract-input" placeholder="Paste any text here... emails, phone numbers, URLs, crypto addresses, and more will be automatically detected."></textarea>
+        </div>
+        <button class="btn" onclick="extractEntities()">Extract Entities</button>
+        <div class="results" id="extract-results"></div>
+      </div>
+    </section>
+
+    <!-- ═══ Hivemind ═══ -->
+    <section id="hivemind" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon green">H</div>
+            Hivemind &mdash; Entity Database
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-secondary" onclick="importEntities()">Import</button>
+            <button class="btn btn-sm btn-secondary" onclick="exportEntities()">Export JSON</button>
+            <button class="btn btn-sm btn-secondary" onclick="clearEntities()" style="color:var(--spin-red)">Clear All</button>
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem">
+          All discovered entities are collected here. Filter, search, export, or import entity databases.
+          Data is stored locally in your browser (localStorage).
+        </p>
+        <div style="display:flex;gap:8px;margin-bottom:1rem">
+          <select id="entity-filter" style="width:160px">
+            <option value="all">All Types</option>
+            <option value="email">Email</option>
+            <option value="phone">Phone</option>
+            <option value="domain">Domain</option>
+            <option value="ipv4">IPv4</option>
+            <option value="url">URL</option>
+            <option value="username">Username</option>
+            <option value="bitcoin">Bitcoin</option>
+            <option value="ethereum">Ethereum</option>
+            <option value="hashtag">Hashtag</option>
+          </select>
+          <input type="text" id="entity-search" placeholder="Search entities..." style="flex:1">
+        </div>
+        <div style="overflow-x:auto">
+          <table class="entity-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Value</th>
+                <th>Source</th>
+                <th>Count</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="entity-table-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ OSINT Bookmarks ═══ -->
+    <section id="bookmarks" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon blue">B</div>
+            OSINT Bookmarks
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem">
+          Curated collection of 50+ OSINT tools and resources organized by category.
+        </p>
+        <div class="form-group">
+          <input type="text" id="bookmark-search" placeholder="Search bookmarks...">
+        </div>
+        <div id="bookmarks-container"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>
+      <strong>Spin Web</strong> v12.0.3 "Jessica Jones" &mdash; OSINT Mini Toolkit<br>
+      All analysis runs locally in your browser. No data is sent to any server.<br>
+      <a href="https://github.com/thumpersecure/Spin">GitHub</a> &middot;
+      <a href="https://github.com/thumpersecure/Spin/releases">Desktop Downloads</a> &middot;
+      Built with care by the Spin team
+    </p>
+  </footer>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

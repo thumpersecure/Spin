@@ -1,78 +1,70 @@
-# CLAUDE.md - AI Assistant Guide for MADROX/Spin
+# CLAUDE.md - AI Assistant Guide for Spin
 
 This document provides essential context for AI assistants working on this codebase.
 
 ## Project Overview
 
-**MADROX** (formerly CONSTANTINE/SANDIEGO) is a privacy-first OSINT (Open Source Intelligence) investigation browser. The project has evolved through multiple theme iterations and is currently transitioning from Electron (v4.x) to Tauri 2.0 (v5.x).
+**Spin** is a privacy-first OSINT (Open Source Intelligence) investigation browser. Each version uses a different detective/investigator theme. The current release is **v12.0.3 "Jessica Jones"**.
 
 ### Version History
 | Version | Codename | Stack | Status |
 |---------|----------|-------|--------|
-| v5.0 | MADROX - The Multiple Man | Tauri 2.0 + React 19 + Rust | **Active Development** |
-| v4.x | CONSTANTINE - The Exorcist's Edge | Electron + Svelte 5 | Legacy (in `src/`) |
+| v12.0 | Jessica Jones | Tauri 2.0 + React 19 + Rust | **Active Development** |
+| v5.0 | The Multiple Man | Tauri 2.0 + React 19 + Rust | Superseded by v12 |
+| v4.x | The Exorcist's Edge | Electron + Svelte 5 | Legacy (in `src/`) |
 
 ### Core Concepts
 - **Identity Dupes**: Multiple isolated browser identities with unique fingerprints
 - **Hivemind**: Real-time entity synchronization across identities
 - **MCP Agents**: AI-powered investigation assistants (Model Context Protocol)
 - **Dynamic Privacy Engine**: Automatic OPSEC level adjustment based on site risk
+- **CEF Integration**: Embedded Chromium with per-identity fingerprint control
+- **Session Cloning**: Secure session transfer between identities with SHA-256 verification
+- **Investigation Timeline & Graph**: D3.js entity relationship visualization
 
 ## Repository Structure
 
 ```
 Spin/
-├── madrox-v5/                    # v5.0 Tauri+React (ACTIVE DEVELOPMENT)
+├── app/                          # v12.0 Tauri+React (ACTIVE DEVELOPMENT)
 │   ├── src/                      # React TypeScript frontend
 │   │   ├── components/           # UI components
 │   │   │   ├── browser/          # TitleBar, TabBar, NavBar, BrowserView
 │   │   │   ├── identity/         # IdentityPanel
 │   │   │   ├── hivemind/         # HivemindPanel
+│   │   │   ├── investigation/    # InvestigationPanel, Timeline, Graph
 │   │   │   ├── mcp/              # McpPanel
 │   │   │   ├── osint/            # OsintPanel
 │   │   │   ├── privacy/          # PrivacyDashboard
 │   │   │   └── ui/               # SidePanel, SettingsPanel
 │   │   ├── store/                # Redux Toolkit
 │   │   │   ├── index.ts          # Store configuration
-│   │   │   └── slices/           # Feature slices
+│   │   │   └── slices/           # Feature slices (9 slices)
 │   │   └── theme/                # Mantine theme config
 │   ├── src-tauri/                # Rust backend
 │   │   ├── src/
 │   │   │   ├── commands/         # Tauri IPC command handlers
 │   │   │   ├── core/             # Business logic (identity, fingerprint, privacy)
+│   │   │   ├── cef/              # Chromium Embedded Framework
+│   │   │   ├── session/          # Session cloning
+│   │   │   ├── investigation/    # Timeline & graph
 │   │   │   ├── hivemind/         # Entity sync system
-│   │   │   ├── mcp/              # MCP server integration
+│   │   │   ├── mcp/              # MCP server / Claude API integration
 │   │   │   └── storage/          # sled database wrapper
 │   │   └── tauri.conf.json       # Tauri configuration
-│   └── package.json              # v5 dependencies
+│   └── package.json              # App dependencies
 │
 ├── src/                          # v4.x Electron+Svelte (LEGACY)
-│   ├── main/                     # Electron main process
-│   ├── renderer/                 # Svelte renderer
-│   │   ├── components/           # Svelte components
-│   │   ├── stores/               # Svelte stores
-│   │   └── lib/                  # Utilities
-│   ├── extensions/               # AI modules and features
-│   │   ├── ai-research-assistant.js
-│   │   ├── ai-privacy-shield.js
-│   │   ├── ai-research-tools.js
-│   │   ├── ai-cognitive-tools.js
-│   │   └── phone-intel.js
-│   ├── plugins/                  # Plugin system
-│   ├── preload/                  # Electron preload scripts
-│   └── data/                     # Static data (OSINT bookmarks)
-│
 ├── tests/                        # Jest test files
-├── scripts/                      # Build scripts (icon generation)
+├── scripts/                      # Build scripts
 ├── assets/                       # Application icons
 ├── .github/workflows/            # CI/CD configuration
-├── package.json                  # v4 root dependencies (Electron)
-└── V5_MADROX_ARCHITECTURE.md     # v5 architecture documentation
+└── package.json                  # Root dependencies
 ```
 
 ## Tech Stack
 
-### v5 (madrox-v5/) - Active Development
+### v12 (app/) - Active Development
 | Layer | Technology | Version |
 |-------|------------|---------|
 | Runtime | Tauri | 2.0 |
@@ -83,21 +75,13 @@ Spin/
 | Icons | Tabler Icons | 3.x |
 | Backend | Rust | 1.75+ |
 | Database | sled | Embedded KV |
+| AI | Claude API (MCP) | Messages API |
 | Build | Vite | 7.x |
-
-### v4 (src/) - Legacy
-| Layer | Technology | Version |
-|-------|------------|---------|
-| Runtime | Electron | 40.x |
-| Frontend | Svelte | 5.x |
-| Build | Vite | 5.x |
-| Storage | electron-store | 8.x |
 
 ## Development Commands
 
-### v5 (Tauri + React)
 ```bash
-cd madrox-v5
+cd app
 
 # Development with hot reload
 npm run tauri:dev
@@ -113,33 +97,9 @@ npm run build
 npm run lint
 ```
 
-### v4 (Electron + Svelte)
-```bash
-# From root directory
-
-# Development
-npm run dev
-
-# Production build
-npm run build              # All platforms
-npm run build:win          # Windows
-npm run build:mac          # macOS
-npm run build:linux        # Linux
-
-# Testing
-npm test                   # Run tests
-npm run test:coverage      # With coverage
-npm run test:watch         # Watch mode
-
-# Code quality
-npm run lint               # ESLint
-npm run lint:fix           # Auto-fix
-npm run format             # Prettier
-```
-
 ## Code Conventions
 
-### TypeScript (v5 Frontend)
+### TypeScript (Frontend)
 
 **Components**
 ```typescript
@@ -178,7 +138,7 @@ const featureSlice = createSlice({
 });
 ```
 
-### Rust (v5 Backend)
+### Rust (Backend)
 
 **Tauri Commands**
 ```rust
@@ -203,64 +163,15 @@ pub fn init(app_handle: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Err
 }
 ```
 
-### JavaScript (v4 Legacy)
-
-**ESLint Rules**
-- Use `const`/`let`, never `var`
-- Strict equality (`===`) required
-- Curly braces for multi-line blocks
-- No `eval()` or `new Function()`
-- Prefix unused variables with `_`
-
-**Class Pattern for Extensions**
-```javascript
-class FeatureModule {
-  constructor() {
-    this.data = new Map();
-  }
-
-  methodName(param) {
-    // Implementation
-  }
-
-  cleanup() {
-    // Resource cleanup
-  }
-}
-
-module.exports = { FeatureModule };
-```
-
-### Svelte (v4 Legacy)
-```svelte
-<script>
-  import { appStore } from '../stores/app.js';
-
-  export let prop;
-
-  function handleEvent() {
-    // Handler
-  }
-</script>
-
-<div class="component">
-  <!-- Template -->
-</div>
-
-<style>
-  /* Scoped styles */
-</style>
-```
-
 ## Architecture Patterns
 
-### State Management (v5)
-- **Redux Toolkit** with feature slices
+### State Management
+- **Redux Toolkit** with 9 feature slices
 - Typed hooks: `useAppDispatch`, `useAppSelector`
 - Async actions via `createAsyncThunk`
 - Middleware for Tauri IPC sync
 
-### IPC Communication (v5)
+### IPC Communication
 ```typescript
 // Frontend: Invoke Tauri command
 import { invoke } from '@tauri-apps/api/core';
@@ -283,66 +194,30 @@ pub async fn command_name(param: Type) -> Result<Return, String>
 4. **MAXIMUM** - High-risk investigation, full spoofing
 5. **PARANOID** - Assume adversary, Tor + all protections
 
-## Testing
-
-### Jest Configuration (v4)
-- Test files: `tests/*.test.js`
-- Coverage for: `src/extensions/**/*.js`
-- Test patterns: Describe/it blocks with assertions
-
-### Test Example
-```javascript
-describe('FeatureModule', () => {
-  describe('methodName', () => {
-    it('should do expected behavior', () => {
-      const module = new FeatureModule();
-      const result = module.methodName(input);
-      expect(result).toBe(expected);
-    });
-  });
-});
-```
-
-## CI/CD Pipeline
-
-GitHub Actions workflow (`.github/workflows/ci.yml`):
-1. **Test** - Node 20.x/22.x, lint, jest, coverage
-2. **Security** - npm audit (critical level)
-3. **Build** - Multi-platform (Parrot OS compatible, Windows, macOS)
-
 ## Key Files Reference
 
 | File | Purpose |
 |------|---------|
-| `madrox-v5/src/App.tsx` | Main React app component |
-| `madrox-v5/src/store/index.ts` | Redux store configuration |
-| `madrox-v5/src-tauri/src/lib.rs` | Tauri app entry point |
-| `madrox-v5/src-tauri/tauri.conf.json` | Tauri configuration |
-| `src/main/main.js` | Electron main process (v4) |
-| `src/renderer/App.svelte` | Svelte root component (v4) |
-| `V5_MADROX_ARCHITECTURE.md` | Detailed v5 architecture docs |
+| `app/src/App.tsx` | Main React app component |
+| `app/src/store/index.ts` | Redux store configuration |
+| `app/src-tauri/src/lib.rs` | Tauri app entry point |
+| `app/src-tauri/tauri.conf.json` | Tauri configuration |
 
 ## Important Notes for AI Assistants
 
-### When Working on v5 (madrox-v5/)
+### When Working on app/
 - All frontend code is TypeScript with strict typing
 - Use Mantine components for UI consistency
 - Follow Redux Toolkit patterns for state
 - Rust backend uses `Result<T, String>` for error handling
 - Commands must be registered in `lib.rs` invoke_handler
-
-### When Working on v4 (src/)
-- JavaScript with ES2022 features
-- Svelte 5 syntax (runes, snippets)
-- electron-store for persistence
-- IPC via `ipcMain`/`ipcRenderer`
+- Theme color is `spinPurple` (not to be renamed per-version)
 
 ### General Guidelines
 - Prefer editing existing files over creating new ones
 - Keep security in mind (no eval, validate inputs)
 - Follow existing code patterns in each directory
 - Test changes with appropriate test commands
-- Check CI workflow requirements before PRs
 
 ### Security Considerations
 - Never commit `.env` files or credentials
@@ -355,14 +230,11 @@ GitHub Actions workflow (`.github/workflows/ci.yml`):
 
 ```bash
 # Development
-cd madrox-v5 && npm run tauri:dev   # v5 development
-npm run dev                          # v4 development
+cd app && npm run tauri:dev
 
 # Testing
-npm test                             # Run all tests
-npm run lint                         # Check code style
+npm test
 
 # Building
-cd madrox-v5 && npm run tauri:build  # v5 production
-npm run build                        # v4 production
+cd app && npm run tauri:build
 ```
