@@ -48,7 +48,6 @@ pub struct OsintBookmark {
 }
 
 /// Analyze a phone number
-#[tauri::command]
 pub async fn analyze_phone(phone: String) -> OsintResult<PhoneAnalysis> {
     // Input length limit to prevent abuse
     if phone.len() > 1000 {
@@ -185,7 +184,6 @@ pub struct DomainAnalysis {
 }
 
 /// Analyze an email address
-#[tauri::command]
 pub async fn analyze_email(email: String) -> OsintResult<EmailAnalysis> {
     // Input length limit to prevent abuse
     if email.len() > 1000 {
@@ -286,7 +284,6 @@ pub async fn analyze_email(email: String) -> OsintResult<EmailAnalysis> {
 }
 
 /// Analyze a username across platforms
-#[tauri::command]
 pub async fn analyze_username(username: String) -> OsintResult<UsernameAnalysis> {
     // Input length limit to prevent abuse
     if username.len() > 1000 {
@@ -388,7 +385,6 @@ pub async fn analyze_username(username: String) -> OsintResult<UsernameAnalysis>
 }
 
 /// Analyze a domain
-#[tauri::command]
 pub async fn analyze_domain(domain: String) -> OsintResult<DomainAnalysis> {
     if domain.is_empty() {
         return Err("Domain cannot be empty".to_string());
@@ -454,7 +450,6 @@ pub async fn analyze_domain(domain: String) -> OsintResult<DomainAnalysis> {
 }
 
 /// Get OSINT bookmarks
-#[tauri::command]
 pub async fn get_osint_bookmarks() -> OsintResult<Vec<OsintBookmark>> {
     let bookmarks = vec![
         // Username Search

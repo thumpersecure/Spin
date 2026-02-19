@@ -6,8 +6,8 @@ mod sled_store;
 
 pub use sled_store::SledStore;
 
+use std::path::Path;
 use std::sync::{Arc, RwLock};
-use tauri::AppHandle;
 use thiserror::Error;
 
 /// Global store instance
@@ -29,29 +29,27 @@ pub enum StorageError {
     NotFound(String),
 }
 
-/// Initialize the storage system
-pub fn init(app_handle: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    let app_data_dir = app_handle
-        .path()
-        .app_data_dir()
-        .map_err(|e| format!("Failed to get app data directory: {}", e))?;
-
-    let db_path = app_data_dir.join("spin.db");
+/// Initialize the storage system.
+///
+/// `data_dir` is the application-level data directory (e.g. `~/.local/share/spin`).
+/// The sled database is stored at `<data_dir>/spin.db`.
+pub fn init(data_dir: &Path) -> Result<(), Box<dyn std::error::Error>> {
+    let db_path = data_dir.join("spin.db");
 
     tracing::info!("Initializing sled database at {:?}", db_path);
 
     let store = SledStore::new(&db_path)?;
 
-    let mut global_store = STORE.write()
+    let mut global_store = STORE
+        .write()
         .map_err(|e| format!("Storage lock poisoned: {}", e))?;
     *global_store = Some(Arc::new(store));
 
     Ok(())
 }
 
-/// Get the store instance
-pub fn get_store(_app_handle: &AppHandle) -> Result<Arc<SledStore>, StorageError> {
-    let store = STORE.read()
-        .map_err(|_| StorageError::NotInitialized)?;
+/// Get the global store instance (no AppHandle required).
+pub fn get_store() -> Result<Arc<SledStore>, StorageError> {
+    let store = STORE.read().map_err(|_| StorageError::NotInitialized)?;
     store.clone().ok_or(StorageError::NotInitialized)
 }

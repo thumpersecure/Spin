@@ -400,7 +400,7 @@ fn estimate_session_size(session: &SessionData) -> u64 {
 }
 
 /// Initialize the session module
-pub fn init(_app_handle: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+pub fn init() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("Session cloning module initialized");
     Ok(())
 }

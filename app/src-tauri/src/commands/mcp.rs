@@ -11,7 +11,6 @@ use tracing::{info, debug};
 pub type McpResult<T> = Result<T, String>;
 
 /// Get all available agents
-#[tauri::command]
 pub async fn get_agents() -> McpResult<Vec<Agent>> {
     info!("Fetching available MCP agents");
 
@@ -134,7 +133,6 @@ pub async fn get_agents() -> McpResult<Vec<Agent>> {
 }
 
 /// Invoke an agent with a task (routes through Claude API shared context)
-#[tauri::command]
 pub async fn invoke_agent(
     invocation: AgentInvocation,
 ) -> McpResult<AgentResponse> {
@@ -193,7 +191,6 @@ pub async fn invoke_agent(
 }
 
 /// Get available skills for an agent
-#[tauri::command]
 pub async fn get_agent_skills(agent_id: String) -> McpResult<Vec<AgentSkill>> {
     debug!("Getting skills for agent: {}", agent_id);
 
@@ -449,7 +446,6 @@ pub async fn get_agent_skills(agent_id: String) -> McpResult<Vec<AgentSkill>> {
 }
 
 /// Execute a specific skill
-#[tauri::command]
 pub async fn execute_skill(
     agent_id: String,
     skill_id: String,
@@ -499,7 +495,6 @@ pub async fn execute_skill(
 }
 
 /// Set the Claude API key
-#[tauri::command]
 pub async fn set_claude_api_key(api_key: String) -> McpResult<bool> {
     info!("Setting Claude API key");
 
@@ -514,7 +509,6 @@ pub async fn set_claude_api_key(api_key: String) -> McpResult<bool> {
 }
 
 /// Get Claude API connection status
-#[tauri::command]
 pub async fn get_claude_status() -> McpResult<serde_json::Value> {
     let configured = mcp::is_claude_configured();
     let history_len = mcp::with_claude_client(|client| Ok(client.history_length()))
@@ -529,7 +523,6 @@ pub async fn get_claude_status() -> McpResult<serde_json::Value> {
 }
 
 /// Clear Claude conversation history
-#[tauri::command]
 pub async fn clear_claude_history() -> McpResult<()> {
     info!("Clearing Claude conversation history");
     mcp::with_claude_client(|client| {
@@ -539,7 +532,6 @@ pub async fn clear_claude_history() -> McpResult<()> {
 }
 
 /// Set Claude model
-#[tauri::command]
 pub async fn set_claude_model(model: String) -> McpResult<()> {
     info!("Setting Claude model to: {}", model);
     mcp::with_claude_client(|client| {

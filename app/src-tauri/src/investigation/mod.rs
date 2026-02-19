@@ -259,7 +259,7 @@ pub fn parse_status(s: &str) -> Result<InvestigationStatus, String> {
 // ─── Module Init & Global Access ─────────────────────────────────────
 
 /// Initialize the investigation module
-pub fn init(_app_handle: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+pub fn init() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("Investigation timeline module initialized");
 
     let mut store = INVESTIGATIONS

@@ -12,7 +12,6 @@ pub mod claude_client;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::sync::RwLock;
-use tauri::AppHandle;
 
 /// Agent status
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -73,7 +72,7 @@ static MCP_INITIALIZED: std::sync::atomic::AtomicBool =
 static CLAUDE_CLIENT: RwLock<Option<claude_client::ClaudeClient>> = RwLock::new(None);
 
 /// Initialize the MCP system with Claude API integration
-pub fn init(_app_handle: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+pub fn init() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("Initializing MCP (Model Context Protocol) system with Claude API");
 
     // Mark as initialized
