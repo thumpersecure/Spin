@@ -93,7 +93,7 @@ function SettingsPanel() {
       <Divider />
 
       <Text size="xs" c="dimmed" ta="center">
-        Spin v12.0.0 - Jessica Jones
+        Spin v12.0.3 - Jessica Jones
       </Text>
     </Stack>
   );

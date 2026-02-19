@@ -1,6 +1,6 @@
 {
   "name": "spin",
-  "version": "12.0.0",
+  "version": "12.0.3",
   "description": "Spin v12 Jessica Jones - OSINT Investigation Browser",
   "private": true,
   "type": "module",

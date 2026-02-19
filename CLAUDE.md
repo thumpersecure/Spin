@@ -4,7 +4,7 @@ This document provides essential context for AI assistants working on this codeb
 
 ## Project Overview
 
-**Spin** is a privacy-first OSINT (Open Source Intelligence) investigation browser. Each version uses a different detective/investigator theme. The current release is **v12.0.0 "Jessica Jones"**.
+**Spin** is a privacy-first OSINT (Open Source Intelligence) investigation browser. Each version uses a different detective/investigator theme. The current release is **v12.0.3 "Jessica Jones"**.
 
 ### Version History
 | Version | Codename | Stack | Status |

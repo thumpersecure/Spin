@@ -1,4 +1,4 @@
-//! Spin v12.0.0 "Jessica Jones" - OSINT Investigation Browser
+//! Spin v12.0.3 "Jessica Jones" - OSINT Investigation Browser
 //!
 //! A privacy-first OSINT browser with embedded Chromium (CEF), multi-identity
 //! session isolation, investigation timeline/graph visualization, and
@@ -28,7 +28,7 @@ pub fn run() {
         .with(tracing_subscriber::EnvFilter::from_default_env())
         .init();
 
-    info!("Initializing Spin v12.0.0 - Jessica Jones");
+    info!("Initializing Spin v12.0.3 - Jessica Jones");
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())

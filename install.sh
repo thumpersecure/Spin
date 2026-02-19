@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Spin OSINT Browser - Interactive Installer
-# v12.0.0 "Jessica Jones"
+# v12.0.3 "Jessica Jones"
 #
 # Usage: curl -fsSL https://raw.githubusercontent.com/thumpersecure/Spin/main/install.sh | bash
 #    or: bash install.sh
@@ -21,17 +21,19 @@ NC='\033[0m'
 
 # --- Config ---
 REPO_URL="https://github.com/thumpersecure/Spin.git"
+REPO_API="https://api.github.com/repos/thumpersecure/Spin"
 INSTALL_DIR="$HOME/Spin"
 APP_DIR="$INSTALL_DIR/app"
 MIN_NODE_VERSION=20
 MIN_RUST_VERSION="1.75"
+CURRENT_VERSION="12.0.3"
 
 # --- Helpers ---
 print_banner() {
     echo -e "${PURPLE}"
     echo "  ╔══════════════════════════════════════════════════╗"
     echo "  ║                                                  ║"
-    echo "  ║       S P I N   v12 - Jessica Jones              ║"
+    echo "  ║       S P I N   v12.0.3 - Jessica Jones           ║"
     echo "  ║       OSINT Investigation Browser                ║"
     echo "  ║                                                  ║"
     echo "  ║  \"Every case starts with a question.\"            ║"
@@ -288,7 +290,7 @@ create_desktop_shortcut() {
     if [ "$os" = "linux" ]; then
         local desktop_entry="[Desktop Entry]
 Name=Spin Browser
-Comment=OSINT Investigation Browser - Jessica Jones v12
+Comment=OSINT Investigation Browser - Jessica Jones v12.0.3
 Exec=bash -c 'cd $APP_DIR && npm run tauri:dev'
 Icon=$APP_DIR/public/spin.svg
 Terminal=false
@@ -551,6 +553,83 @@ do_fallback() {
     echo ""
 }
 
+# --- Check for Updates ---
+
+check_for_updates() {
+    echo ""
+    info "Checking for updates..."
+    echo ""
+
+    # Check local version from package.json if installed
+    local local_version="(not installed)"
+    if [ -f "$APP_DIR/package.json" ]; then
+        local_version=$(grep -o '"version": "[^"]*"' "$APP_DIR/package.json" | head -1 | cut -d'"' -f4)
+    fi
+
+    info "Installed version: ${BOLD}$local_version${NC}"
+    info "Installer version: ${BOLD}$CURRENT_VERSION${NC}"
+
+    # Try to get latest release from GitHub API
+    if command -v curl &>/dev/null; then
+        local latest_tag
+        latest_tag=$(curl -sf "${REPO_API}/releases/latest" 2>/dev/null | grep -o '"tag_name": "[^"]*"' | cut -d'"' -f4)
+
+        if [ -n "$latest_tag" ]; then
+            local latest_version="${latest_tag#v}"
+            info "Latest release:    ${BOLD}$latest_version${NC}"
+
+            if [ "$local_version" = "(not installed)" ]; then
+                warn "Spin is not installed. Use option 1 to install."
+            elif [ "$local_version" = "$latest_version" ]; then
+                success "You're running the latest release!"
+            elif version_ge "$latest_version" "$local_version"; then
+                warn "A newer version is available: v$latest_version"
+                echo ""
+                if ask_yes_no "Would you like to update now?"; then
+                    cd "$INSTALL_DIR"
+                    git fetch origin main
+                    git pull origin main
+                    cd "$APP_DIR"
+                    npm install
+                    success "Updated to latest version."
+                    echo ""
+                    info "Restart Spin to use the new version."
+                fi
+            else
+                success "Your version ($local_version) is ahead of the latest release ($latest_version)."
+            fi
+        else
+            warn "Could not fetch latest release info from GitHub."
+            info "Check manually: https://github.com/thumpersecure/Spin/releases"
+        fi
+    else
+        warn "curl not available. Cannot check remote version."
+    fi
+
+    # Also check if the local git repo has upstream changes
+    if [ -d "$INSTALL_DIR/.git" ]; then
+        echo ""
+        info "Checking git repository for upstream changes..."
+        cd "$INSTALL_DIR"
+        git fetch origin main 2>/dev/null
+        local behind
+        behind=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo "0")
+        if [ "$behind" -gt 0 ]; then
+            warn "Your installation is $behind commit(s) behind origin/main."
+            if ask_yes_no "Pull latest changes?"; then
+                git pull origin main
+                cd "$APP_DIR"
+                npm install
+                success "Repository updated."
+            fi
+        else
+            success "Repository is up to date with origin/main."
+        fi
+    fi
+
+    echo ""
+}
+
 # --- Main Menu ---
 
 main() {
@@ -560,12 +639,13 @@ main() {
     echo ""
     echo "  1) Install Spin (full installation)"
     echo "  2) Update existing installation"
-    echo "  3) Uninstall Spin"
-    echo "  4) Verify installation"
-    echo "  5) Fallback: frontend-only (no Rust needed)"
-    echo "  6) Exit"
+    echo "  3) Check for updates"
+    echo "  4) Uninstall Spin"
+    echo "  5) Verify installation"
+    echo "  6) Fallback: frontend-only (no Rust needed)"
+    echo "  7) Exit"
     echo ""
-    read -rp "$(echo -e "${CYAN}Choose [1-6]:${NC} ")" choice
+    read -rp "$(echo -e "${CYAN}Choose [1-7]:${NC} ")" choice
 
     case "$choice" in
         1)
@@ -591,15 +671,18 @@ main() {
             verify_install
             ;;
         3)
-            uninstall_spin
+            check_for_updates
             ;;
         4)
-            verify_install
+            uninstall_spin
             ;;
         5)
-            do_fallback
+            verify_install
             ;;
         6)
+            do_fallback
+            ;;
+        7)
             info "Goodbye."
             exit 0
             ;;

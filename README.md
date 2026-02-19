@@ -1,4 +1,4 @@
-# Spin v12.0.0
+# Spin v12.0.3
 
 ```
 +=========================================================================================+
@@ -27,12 +27,14 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-12.0.0-8B008B?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-12.0.3-8B008B?style=for-the-badge)
 ![Codename](https://img.shields.io/badge/codename-Jessica_Jones-4B0082?style=for-the-badge)
 ![Tauri](https://img.shields.io/badge/Tauri-2.0-blue?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-19-cyan?style=for-the-badge)
 ![Rust](https://img.shields.io/badge/Rust-1.75+-orange?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=for-the-badge)
+![OSINT](https://img.shields.io/badge/OSINT-Investigation_Browser-purple?style=for-the-badge)
 
 ---
 
@@ -41,7 +43,7 @@
 **A private investigator doesn't need superpowers. She needs the right tools,**
 **the right identities, and the nerve to dig where nobody else dares.**
 
-[Case Files](#-case-files) | [What's New](#-whats-new-in-v1200) | [The Office](#%EF%B8%8F-architecture--the-office) | [Getting Started](#-getting-started) | [Field Manual](#-field-manual)
+[Case Files](#-case-files) | [What's New](#-whats-new-in-v1203) | [The Office](#%EF%B8%8F-architecture--the-office) | [Getting Started](#-getting-started) | [Field Manual](#-field-manual)
 
 ---
 
@@ -83,7 +85,16 @@
 
 > *"Every case has its tools. These are mine."*
 
----
+```
+┌──────────────────────────────────────────────────────────────┐
+│  ██████╗ █████╗ ███████╗███████╗    ███████╗██╗██╗     ███████╗███████╗  │
+│ ██╔════╝██╔══██╗██╔════╝██╔════╝    ██╔════╝██║██║     ██╔════╝██╔════╝  │
+│ ██║     ███████║███████╗█████╗      █████╗  ██║██║     █████╗  ███████╗  │
+│ ██║     ██╔══██║╚════██║██╔══╝      ██╔══╝  ██║██║     ██╔══╝  ╚════██║  │
+│ ╚██████╗██║  ██║███████║███████╗    ██║     ██║███████╗███████╗███████║  │
+│  ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝    ╚═╝     ╚═╝╚══════╝╚══════╝╚══════╝  │
+└──────────────────────────────────────────────────────────────┘
+```
 
 ### Case File 001 -- Embedded Chromium (CEF)
 
@@ -102,6 +113,8 @@ Every identity gets its own isolated Chromium context -- think of it as a separa
 | **Navigator** | Platform, language, hardware concurrency |
 
 Each Chromium instance runs in its own sandbox. Cookies, cache, localStorage -- all compartmentalized. Like working a case from multiple angles without any of your covers knowing about each other.
+
+> *"People say I have a drinking problem. I say I have a drinking solution. Same applies to browser fingerprinting."*
 
 ---
 
@@ -134,6 +147,8 @@ Every good PI keeps meticulous notes. Spin does it automatically. Every entity d
 
 It's like having a wall of photos connected by red string -- except it never runs out of wall space, and the string draws itself.
 
+> *"Connections. Everything's about connections. The trick is seeing the ones nobody else can."*
+
 ---
 
 ### Case File 004 -- Claude AI MCP Server
@@ -163,6 +178,8 @@ You don't work alone in this business. Spin gives you a full investigation team 
 
 Each identity is a complete cover story: unique fingerprint, isolated cookies, independent network stack, separate history. Like running multiple undercover operatives who never know about each other. 24 NATO alphabet codenames with cryptographic hex suffixes ensure no two dupes are ever confused.
 
+> *"I used to just be one person. Then I realized that was a tactical disadvantage."*
+
 ---
 
 ### Case File 006 -- Hivemind
@@ -170,6 +187,8 @@ Each identity is a complete cover story: unique fingerprint, isolated cookies, i
 **Cross-identity entity synchronization.**
 
 What one identity discovers, all identities can access. When multiple identities independently find the same entity, Spin flags it as **HIGH CONFIDENCE** intelligence. Real-time sync. Paginated views. The collective memory of every cover you've ever run.
+
+> *"Intel is only useful when it's shared. But sharing has to be on my terms."*
 
 ---
 
@@ -208,7 +227,7 @@ Auto-adjusts based on site risk assessment. Trusted OSINT sites (Shodan, HIBP, C
 
 ```
 +=========================================================================================+
-|                       S P I N   v 1 2 . 0 . 0                                          |
+|                       S P I N   v 1 2 . 0 . 3                                          |
 |                    " J E S S I C A   J O N E S "                                        |
 +=========================================================================================+
 |                                                                                         |
@@ -277,6 +296,23 @@ The frontend handles the UI, identity management, and investigation visualizatio
 
 > *"You don't need a license to investigate. You just need to know where to look."*
 
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    Q U I C K   S T A R T                      │
+│                                                              │
+│   Option A: Interactive Installer (recommended)              │
+│   $ bash install.sh                                          │
+│                                                              │
+│   Option B: Manual Install                                   │
+│   $ git clone https://github.com/thumpersecure/Spin.git     │
+│   $ cd Spin/app && npm install && npm run tauri:dev          │
+│                                                              │
+│   Option C: Web Version (no install needed)                  │
+│   Visit: https://thumpersecure.github.io/Spin               │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
 ### Prerequisites
 
 ```bash
@@ -286,10 +322,23 @@ Rust 1.75+
 Tauri CLI 2.0+
 
 # Linux (Parrot OS / Debian-based)
-sudo apt install libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev
+sudo apt install libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
 ```
 
-### Installation
+### Installation (Interactive)
+
+The recommended way to install Spin:
+
+```bash
+# Download and run the interactive installer
+git clone https://github.com/thumpersecure/Spin.git
+cd Spin
+bash install.sh
+```
+
+The installer handles everything: dependency checking, old version detection, system library installation, desktop shortcuts, and verification.
+
+### Installation (Manual)
 
 ```bash
 # Clone the repository
@@ -308,7 +357,19 @@ npm run tauri:build
 
 ### Platform Binaries
 
-Coming soon: Pre-built binaries for Windows, macOS, and Linux.
+Pre-built binaries are available via [GitHub Releases](https://github.com/thumpersecure/Spin/releases):
+
+| Platform | Format | Notes |
+|----------|--------|-------|
+| **Windows** | `.msi`, `.exe` | MSI installer or NSIS portable |
+| **macOS** | `.dmg` | Drag to Applications |
+| **Linux** | `.AppImage`, `.deb` | AppImage or Debian package |
+
+### Web Version
+
+Don't want to install anything? Try the [Spin Web Mini Toolkit](https://thumpersecure.github.io/Spin) -- a lightweight, client-side OSINT toolkit that runs entirely in your browser.
+
+> *"Sometimes you can't install software on a client's machine. That's what the web version is for."*
 
 ---
 
@@ -360,7 +421,7 @@ Click any identity card. Tabs, cookies, sessions -- **completely isolated**. Lik
 
 ---
 
-## What's New in v12.0.0
+## What's New in v12.0.3
 
 > *"New tools. Same attitude."*
 
@@ -422,7 +483,7 @@ This release delivers the four major capabilities that were on the roadmap -- em
 ## Version History
 
 ```
-v12.0.0 ████████████████████  CURRENT -- "Jessica Jones"
+v12.0.3 ████████████████████  CURRENT -- "Jessica Jones"
         └─ Embedded Chromium, Session Cloning, Investigation Graph, Claude MCP
 
 v10.0.1 ████████████████████
@@ -451,7 +512,7 @@ v1.0    ████████████████████
 > *"I don't plan ahead. But sometimes the case demands it."*
 
 ```
-v12.0.0 ████████████████████  CURRENT -- "Jessica Jones"
+v12.0.3 ████████████████████  CURRENT -- "Jessica Jones"
         └─ CEF, Session Cloning, Investigation Graph, Claude MCP Server
 
 v13.0   ░░░░░░░░░░░░░░░░░░░░  NEXT
@@ -481,16 +542,52 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
+## Jessica Jones on OSINT
+
+> *"Knowing is half the battle. The other half is not getting caught knowing."*
+
+> *"I don't stalk. I investigate. There's a legal distinction. Mostly."*
+
+> *"The internet remembers everything. My job is knowing where it keeps the receipts."*
+
+> *"People think privacy is about having nothing to hide. It's actually about choosing what to show."*
+
+> *"Every digital footprint tells a story. I'm just a really good reader."*
+
+> *"The best cover identity is the one nobody thinks to question."*
+
+---
+
 <div align="center">
 
-**Spin v12.0.0** - *"Jessica Jones"*
+```
+╔══════════════════════════════════════════════════════════╗
+║                                                          ║
+║               A L I A S                                  ║
+║         I N V E S T I G A T I O N S                      ║
+║                                                          ║
+║    ┌──────────────────────────────────────┐              ║
+║    │  Cases solved.                       │              ║
+║    │  Questions answered.                 │              ║
+║    │  Secrets found.                      │              ║
+║    │  Identities... managed.              │              ║
+║    └──────────────────────────────────────┘              ║
+║                                                          ║
+║            Spin v12.0.3 - "Jessica Jones"                ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
+```
 
-*Alias Investigations. Cases solved. Questions answered. Secrets found.*
+**Spin v12.0.3** - *"Jessica Jones"*
 
 *"I'm not a hero. I'm a private investigator. Now get out of my office."*
 
 ---
 
-[Report Issue](https://github.com/thumpersecure/Spin/issues) | [Spin OSINT]
+![GitHub Issues](https://img.shields.io/github/issues/thumpersecure/Spin?style=flat-square&color=8B008B)
+![GitHub Stars](https://img.shields.io/github/stars/thumpersecure/Spin?style=flat-square&color=4B0082)
+![Last Commit](https://img.shields.io/github/last-commit/thumpersecure/Spin?style=flat-square)
+
+[Report Issue](https://github.com/thumpersecure/Spin/issues) | [Releases](https://github.com/thumpersecure/Spin/releases) | [Web App](https://thumpersecure.github.io/Spin)
 
 </div>

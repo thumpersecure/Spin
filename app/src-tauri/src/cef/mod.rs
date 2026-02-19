@@ -4,7 +4,7 @@
 //! Each identity gets its own isolated browser context with unique fingerprints,
 //! separate cookie stores, cache directories, and session storage.
 //!
-//! Jessica Jones v12.0.0 - "Every case needs a fresh identity."
+//! Jessica Jones v12.0.3 - "Every case needs a fresh identity."
 
 pub mod browser_context;
 pub mod fingerprint_injector;
