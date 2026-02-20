@@ -1085,6 +1085,7 @@ function canvasRoundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
+
 function generateAppleTouchIcon() {
   try {
     var canvas = document.createElement('canvas');
@@ -1151,6 +1152,7 @@ function isIOS() {
 function isAndroid() {
   return /Android/.test(navigator.userAgent);
 }
+
 
 function isStandalone() {
   return window.navigator.standalone === true ||
@@ -1351,6 +1353,7 @@ function updateSessionUptime() {
 
 function pad2(n) { return n < 10 ? '0' + n : '' + n; }
 
+
 /* ─── Initialize ─────────────────────────────────────────  */
 document.addEventListener('DOMContentLoaded', function() {
   // Run loading screen
@@ -1364,6 +1367,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Security dashboard
   initSecurityDashboard();
+
 
   // Update entity counts
   updateEntityCount();
