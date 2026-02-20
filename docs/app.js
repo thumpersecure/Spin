@@ -327,6 +327,33 @@ const shuffle = (items) => {
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const pad2 = (n) => (n < 10 ? `0${n}` : `${n}`);
 
+const createAsyncPool = ({ concurrency = 3, delayMs = 300 } = {}) => {
+  let active = 0;
+  const queue = [];
+
+  const runNext = () => {
+    if (active >= concurrency || queue.length === 0) return;
+    const job = queue.shift();
+    active += 1;
+
+    Promise.resolve()
+      .then(job.fn)
+      .then(job.resolve, job.reject)
+      .finally(() => {
+        active -= 1;
+        setTimeout(runNext, delayMs);
+      });
+  };
+
+  return {
+    add: (fn) =>
+      new Promise((resolve, reject) => {
+        queue.push({ fn, resolve, reject });
+        runNext();
+      })
+  };
+};
+
 const safeJsonParse = (value, fallback) => {
   try {
     return JSON.parse(value);
@@ -1116,27 +1143,33 @@ const runUsernameChecks = async (username) => {
     "warn"
   );
 
-  for (const platform of USERNAME_PLATFORMS) {
-    updatePlatformStatus(platform.key, "pending", "Checking...");
-    await delay(450);
+  USERNAME_PLATFORMS.forEach((platform) =>
+    updatePlatformStatus(platform.key, "pending", "Queued")
+  );
 
-    const profileUrl = platform.profileUrl(username);
-    const robots = await checkRobotsAllowed(profileUrl);
-    if (!robots.allowed) {
-      updatePlatformStatus(platform.key, "error", robots.reason);
-      continue;
-    }
+  const pool = createAsyncPool({ concurrency: 3, delayMs: 350 });
+  const jobs = USERNAME_PLATFORMS.map((platform) =>
+    pool.add(async () => {
+      updatePlatformStatus(platform.key, "pending", "Checking...");
+      const profileUrl = platform.profileUrl(username);
+      const robots = await checkRobotsAllowed(profileUrl);
+      if (!robots.allowed) {
+        updatePlatformStatus(platform.key, "error", robots.reason);
+        return;
+      }
 
-    try {
-      markExternalRequest();
-      const result = platform.check
-        ? await platform.check(username, profileUrl)
-        : await profileFetchCheck(profileUrl);
-      updatePlatformStatus(platform.key, result.status, result.message);
-    } catch (error) {
-      updatePlatformStatus(platform.key, "error", error?.message || "Check failed");
-    }
-  }
+      try {
+        markExternalRequest();
+        const result = platform.check
+          ? await platform.check(username, profileUrl)
+          : await profileFetchCheck(profileUrl);
+        updatePlatformStatus(platform.key, result.status, result.message);
+      } catch (error) {
+        updatePlatformStatus(platform.key, "error", error?.message || "Check failed");
+      }
+    })
+  );
+  await Promise.allSettled(jobs);
 
   if (button) button.disabled = false;
   appState.usernameChecksRunning = false;
