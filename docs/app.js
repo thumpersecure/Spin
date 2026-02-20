@@ -1103,6 +1103,7 @@ const checkRobotsAllowed = async (url) => {
         : { allowed: true };
     }
 
+    markExternalRequest();
     const robotsResponse = await fetchWithTimeout(`${parsed.origin}/robots.txt`, {}, 5000);
     if (!robotsResponse.ok) {
       appState.robotsCache.set(parsed.origin, { available: false, rules: [] });
