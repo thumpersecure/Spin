@@ -1,0 +1,28 @@
+title: Spin Web
+description: Privacy-first OSINT investigation toolkit
+theme: null
+plugins: []
+exclude:
+  - README.md
+  - CLAUDE.md
+  - LICENSE
+  - package.json
+  - package-lock.json
+  - node_modules
+  - app
+  - src
+  - tests
+  - scripts
+  - assets
+  - eslint.config.mjs
+  - vite.config.mjs
+  - svelte.config.mjs
+  - .prettierrc
+  - .prettierignore
+  - fb-prefix-list-gen.md
+  - install.sh
+include:
+  - .nojekyll
+  - index.html
+  - style.css
+  - app.js

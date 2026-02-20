@@ -1,0 +1,11 @@
+title: Spin Web
+description: Privacy-first OSINT investigation toolkit
+theme: null
+plugins: []
+exclude:
+  - README.md
+include:
+  - .nojekyll
+  - index.html
+  - style.css
+  - app.js
