@@ -1054,10 +1054,147 @@ function runLoadingSequence() {
   }, 2200);
 }
 
+/* ─── PWA: Service Worker Registration ───────────────────  */
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      // Check for updates periodically
+      setInterval(function() { reg.update(); }, 60 * 60 * 1000);
+    }).catch(function() {
+      // SW registration failed (e.g. not HTTPS, unsupported) - app works fine without it
+    });
+  }
+}
+
+/* ─── PWA: Generate Apple Touch Icon via Canvas ──────────  */
+function generateAppleTouchIcon() {
+  try {
+    var canvas = document.createElement('canvas');
+    canvas.width = 180;
+    canvas.height = 180;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Background
+    ctx.fillStyle = '#08080d';
+    ctx.beginPath();
+    ctx.roundRect(0, 0, 180, 180, 36);
+    ctx.fill();
+
+    // Gradient overlay
+    var grad = ctx.createLinearGradient(0, 0, 180, 180);
+    grad.addColorStop(0, 'rgba(123, 31, 235, 0.2)');
+    grad.addColorStop(1, 'rgba(28, 223, 102, 0.2)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect(6, 6, 168, 168, 32);
+    ctx.fill();
+
+    // Letter S
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 100px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('S', 90, 95);
+
+    // Green dot (surveillance indicator)
+    ctx.fillStyle = '#1cdf66';
+    ctx.beginPath();
+    ctx.arc(142, 142, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#08080d';
+    ctx.beginPath();
+    ctx.arc(142, 142, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1cdf66';
+    ctx.beginPath();
+    ctx.arc(142, 142, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Create link element for apple-touch-icon
+    var link = document.createElement('link');
+    link.rel = 'apple-touch-icon';
+    link.href = canvas.toDataURL('image/png');
+    document.head.appendChild(link);
+  } catch (e) {
+    // Canvas not supported or roundRect not available - fallback gracefully
+  }
+}
+
+/* ─── PWA: iOS Install Banner ────────────────────────────  */
+var INSTALL_DISMISSED_KEY = 'spin_install_dismissed';
+
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function isStandalone() {
+  return window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
+}
+
+function showInstallBanner() {
+  // Only show on iOS Safari, not already installed, not dismissed recently
+  if (!isIOS() || isStandalone()) return;
+
+  try {
+    var dismissed = localStorage.getItem(INSTALL_DISMISSED_KEY);
+    if (dismissed) {
+      var dismissedAt = parseInt(dismissed, 10);
+      // Don't show again for 7 days
+      if (Date.now() - dismissedAt < 7 * 24 * 60 * 60 * 1000) return;
+    }
+  } catch (e) { /* localStorage unavailable */ }
+
+  var banner = document.getElementById('install-banner');
+  var steps = document.getElementById('install-steps');
+  if (!banner || !steps) return;
+
+  // Detect browser for correct instructions
+  var isChrome = /CriOS/.test(navigator.userAgent);
+  var isFirefox = /FxiOS/.test(navigator.userAgent);
+
+  if (isChrome) {
+    steps.innerHTML =
+      '<div class="step"><span class="step-num">1</span> Tap the share button <span class="step-icon">&#8943;</span> (three dots menu)</div>' +
+      '<div class="step"><span class="step-num">2</span> Scroll down and tap <strong>"Add to Home Screen"</strong></div>' +
+      '<div class="step"><span class="step-num">3</span> Tap <strong>"Add"</strong> to install</div>';
+  } else if (isFirefox) {
+    steps.innerHTML =
+      '<div class="step"><span class="step-num">1</span> Open this page in <strong>Safari</strong> for Home Screen support</div>';
+  } else {
+    // Safari (default)
+    steps.innerHTML =
+      '<div class="step"><span class="step-num">1</span> Tap the share button <span class="step-icon">&#xFEFF;&#x2B06;&#xFE0E;</span> at the bottom</div>' +
+      '<div class="step"><span class="step-num">2</span> Scroll down and tap <strong>"Add to Home Screen"</strong></div>' +
+      '<div class="step"><span class="step-num">3</span> Tap <strong>"Add"</strong> to install</div>';
+  }
+
+  // Show after a short delay
+  setTimeout(function() {
+    banner.classList.add('show');
+  }, 4000);
+}
+
+function dismissInstallBanner() {
+  var banner = document.getElementById('install-banner');
+  if (banner) banner.classList.remove('show');
+  try {
+    localStorage.setItem(INSTALL_DISMISSED_KEY, Date.now().toString());
+  } catch (e) { /* ignore */ }
+}
+
 /* ─── Initialize ─────────────────────────────────────────  */
 document.addEventListener('DOMContentLoaded', function() {
   // Run loading screen
   runLoadingSequence();
+
+  // Register service worker for offline/PWA
+  registerServiceWorker();
+
+  // Generate apple-touch-icon dynamically
+  generateAppleTouchIcon();
 
   // Update entity counts
   updateEntityCount();
@@ -1124,4 +1261,7 @@ document.addEventListener('DOMContentLoaded', function() {
     showRandomTip();
     setInterval(showRandomTip, 45000);
   }, 20000);
+
+  // Show iOS install banner (after loading screen finishes)
+  setTimeout(showInstallBanner, 3500);
 });

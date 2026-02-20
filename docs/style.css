@@ -1290,3 +1290,211 @@ textarea {
     padding: 3px 8px;
   }
 }
+
+/* ─── PWA / iOS Standalone Mode ───────────────────────── */
+
+/* Safe area insets for notch/Dynamic Island */
+@supports (padding: env(safe-area-inset-top)) {
+  .header {
+    padding-top: calc(1rem + env(safe-area-inset-top));
+    padding-left: calc(2rem + env(safe-area-inset-left));
+    padding-right: calc(2rem + env(safe-area-inset-right));
+  }
+
+  .nav {
+    padding-left: calc(2rem + env(safe-area-inset-left));
+    padding-right: calc(2rem + env(safe-area-inset-right));
+  }
+
+  .main {
+    padding-left: calc(2rem + env(safe-area-inset-left));
+    padding-right: calc(2rem + env(safe-area-inset-right));
+  }
+
+  .footer {
+    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom));
+    padding-left: calc(2rem + env(safe-area-inset-left));
+    padding-right: calc(2rem + env(safe-area-inset-right));
+  }
+
+  .toast {
+    bottom: calc(2rem + env(safe-area-inset-bottom));
+    right: calc(2rem + env(safe-area-inset-right));
+  }
+
+  .tip-popup {
+    bottom: calc(2rem + env(safe-area-inset-bottom));
+    left: calc(2rem + env(safe-area-inset-left));
+  }
+
+  .install-banner {
+    bottom: calc(env(safe-area-inset-bottom));
+  }
+}
+
+/* Standalone display mode (Home Screen app) */
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Re-enable text selection on content areas */
+  .results,
+  .result-value,
+  .entity-table td,
+  .joke-text,
+  .joke-punchline,
+  .welcome-text,
+  .tool-desc,
+  textarea,
+  input {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  /* Smoother touch interactions */
+  .nav-tab,
+  .btn,
+  .btn-desktop,
+  .tool-card,
+  .bookmark-item,
+  .copy-btn,
+  .stat-card {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Hide "Desktop App" link in standalone since they're already using the app */
+  .btn-desktop {
+    display: none;
+  }
+
+  /* Pull-to-refresh prevention */
+  html {
+    overscroll-behavior-y: contain;
+  }
+
+  /* Tighter padding on standalone mobile */
+  @media (max-width: 768px) {
+    .header {
+      padding-top: calc(0.5rem + env(safe-area-inset-top));
+    }
+  }
+}
+
+/* ─── iOS Install Banner ──────────────────────────────── */
+.install-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--spin-purple);
+  z-index: 9998;
+  transform: translateY(100%);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 -4px 24px rgba(123, 31, 235, 0.2);
+}
+
+.install-banner.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.install-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px 8px;
+}
+
+.install-banner-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--spin-purple), var(--spin-green));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 24px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.install-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.install-banner-text strong {
+  display: block;
+  color: var(--text-bright);
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.install-banner-text span {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+  display: block;
+}
+
+.install-banner-close {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  color: var(--text-dim);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.install-banner-close:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.install-banner-steps {
+  padding: 8px 16px 14px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.install-banner-steps .step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.install-banner-steps .step-num {
+  background: var(--spin-purple);
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.install-banner-steps .step-icon {
+  font-size: 1.1rem;
+  display: inline-block;
+  vertical-align: middle;
+}
