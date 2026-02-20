@@ -151,7 +151,7 @@ body {
 
 /* ─── Header ───────────────────────────────────────────── */
 .header {
-  background: linear-gradient(135deg, var(--bg-card) 0%, #12102a 100%);
+  background: linear-gradient(135deg, rgba(16, 16, 24, 0.92) 0%, rgba(18, 16, 42, 0.92) 100%);
   border-bottom: 1px solid var(--border);
   padding: 1rem 2rem;
   display: flex;
@@ -161,6 +161,7 @@ body {
   top: 0;
   z-index: 100;
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .header-left {
