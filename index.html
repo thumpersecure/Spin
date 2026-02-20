@@ -16,7 +16,6 @@
   <meta name="apple-mobile-web-app-title" content="Spin Web">
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%237b1feb'/><text x='50' y='72' font-family='system-ui' font-size='60' font-weight='900' fill='white' text-anchor='middle'>S</text></svg>" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -389,6 +388,61 @@
 
   </main>
 
+  <!-- Security Status Dashboard -->
+  <div class="sec-dashboard">
+    <div class="sec-dashboard-header">
+      <span class="sec-dashboard-title">
+        <span class="sec-pulse"></span>
+        Security Status
+      </span>
+      <span class="sec-dashboard-subtitle" id="sec-opsec-label">ENHANCED</span>
+    </div>
+    <div class="sec-grid" id="sec-grid">
+      <div class="sec-cell" id="sec-connection">
+        <div class="sec-cell-indicator green"></div>
+        <div class="sec-cell-data">
+          <span class="sec-cell-value">---</span>
+          <span class="sec-cell-label">Connection</span>
+        </div>
+      </div>
+      <div class="sec-cell" id="sec-data-out">
+        <div class="sec-cell-indicator green"></div>
+        <div class="sec-cell-data">
+          <span class="sec-cell-value">ZERO</span>
+          <span class="sec-cell-label">Data Sent</span>
+        </div>
+      </div>
+      <div class="sec-cell" id="sec-storage">
+        <div class="sec-cell-indicator green"></div>
+        <div class="sec-cell-data">
+          <span class="sec-cell-value">---</span>
+          <span class="sec-cell-label">Storage</span>
+        </div>
+      </div>
+      <div class="sec-cell" id="sec-dnt">
+        <div class="sec-cell-indicator orange"></div>
+        <div class="sec-cell-data">
+          <span class="sec-cell-value">---</span>
+          <span class="sec-cell-label">Do Not Track</span>
+        </div>
+      </div>
+      <div class="sec-cell" id="sec-cookies">
+        <div class="sec-cell-indicator green"></div>
+        <div class="sec-cell-data">
+          <span class="sec-cell-value">---</span>
+          <span class="sec-cell-label">Cookies</span>
+        </div>
+      </div>
+      <div class="sec-cell" id="sec-uptime">
+        <div class="sec-cell-indicator green"></div>
+        <div class="sec-cell-data">
+          <span class="sec-cell-value">00:00</span>
+          <span class="sec-cell-label">Session</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-content">
@@ -417,7 +471,7 @@
     <p id="tip-popup-text"></p>
   </div>
 
-  <!-- iOS Install Banner -->
+  <!-- Install Banner (iOS + Android) -->
   <div id="install-banner" class="install-banner">
     <div class="install-banner-content">
       <div class="install-banner-icon">S</div>
@@ -425,6 +479,7 @@
         <strong>Install Spin Web</strong>
         <span>Add to Home Screen for the full app experience &mdash; offline access, no browser UI, instant launch.</span>
       </div>
+      <button id="install-btn" class="btn btn-sm" style="display:none" onclick="triggerInstall()">Install</button>
       <button class="install-banner-close" onclick="dismissInstallBanner()" aria-label="Dismiss">&times;</button>
     </div>
     <div class="install-banner-steps" id="install-steps"></div>
