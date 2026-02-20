@@ -307,6 +307,7 @@ const appState = {
   deferredInstallPrompt: null,
   sessionStart: Date.now(),
   usernameChecksRunning: false,
+  collectiveRunning: false,
   externalRequests: 0,
   robotsCache: new Map()
 };
@@ -874,15 +875,16 @@ const maybeRenderHivemind = () => {
   if (appState.activePanel === "hivemind") renderEntityTable();
 };
 
-const analyzePhone = async () => {
+const analyzePhone = async (options = {}) => {
+  const { silentToast = false, skipSave = false } = options;
   const inputEl = byId("phone-input");
   const results = byId("phone-results");
-  if (!inputEl || !results) return;
+  if (!inputEl || !results) return { ok: false, reason: "missing-elements" };
   const validation = validators.phone(inputEl.value);
   if (!validation.valid) {
     setHint("phone-hint", validation.message, "error");
     results.innerHTML = renderMessage(validation.message);
-    return;
+    return { ok: false, reason: "validation", message: validation.message };
   }
 
   setHint("phone-hint", "Valid phone format. Running local analysis...", "success");
@@ -932,20 +934,30 @@ const analyzePhone = async () => {
       .join(" &middot; ")}</span></div>
   `;
 
-  saveEntity("phone", inputEl.value, "Phone Analysis");
-  maybeRenderHivemind();
-  showToast("Phone analyzed and saved to Hivemind.");
+  if (!skipSave) {
+    saveEntity("phone", inputEl.value, "Phone Analysis");
+    maybeRenderHivemind();
+  }
+  if (!silentToast) showToast("Phone analyzed and saved to Hivemind.");
+  return {
+    ok: true,
+    value: inputEl.value.trim(),
+    normalized: e164,
+    country,
+    lineType
+  };
 };
 
-const analyzeEmail = async () => {
+const analyzeEmail = async (options = {}) => {
+  const { silentToast = false, skipSave = false } = options;
   const inputEl = byId("email-input");
   const results = byId("email-results");
-  if (!inputEl || !results) return;
+  if (!inputEl || !results) return { ok: false, reason: "missing-elements" };
   const validation = validators.email(inputEl.value);
   if (!validation.valid) {
     setHint("email-hint", validation.message, "error");
     results.innerHTML = renderMessage(validation.message);
-    return;
+    return { ok: false, reason: "validation", message: validation.message };
   }
 
   setHint("email-hint", "Valid email format. Running local analysis...", "success");
@@ -996,9 +1008,18 @@ const analyzeEmail = async () => {
       .join(" &middot; ")}</span></div>
   `;
 
-  saveEntity("email", input, "Email Analysis");
-  maybeRenderHivemind();
-  showToast("Email analyzed and saved to Hivemind.");
+  if (!skipSave) {
+    saveEntity("email", input, "Email Analysis");
+    maybeRenderHivemind();
+  }
+  if (!silentToast) showToast("Email analyzed and saved to Hivemind.");
+  return {
+    ok: true,
+    email: input,
+    domain,
+    tld,
+    provider: provider.name
+  };
 };
 
 const patternBadges = (input) => {
@@ -1122,15 +1143,16 @@ const runUsernameChecks = async (username) => {
   showToast("Username checks completed.");
 };
 
-const analyzeUsername = async () => {
+const analyzeUsername = async (options = {}) => {
+  const { silentToast = false, skipSave = false } = options;
   const inputEl = byId("username-input");
   const results = byId("username-results");
-  if (!inputEl || !results) return;
+  if (!inputEl || !results) return { ok: false, reason: "missing-elements" };
   const validation = validators.username(inputEl.value);
   if (!validation.valid) {
     setHint("username-hint", validation.message, "error");
     results.innerHTML = renderMessage(validation.message);
-    return;
+    return { ok: false, reason: "validation", message: validation.message };
   }
 
   setHint("username-hint", "Username format looks good.", "success");
@@ -1171,9 +1193,16 @@ const analyzeUsername = async () => {
 
   byId("username-live-check-btn")?.addEventListener("click", () => runUsernameChecks(username));
 
-  saveEntity("username", username, "Username Recon");
-  maybeRenderHivemind();
-  showToast("Username analyzed locally and saved to Hivemind.");
+  if (!skipSave) {
+    saveEntity("username", username, "Username Recon");
+    maybeRenderHivemind();
+  }
+  if (!silentToast) showToast("Username analyzed locally and saved to Hivemind.");
+  return {
+    ok: true,
+    username,
+    platforms: USERNAME_PLATFORMS.length
+  };
 };
 
 const parseDomainParts = (domain) => {
@@ -1290,15 +1319,16 @@ const runDnsLookup = async (domain) => {
   }
 };
 
-const analyzeDomain = async () => {
+const analyzeDomain = async (options = {}) => {
+  const { silentToast = false, skipSave = false } = options;
   const inputEl = byId("domain-input");
   const results = byId("domain-results");
-  if (!inputEl || !results) return;
+  if (!inputEl || !results) return { ok: false, reason: "missing-elements" };
   const validation = validators.domain(inputEl.value);
   if (!validation.valid) {
     setHint("domain-hint", validation.message, "error");
     results.innerHTML = renderMessage(validation.message);
-    return;
+    return { ok: false, reason: "validation", message: validation.message };
   }
 
   setHint("domain-hint", "Domain format looks good.", "success");
@@ -1338,21 +1368,20 @@ const analyzeDomain = async () => {
   byId("domain-whois-btn")?.addEventListener("click", () => runWhoisLookup(domain));
   byId("domain-dns-btn")?.addEventListener("click", () => runDnsLookup(domain));
 
-  saveEntity("domain", domain, "Domain Recon");
-  maybeRenderHivemind();
-  showToast("Domain analyzed locally and saved to Hivemind.");
+  if (!skipSave) {
+    saveEntity("domain", domain, "Domain Recon");
+    maybeRenderHivemind();
+  }
+  if (!silentToast) showToast("Domain analyzed locally and saved to Hivemind.");
+  return {
+    ok: true,
+    domain,
+    tld: parts.tld,
+    subdomain: parts.subdomain
+  };
 };
 
-const extractEntities = () => {
-  const input = byId("extract-input");
-  const results = byId("extract-results");
-  if (!input || !results) return;
-  const text = input.value;
-  if (!text.trim()) {
-    results.innerHTML = renderMessage("Paste text to extract entities.", "error");
-    return;
-  }
-
+const collectEntitiesFromText = (text) => {
   const found = [];
   const pushMatches = (type, regex, transform = (value) => value) => {
     const matches = text.match(regex) || [];
@@ -1380,7 +1409,20 @@ const extractEntities = () => {
     const key = `${entry.type}:${entry.value}`;
     if (!uniqueMap.has(key)) uniqueMap.set(key, entry);
   });
-  const unique = Array.from(uniqueMap.values());
+  return Array.from(uniqueMap.values());
+};
+
+const extractEntities = () => {
+  const input = byId("extract-input");
+  const results = byId("extract-results");
+  if (!input || !results) return;
+  const text = input.value;
+  if (!text.trim()) {
+    results.innerHTML = renderMessage("Paste text to extract entities.", "error");
+    return;
+  }
+
+  const unique = collectEntitiesFromText(text);
 
   if (!unique.length) {
     results.innerHTML = '<div class="empty-state"><p>No entities found in the provided text.</p></div>';
@@ -1419,6 +1461,151 @@ const extractEntities = () => {
     </div>
   `;
   showToast(`Extracted ${unique.length} entities.`);
+};
+
+const extractFirstMatch = (text, type) => collectEntitiesFromText(text).find((entry) => entry.type === type);
+
+const runCollectiveAnalysis = async () => {
+  if (appState.collectiveRunning) return;
+
+  const input = byId("collective-input");
+  const results = byId("collective-results");
+  const runBtn = byId("collective-run-btn");
+  if (!input || !results || !runBtn) return;
+
+  const briefing = input.value.trim();
+  if (!briefing) {
+    results.innerHTML = renderMessage("Paste a case briefing first.", "error");
+    input.focus();
+    return;
+  }
+
+  appState.collectiveRunning = true;
+  runBtn.disabled = true;
+  renderLoading("collective-results", "Coordinating all agents locally...");
+
+  const extracted = collectEntitiesFromText(briefing);
+  const counts = extracted.reduce((acc, entry) => {
+    acc[entry.type] = (acc[entry.type] || 0) + 1;
+    return acc;
+  }, {});
+
+  const firstPhone = extractFirstMatch(briefing, "phone")?.value || "";
+  const firstEmail = extractFirstMatch(briefing, "email")?.value || "";
+  const firstUsername = extractFirstMatch(briefing, "username")?.value || "";
+  const firstDomain = extractFirstMatch(briefing, "domain")?.value || "";
+
+  const agentStatus = [];
+  const runAgent = async (label, fn) => {
+    try {
+      const result = await fn();
+      if (result?.ok) {
+        agentStatus.push({ label, ok: true, detail: "Completed" });
+        return result;
+      }
+      agentStatus.push({
+        label,
+        ok: false,
+        detail: result?.message || "Skipped or invalid input"
+      });
+      return result;
+    } catch (error) {
+      agentStatus.push({ label, ok: false, detail: error?.message || "Failed" });
+      return null;
+    }
+  };
+
+  if (firstPhone) byId("phone-input").value = firstPhone;
+  if (firstEmail) byId("email-input").value = firstEmail;
+  if (firstUsername) byId("username-input").value = firstUsername;
+  if (firstDomain) byId("domain-input").value = firstDomain;
+  byId("extract-input").value = briefing;
+
+  const phoneResult = await runAgent("Phone Intel", () =>
+    firstPhone ? analyzePhone({ silentToast: true, skipSave: true }) : Promise.resolve({ ok: false, message: "No phone found" })
+  );
+  const emailResult = await runAgent("Email Analysis", () =>
+    firstEmail ? analyzeEmail({ silentToast: true, skipSave: true }) : Promise.resolve({ ok: false, message: "No email found" })
+  );
+  const usernameResult = await runAgent("Username Recon", () =>
+    firstUsername ? analyzeUsername({ silentToast: true, skipSave: true }) : Promise.resolve({ ok: false, message: "No username found" })
+  );
+  const domainResult = await runAgent("Domain Recon", () =>
+    firstDomain ? analyzeDomain({ silentToast: true, skipSave: true }) : Promise.resolve({ ok: false, message: "No domain found" })
+  );
+  const extractorResult = await runAgent("Entity Extractor", () => {
+    extractEntities();
+    return Promise.resolve({ ok: extracted.length > 0, message: extracted.length ? "Completed" : "No entities found" });
+  });
+
+  extracted.forEach((entry) => {
+    if (["email", "phone", "domain", "username", "ipv4", "url", "bitcoin", "ethereum", "hashtag"].includes(entry.type)) {
+      saveEntity(entry.type, entry.value, "Collective Orchestrator");
+    }
+  });
+  maybeRenderHivemind();
+
+  const completed = [phoneResult, emailResult, usernameResult, domainResult, extractorResult].filter(
+    (entry) => entry?.ok
+  ).length;
+
+  results.innerHTML = `
+    <div class="collective-summary-grid">
+      <div class="collective-summary-item">
+        <div class="collective-summary-label">Agents Completed</div>
+        <div class="collective-summary-value">${completed}/5</div>
+      </div>
+      <div class="collective-summary-item">
+        <div class="collective-summary-label">Entities Extracted</div>
+        <div class="collective-summary-value">${extracted.length}</div>
+      </div>
+      <div class="collective-summary-item">
+        <div class="collective-summary-label">Unique Types</div>
+        <div class="collective-summary-value">${Object.keys(counts).length}</div>
+      </div>
+      <div class="collective-summary-item">
+        <div class="collective-summary-label">Saved to Hivemind</div>
+        <div class="collective-summary-value">${extracted.length}</div>
+      </div>
+    </div>
+    <div class="result-item">
+      <span class="result-label">Type Counts</span>
+      <span class="result-value">${
+        Object.keys(counts).length
+          ? Object.entries(counts)
+              .map(([type, count]) => `<span class="tag">${escapeHtml(type)}: ${count}</span>`)
+              .join(" ")
+          : "No entities"
+      }</span>
+    </div>
+    <ul class="collective-agent-list">
+      ${agentStatus
+        .map(
+          (agent) => `
+          <li>
+            <span>${agent.ok ? "✓" : "!"} ${escapeHtml(agent.label)}</span>
+            <span class="collective-agent-tag">${escapeHtml(agent.detail)}</span>
+          </li>
+        `
+        )
+        .join("")}
+    </ul>
+    <div class="privacy-note" style="margin-top:0.7rem">
+      Collective mode runs local analyzers only. Username platform checks and domain WHOIS/DNS live lookups remain manual.
+    </div>
+  `;
+
+  showToast("Collective analysis complete. All local agents synchronized.");
+  runBtn.disabled = false;
+  appState.collectiveRunning = false;
+};
+
+const resetCollectiveAnalysis = () => {
+  const input = byId("collective-input");
+  const results = byId("collective-results");
+  if (input) input.value = "";
+  if (results) results.innerHTML = "";
+  input?.focus();
 };
 
 const sortEntities = (entities, sortBy) => {
@@ -1798,6 +1985,8 @@ const bindToolActions = () => {
   byId("username-analyze-btn")?.addEventListener("click", analyzeUsername);
   byId("domain-analyze-btn")?.addEventListener("click", analyzeDomain);
   byId("extract-btn")?.addEventListener("click", extractEntities);
+  byId("collective-run-btn")?.addEventListener("click", runCollectiveAnalysis);
+  byId("collective-reset-btn")?.addEventListener("click", resetCollectiveAnalysis);
 
   byId("phone-reset-btn")?.addEventListener("click", () =>
     resetInputAndOutput("phone-input", "phone-results", "phone-hint")

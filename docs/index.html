@@ -160,6 +160,30 @@
         </div>
       </div>
 
+      <!-- Collective Agent Orchestrator -->
+      <div class="card collective-card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="card-icon purple">&#9881;</div>
+            Collective Agent Orchestrator
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-sm" id="collective-run-btn" title="Run all toolkit agents together">Run Collective Analysis</button>
+            <button class="btn btn-sm btn-secondary" id="collective-reset-btn" title="Clear orchestrator input and summary">Reset</button>
+          </div>
+        </div>
+        <p class="tool-desc">
+          One briefing, multiple agents: Entity Extractor, Phone Intel, Email Analysis, Username Recon,
+          Domain Recon, and Hivemind sync all work together from a single input.
+          Local by default; external lookups remain manual.
+        </p>
+        <div class="form-group">
+          <label for="collective-input">Case Briefing Input</label>
+          <textarea id="collective-input" placeholder="Paste a mixed lead: emails, usernames, domains, phone numbers, URLs..."></textarea>
+        </div>
+        <div class="results" id="collective-results"></div>
+      </div>
+
       <!-- Quick Tools -->
       <h3 class="section-title">Quick Tools</h3>
       <div class="tools-grid">
