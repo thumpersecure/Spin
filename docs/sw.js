@@ -3,12 +3,13 @@
    Offline-first caching for PWA / iOS Home Screen
    ════════════════════════════════════════════════════════ */
 
-var CACHE_NAME = 'spin-web-v2';
+var CACHE_NAME = 'spin-web-v3';
 var ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
+  './app.min.js',
   './icon.svg',
   './manifest.json'
 ];

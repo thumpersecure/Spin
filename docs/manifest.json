@@ -1,7 +1,7 @@
 {
   "name": "Spin Web - OSINT Mini Toolkit",
   "short_name": "Spin Web",
-  "description": "Privacy-first OSINT investigation toolkit. All analysis runs locally in your browser.",
+  "description": "Privacy-first OSINT investigation toolkit. Local-first analysis with optional opt-in live checks.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
