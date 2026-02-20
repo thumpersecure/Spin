@@ -188,12 +188,17 @@ function switchPanel(panelId) {
 }
 
 /* ─── Toast Notification ─────────────────────────────────  */
+var _toastTimer = null;
 function showToast(message) {
   var toast = document.getElementById('toast');
   if (!toast) return;
+  if (_toastTimer) clearTimeout(_toastTimer);
   toast.textContent = message;
   toast.classList.add('show');
-  setTimeout(function() { toast.classList.remove('show'); }, 3000);
+  _toastTimer = setTimeout(function() {
+    toast.classList.remove('show');
+    _toastTimer = null;
+  }, 3000);
 }
 
 /* ─── Clipboard ──────────────────────────────────────────  */
@@ -675,7 +680,7 @@ function analyzeDomain() {
     (subdomain ? '<div class="result-item"><span class="result-label">Subdomain</span><span class="result-value">' + escapeHtml(subdomain) + '</span></div>' : '') +
     '<div class="result-item"><span class="result-label">SLD</span><span class="result-value">' + escapeHtml(sld) + '</span></div>' +
     '<div class="result-item"><span class="result-label">TLD</span><span class="result-value">.' + escapeHtml(tld) + ' <span class="tag">' + (tldInfo[tld.toLowerCase()] || 'Unknown') + '</span></span></div>' +
-    '<div class="result-item"><span class="result-label">Visit</span><span class="result-value"><a href="https://' + escapeHtml(input) + '" target="_blank" rel="noopener">https://' + escapeHtml(input) + '</a></span></div>';
+    '<div class="result-item"><span class="result-label">Visit</span><span class="result-value"><a href="https://' + escapeAttr(input) + '" target="_blank" rel="noopener">https://' + escapeHtml(input) + '</a></span></div>';
 
   html += '<div style="margin-top:1rem"><strong style="font-size:0.85rem;color:var(--text-bright)">Reconnaissance Tools:</strong></div>';
   html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin-top:8px">';
@@ -715,7 +720,7 @@ function extractEntities() {
   ipv4s.forEach(function(ip) { found.push({ type: 'ipv4', value: ip }); });
 
   // Domains (excluding email domains)
-  var domains = text.match(/\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+(?:com|org|net|edu|gov|io|co|ai|dev|app|me|info|biz)\b/g) || [];
+  var domains = text.match(/\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+(?:com|org|net|edu|gov|mil|io|co|ai|dev|app|me|info|biz|xyz|tech|online|site|uk|de|fr|ru|cn|jp|br|in|ca|au|nl|es|it|pl|se|no|fi|ch|at|be|kr|mx|za|nz|pt|cz|id|ph|sg|hk|tw|onion)\b/g) || [];
   var emailDomains = {};
   emails.forEach(function(e) { emailDomains[e.split('@')[1]] = true; });
   domains.forEach(function(d) {
@@ -726,8 +731,8 @@ function extractEntities() {
   var urls = text.match(/https?:\/\/[^\s<>"{}|\\^`\[\]]+/g) || [];
   urls.forEach(function(u) { found.push({ type: 'url', value: u }); });
 
-  // Bitcoin addresses
-  var btc = text.match(/\b[13][a-km-zA-HJ-NP-Z1-9]{25,34}\b/g) || [];
+  // Bitcoin addresses (legacy + SegWit/Bech32)
+  var btc = text.match(/\b(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-zA-HJ-NP-Z0-9]{25,39})\b/g) || [];
   btc.forEach(function(b) { found.push({ type: 'bitcoin', value: b }); });
 
   // Ethereum addresses
@@ -771,7 +776,7 @@ function extractEntities() {
       '<span class="tag ' + (typeColors[item.type] || '') + '">' + item.type + '</span>' +
       '<span class="result-value" style="flex:1">' + escapeHtml(item.value) + '</span>' +
       '<button class="copy-btn" onclick="copyToClipboard(\'' + escapeJs(item.value) + '\')">copy</button>' +
-      '<button class="btn btn-sm btn-green" onclick="saveEntity(\'' + item.type + '\',\'' + escapeJs(item.value) + '\',\'Text Extract\');renderEntityTable();showToast(\'Saved to Hivemind\')">save</button>' +
+      '<button class="btn btn-sm btn-green" onclick="saveEntity(\'' + escapeJs(item.type) + '\',\'' + escapeJs(item.value) + '\',\'Text Extract\');renderEntityTable();showToast(\'Saved to Hivemind\')">save</button>' +
     '</div>';
   });
   html += '</div>';
@@ -819,11 +824,11 @@ function renderEntityTable() {
     return '<tr>' +
       '<td><span class="tag ' + (typeColors[e.type] || '') + '">' + escapeHtml(e.type) + '</span></td>' +
       '<td class="mono">' + escapeHtml(e.value) + '</td>' +
-      '<td>' + (e.sources ? e.sources.join(', ') : '-') + '</td>' +
+      '<td>' + (e.sources ? e.sources.map(escapeHtml).join(', ') : '-') + '</td>' +
       '<td>' + (e.count || 1) + '</td>' +
       '<td>' +
         '<button class="copy-btn" onclick="copyToClipboard(\'' + escapeJs(e.value) + '\')">copy</button> ' +
-        '<button class="copy-btn" onclick="deleteEntity(\'' + e.id + '\')" style="color:var(--spin-red);border-color:var(--spin-red)">del</button>' +
+        '<button class="copy-btn" onclick="deleteEntity(\'' + escapeJs(e.id) + '\')" style="color:var(--spin-red);border-color:var(--spin-red)">del</button>' +
       '</td>' +
     '</tr>';
   }).join('');
@@ -994,14 +999,34 @@ function renderBookmarks() {
 }
 
 /* ─── Utility Functions ──────────────────────────────────  */
+var _escDiv = document.createElement('div');
+
 function escapeHtml(str) {
-  var div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+  _escDiv.textContent = str;
+  return _escDiv.innerHTML;
+}
+
+function escapeAttr(str) {
+  return escapeHtml(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function escapeJs(str) {
-  return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t')
+    .replace(/</g, '\\x3c');
+}
+
+function debounce(fn, delay) {
+  var timer;
+  return function() {
+    clearTimeout(timer);
+    timer = setTimeout(fn, delay);
+  };
 }
 
 /* ─── Loading Screen ─────────────────────────────────────  */
@@ -1059,12 +1084,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Set up entity filter/search listeners
   var filter = document.getElementById('entity-filter');
   var search = document.getElementById('entity-search');
+  var debouncedEntityRender = debounce(renderEntityTable, 200);
   if (filter) filter.addEventListener('change', renderEntityTable);
-  if (search) search.addEventListener('input', renderEntityTable);
+  if (search) search.addEventListener('input', debouncedEntityRender);
 
   // Set up bookmark search
   var bmSearch = document.getElementById('bookmark-search');
-  if (bmSearch) bmSearch.addEventListener('input', renderBookmarks);
+  var debouncedBookmarkRender = debounce(renderBookmarks, 200);
+  if (bmSearch) bmSearch.addEventListener('input', debouncedBookmarkRender);
 
   // Enter key handlers for inputs
   var inputHandlers = [
