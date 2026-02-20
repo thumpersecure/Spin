@@ -3,7 +3,7 @@
    Offline-first caching for PWA / iOS Home Screen
    ════════════════════════════════════════════════════════ */
 
-var CACHE_NAME = 'spin-web-v1';
+var CACHE_NAME = 'spin-web-v2';
 var ASSETS = [
   './',
   './index.html',
@@ -52,16 +52,15 @@ self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request).then(function(cached) {
       if (cached) {
-        // Return cached version, update in background
-        var fetchPromise = fetch(event.request).then(function(response) {
+        // Return cached version immediately, update cache in background
+        fetch(event.request).then(function(response) {
           if (response && response.status === 200) {
             var responseClone = response.clone();
             caches.open(CACHE_NAME).then(function(cache) {
               cache.put(event.request, responseClone);
             });
           }
-          return response;
-        }).catch(function() { /* offline, ignore */ });
+        }).catch(function() { /* offline, skip background update */ });
 
         return cached;
       }

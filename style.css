@@ -1291,48 +1291,147 @@ textarea {
   }
 }
 
-/* ─── PWA / iOS Standalone Mode ───────────────────────── */
+/* ─── Security Status Dashboard ───────────────────────── */
+.sec-dashboard {
+  max-width: 1200px;
+  margin: 3rem auto 0;
+  padding: 0 2rem;
+}
 
-/* Safe area insets for notch/Dynamic Island */
-@supports (padding: env(safe-area-inset-top)) {
-  .header {
-    padding-top: calc(1rem + env(safe-area-inset-top));
-    padding-left: calc(2rem + env(safe-area-inset-left));
-    padding-right: calc(2rem + env(safe-area-inset-right));
+.sec-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0 2px;
+}
+
+.sec-dashboard-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sec-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--spin-green);
+  box-shadow: 0 0 6px var(--spin-green);
+  animation: secPulse 2s ease-in-out infinite;
+}
+
+@keyframes secPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--spin-green); }
+  50% { opacity: 0.5; box-shadow: 0 0 12px var(--spin-green); }
+}
+
+.sec-dashboard-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--spin-green);
+  background: rgba(28, 223, 102, 0.08);
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(28, 223, 102, 0.15);
+}
+
+.sec-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.sec-cell {
+  background: var(--bg-card);
+  padding: 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.2s;
+}
+
+.sec-cell:hover {
+  background: var(--bg-hover);
+}
+
+.sec-cell-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.sec-cell-indicator.green {
+  background: var(--spin-green);
+  box-shadow: 0 0 6px rgba(28, 223, 102, 0.4);
+}
+
+.sec-cell-indicator.orange {
+  background: var(--spin-orange);
+  box-shadow: 0 0 6px rgba(255, 165, 2, 0.4);
+}
+
+.sec-cell-indicator.red {
+  background: var(--spin-red);
+  box-shadow: 0 0 6px rgba(255, 71, 87, 0.4);
+}
+
+.sec-cell-data {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sec-cell-value {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sec-cell-label {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .sec-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .nav {
-    padding-left: calc(2rem + env(safe-area-inset-left));
-    padding-right: calc(2rem + env(safe-area-inset-right));
-  }
-
-  .main {
-    padding-left: calc(2rem + env(safe-area-inset-left));
-    padding-right: calc(2rem + env(safe-area-inset-right));
-  }
-
-  .footer {
-    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom));
-    padding-left: calc(2rem + env(safe-area-inset-left));
-    padding-right: calc(2rem + env(safe-area-inset-right));
-  }
-
-  .toast {
-    bottom: calc(2rem + env(safe-area-inset-bottom));
-    right: calc(2rem + env(safe-area-inset-right));
-  }
-
-  .tip-popup {
-    bottom: calc(2rem + env(safe-area-inset-bottom));
-    left: calc(2rem + env(safe-area-inset-left));
-  }
-
-  .install-banner {
-    bottom: calc(env(safe-area-inset-bottom));
+  .sec-dashboard {
+    padding: 0 1rem;
   }
 }
 
-/* Standalone display mode (Home Screen app) */
+@media (max-width: 400px) {
+  .sec-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ─── PWA Standalone Mode ─────────────────────────────── */
 @media (display-mode: standalone) {
   body {
     overscroll-behavior: none;
@@ -1366,7 +1465,7 @@ textarea {
     touch-action: manipulation;
   }
 
-  /* Hide "Desktop App" link in standalone since they're already using the app */
+  /* Hide "Desktop App" link in standalone */
   .btn-desktop {
     display: none;
   }
@@ -1376,15 +1475,36 @@ textarea {
     overscroll-behavior-y: contain;
   }
 
-  /* Tighter padding on standalone mobile */
-  @media (max-width: 768px) {
-    .header {
-      padding-top: calc(0.5rem + env(safe-area-inset-top));
-    }
+  /* Safe area insets (only needed in standalone; browser handles its own) */
+  .header {
+    padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+  }
+
+  .footer {
+    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .toast {
+    bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .tip-popup {
+    bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .install-banner {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
 
-/* ─── iOS Install Banner ──────────────────────────────── */
+/* Standalone + mobile combined */
+@media (display-mode: standalone) and (max-width: 768px) {
+  .header {
+    padding-top: calc(0.5rem + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* ─── Install Banner (iOS + Android) ─────────────────── */
 .install-banner {
   position: fixed;
   bottom: 0;

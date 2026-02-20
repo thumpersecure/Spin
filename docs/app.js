@@ -1067,6 +1067,25 @@ function registerServiceWorker() {
 }
 
 /* ─── PWA: Generate Apple Touch Icon via Canvas ──────────  */
+function canvasRoundRect(ctx, x, y, w, h, r) {
+  // Fallback for browsers without native roundRect (Safari < 16)
+  if (ctx.roundRect) {
+    ctx.roundRect(x, y, w, h, r);
+    return;
+  }
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+
 function generateAppleTouchIcon() {
   try {
     var canvas = document.createElement('canvas');
@@ -1078,7 +1097,7 @@ function generateAppleTouchIcon() {
     // Background
     ctx.fillStyle = '#08080d';
     ctx.beginPath();
-    ctx.roundRect(0, 0, 180, 180, 36);
+    canvasRoundRect(ctx, 0, 0, 180, 180, 36);
     ctx.fill();
 
     // Gradient overlay
@@ -1087,7 +1106,7 @@ function generateAppleTouchIcon() {
     grad.addColorStop(1, 'rgba(28, 223, 102, 0.2)');
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.roundRect(6, 6, 168, 168, 32);
+    canvasRoundRect(ctx, 6, 6, 168, 168, 32);
     ctx.fill();
 
     // Letter S
@@ -1117,64 +1136,106 @@ function generateAppleTouchIcon() {
     link.href = canvas.toDataURL('image/png');
     document.head.appendChild(link);
   } catch (e) {
-    // Canvas not supported or roundRect not available - fallback gracefully
+    // Canvas rendering failed - icon fallback handled by browser
   }
 }
 
-/* ─── PWA: iOS Install Banner ────────────────────────────  */
+/* ─── PWA: Install Banner (iOS + Android) ────────────────  */
 var INSTALL_DISMISSED_KEY = 'spin_install_dismissed';
+var _deferredInstallPrompt = null;
 
 function isIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
+function isAndroid() {
+  return /Android/.test(navigator.userAgent);
+}
+
+
 function isStandalone() {
   return window.navigator.standalone === true ||
     window.matchMedia('(display-mode: standalone)').matches;
 }
 
-function showInstallBanner() {
-  // Only show on iOS Safari, not already installed, not dismissed recently
-  if (!isIOS() || isStandalone()) return;
-
+function wasDismissedRecently() {
   try {
     var dismissed = localStorage.getItem(INSTALL_DISMISSED_KEY);
     if (dismissed) {
       var dismissedAt = parseInt(dismissed, 10);
-      // Don't show again for 7 days
-      if (Date.now() - dismissedAt < 7 * 24 * 60 * 60 * 1000) return;
+      if (Date.now() - dismissedAt < 7 * 24 * 60 * 60 * 1000) return true;
     }
   } catch (e) { /* localStorage unavailable */ }
+  return false;
+}
+
+// Android: Capture the beforeinstallprompt event
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _deferredInstallPrompt = e;
+  // Show the banner for Android users
+  if (!isStandalone() && !wasDismissedRecently()) {
+    showInstallBannerAndroid();
+  }
+});
+
+// Detect when app is installed
+window.addEventListener('appinstalled', function() {
+  _deferredInstallPrompt = null;
+  dismissInstallBanner();
+  showToast('Spin Web installed. Welcome to the team, detective.');
+});
+
+function showInstallBannerAndroid() {
+  var banner = document.getElementById('install-banner');
+  var steps = document.getElementById('install-steps');
+  var installBtn = document.getElementById('install-btn');
+  if (!banner || !steps) return;
+
+  // Show the one-tap install button for Android
+  if (installBtn) installBtn.style.display = '';
+  steps.innerHTML = '<div class="step"><span class="step-num">&#10003;</span> Tap <strong>"Install"</strong> for a native app experience with offline access</div>';
+
+  setTimeout(function() { banner.classList.add('show'); }, 2000);
+}
+
+function showInstallBannerIOS() {
+  if (!isIOS() || isStandalone() || wasDismissedRecently()) return;
 
   var banner = document.getElementById('install-banner');
   var steps = document.getElementById('install-steps');
   if (!banner || !steps) return;
 
-  // Detect browser for correct instructions
   var isChrome = /CriOS/.test(navigator.userAgent);
   var isFirefox = /FxiOS/.test(navigator.userAgent);
 
   if (isChrome) {
     steps.innerHTML =
-      '<div class="step"><span class="step-num">1</span> Tap the share button <span class="step-icon">&#8943;</span> (three dots menu)</div>' +
-      '<div class="step"><span class="step-num">2</span> Scroll down and tap <strong>"Add to Home Screen"</strong></div>' +
-      '<div class="step"><span class="step-num">3</span> Tap <strong>"Add"</strong> to install</div>';
+      '<div class="step"><span class="step-num">1</span> Open this page in <strong>Safari</strong> for the best experience</div>' +
+      '<div class="step"><span class="step-num">2</span> Tap the share button, then <strong>"Add to Home Screen"</strong></div>';
   } else if (isFirefox) {
     steps.innerHTML =
       '<div class="step"><span class="step-num">1</span> Open this page in <strong>Safari</strong> for Home Screen support</div>';
   } else {
-    // Safari (default)
     steps.innerHTML =
       '<div class="step"><span class="step-num">1</span> Tap the share button <span class="step-icon">&#xFEFF;&#x2B06;&#xFE0E;</span> at the bottom</div>' +
       '<div class="step"><span class="step-num">2</span> Scroll down and tap <strong>"Add to Home Screen"</strong></div>' +
       '<div class="step"><span class="step-num">3</span> Tap <strong>"Add"</strong> to install</div>';
   }
 
-  // Show after a short delay
-  setTimeout(function() {
-    banner.classList.add('show');
-  }, 4000);
+  setTimeout(function() { banner.classList.add('show'); }, 4000);
+}
+
+function triggerInstall() {
+  if (!_deferredInstallPrompt) return;
+  _deferredInstallPrompt.prompt();
+  _deferredInstallPrompt.userChoice.then(function(result) {
+    if (result.outcome === 'accepted') {
+      showToast('Installing Spin Web...');
+    }
+    _deferredInstallPrompt = null;
+  });
 }
 
 function dismissInstallBanner() {
@@ -1184,6 +1245,114 @@ function dismissInstallBanner() {
     localStorage.setItem(INSTALL_DISMISSED_KEY, Date.now().toString());
   } catch (e) { /* ignore */ }
 }
+
+/* ─── Security Status Dashboard ──────────────────────────  */
+var _sessionStart = Date.now();
+
+function initSecurityDashboard() {
+  updateSecurityStatus();
+  // Update uptime every second
+  setInterval(updateSessionUptime, 1000);
+}
+
+function updateSecurityStatus() {
+  // Connection security
+  var connCell = document.getElementById('sec-connection');
+  if (connCell) {
+    var isSecure = location.protocol === 'https:';
+    var indicator = connCell.querySelector('.sec-cell-indicator');
+    var value = connCell.querySelector('.sec-cell-value');
+    if (isSecure) {
+      indicator.className = 'sec-cell-indicator green';
+      value.textContent = 'HTTPS';
+    } else {
+      indicator.className = 'sec-cell-indicator orange';
+      value.textContent = 'HTTP';
+    }
+  }
+
+  // Data sent (always zero - client-side only)
+  var dataCell = document.getElementById('sec-data-out');
+  if (dataCell) {
+    dataCell.querySelector('.sec-cell-indicator').className = 'sec-cell-indicator green';
+    dataCell.querySelector('.sec-cell-value').textContent = 'ZERO';
+  }
+
+  // Storage usage
+  var storageCell = document.getElementById('sec-storage');
+  if (storageCell) {
+    var bytes = 0;
+    try {
+      for (var key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+          bytes += localStorage.getItem(key).length * 2; // UTF-16
+        }
+      }
+    } catch (e) { /* ignore */ }
+    var indicator = storageCell.querySelector('.sec-cell-indicator');
+    var value = storageCell.querySelector('.sec-cell-value');
+    if (bytes < 1024) {
+      value.textContent = bytes + ' B';
+    } else if (bytes < 1048576) {
+      value.textContent = (bytes / 1024).toFixed(1) + ' KB';
+    } else {
+      value.textContent = (bytes / 1048576).toFixed(1) + ' MB';
+    }
+    indicator.className = bytes > 4194304 ? 'sec-cell-indicator orange' : 'sec-cell-indicator green';
+  }
+
+  // Do Not Track
+  var dntCell = document.getElementById('sec-dnt');
+  if (dntCell) {
+    var dnt = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+    var dntOn = dnt === '1' || dnt === 'yes';
+    var indicator = dntCell.querySelector('.sec-cell-indicator');
+    var value = dntCell.querySelector('.sec-cell-value');
+    if (dntOn) {
+      indicator.className = 'sec-cell-indicator green';
+      value.textContent = 'ON';
+    } else {
+      indicator.className = 'sec-cell-indicator orange';
+      value.textContent = 'OFF';
+    }
+  }
+
+  // Cookies
+  var cookieCell = document.getElementById('sec-cookies');
+  if (cookieCell) {
+    var indicator = cookieCell.querySelector('.sec-cell-indicator');
+    var value = cookieCell.querySelector('.sec-cell-value');
+    if (navigator.cookieEnabled) {
+      indicator.className = 'sec-cell-indicator orange';
+      value.textContent = 'ENABLED';
+    } else {
+      indicator.className = 'sec-cell-indicator green';
+      value.textContent = 'BLOCKED';
+    }
+  }
+}
+
+function updateSessionUptime() {
+  var uptimeCell = document.getElementById('sec-uptime');
+  if (!uptimeCell) return;
+
+  var elapsed = Math.floor((Date.now() - _sessionStart) / 1000);
+  var hrs = Math.floor(elapsed / 3600);
+  var mins = Math.floor((elapsed % 3600) / 60);
+  var secs = elapsed % 60;
+
+  var value = uptimeCell.querySelector('.sec-cell-value');
+  if (value) {
+    if (hrs > 0) {
+      value.textContent = pad2(hrs) + ':' + pad2(mins) + ':' + pad2(secs);
+    } else {
+      value.textContent = pad2(mins) + ':' + pad2(secs);
+    }
+  }
+}
+
+function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
 
 /* ─── Initialize ─────────────────────────────────────────  */
 document.addEventListener('DOMContentLoaded', function() {
@@ -1195,6 +1364,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Generate apple-touch-icon dynamically
   generateAppleTouchIcon();
+
+  // Security dashboard
+  initSecurityDashboard();
+
 
   // Update entity counts
   updateEntityCount();
@@ -1256,12 +1429,15 @@ document.addEventListener('DOMContentLoaded', function() {
   // Rotate footer joke every 15 seconds
   setInterval(rotateFooterJoke, 15000);
 
+  // Refresh security storage stats every 30s
+  setInterval(updateSecurityStatus, 30000);
+
   // Show random tip popup every 45 seconds (first one after 20s)
   setTimeout(function() {
     showRandomTip();
     setInterval(showRandomTip, 45000);
   }, 20000);
 
-  // Show iOS install banner (after loading screen finishes)
-  setTimeout(showInstallBanner, 3500);
+  // Show install banner (iOS manual instructions, Android via beforeinstallprompt)
+  setTimeout(showInstallBannerIOS, 3500);
 });
