@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Spin Web - OSINT Mini Toolkit</title>
-  <meta name="description" content="Spin Web - A privacy-first OSINT investigation toolkit. Analyze phones, emails, usernames, and domains. 100% client-side.">
+  <meta name="description" content="Spin Web - A privacy-first OSINT investigation toolkit. Core analysis runs locally in your browser, with optional opt-in live checks.">
   <meta name="theme-color" content="#7b1feb">
   <meta property="og:title" content="Spin Web - OSINT Mini Toolkit">
-  <meta property="og:description" content="Privacy-first OSINT investigation toolkit. All analysis runs locally in your browser.">
+  <meta property="og:description" content="Privacy-first OSINT investigation toolkit. Local-first analysis with optional opt-in live checks.">
   <meta property="og:type" content="website">
   <!-- PWA / iOS Home Screen -->
   <link rel="manifest" href="manifest.json">
@@ -46,34 +46,37 @@
       <span class="badge version-badge">v12.0.3 &middot; Jessica Jones</span>
       <span class="badge client-badge">100% Client-Side</span>
       <span class="badge case-badge" id="case-number">CASE #------</span>
+      <button id="theme-toggle" class="btn btn-sm btn-secondary theme-toggle" aria-label="Toggle light and dark theme" title="Toggle theme">
+        <span aria-hidden="true">Theme</span>
+      </button>
       <a href="https://github.com/thumpersecure/Spin" target="_blank" rel="noopener" class="btn-desktop">Desktop App</a>
     </div>
   </header>
 
   <!-- Navigation -->
-  <nav class="nav" id="main-nav">
-    <button class="nav-tab active" data-panel="dashboard" onclick="switchPanel('dashboard')">
+  <nav class="nav" id="main-nav" role="tablist" aria-label="Toolkit sections">
+    <button class="nav-tab active" data-panel="dashboard" role="tab" aria-selected="true" aria-controls="dashboard" id="tab-dashboard" tabindex="0">
       <span class="nav-icon">&#9670;</span> Dashboard
     </button>
-    <button class="nav-tab" data-panel="phone-tool" onclick="switchPanel('phone-tool')">
+    <button class="nav-tab" data-panel="phone-tool" role="tab" aria-selected="false" aria-controls="phone-tool" id="tab-phone-tool" tabindex="-1">
       <span class="nav-icon">&#9742;</span> Phone Intel
     </button>
-    <button class="nav-tab" data-panel="email-tool" onclick="switchPanel('email-tool')">
+    <button class="nav-tab" data-panel="email-tool" role="tab" aria-selected="false" aria-controls="email-tool" id="tab-email-tool" tabindex="-1">
       <span class="nav-icon">&#9993;</span> Email Analysis
     </button>
-    <button class="nav-tab" data-panel="username-tool" onclick="switchPanel('username-tool')">
+    <button class="nav-tab" data-panel="username-tool" role="tab" aria-selected="false" aria-controls="username-tool" id="tab-username-tool" tabindex="-1">
       <span class="nav-icon">&#9731;</span> Username Recon
     </button>
-    <button class="nav-tab" data-panel="domain-tool" onclick="switchPanel('domain-tool')">
+    <button class="nav-tab" data-panel="domain-tool" role="tab" aria-selected="false" aria-controls="domain-tool" id="tab-domain-tool" tabindex="-1">
       <span class="nav-icon">&#9729;</span> Domain Recon
     </button>
-    <button class="nav-tab" data-panel="extractor" onclick="switchPanel('extractor')">
+    <button class="nav-tab" data-panel="extractor" role="tab" aria-selected="false" aria-controls="extractor" id="tab-extractor" tabindex="-1">
       <span class="nav-icon">&#10002;</span> Entity Extractor
     </button>
-    <button class="nav-tab" data-panel="hivemind" onclick="switchPanel('hivemind')">
+    <button class="nav-tab" data-panel="hivemind" role="tab" aria-selected="false" aria-controls="hivemind" id="tab-hivemind" tabindex="-1">
       <span class="nav-icon">&#9733;</span> Hivemind
     </button>
-    <button class="nav-tab" data-panel="bookmarks" onclick="switchPanel('bookmarks')">
+    <button class="nav-tab" data-panel="bookmarks" role="tab" aria-selected="false" aria-controls="bookmarks" id="tab-bookmarks" tabindex="-1">
       <span class="nav-icon">&#9776;</span> OSINT Bookmarks
     </button>
   </nav>
@@ -82,7 +85,7 @@
   <main class="main">
 
     <!-- Dashboard -->
-    <section id="dashboard" class="panel active">
+    <section id="dashboard" class="panel active" role="tabpanel" aria-labelledby="tab-dashboard" tabindex="0">
       <!-- Stats Row -->
       <div class="stats-grid">
         <div class="stat-card purple">
@@ -115,8 +118,9 @@
         <p class="welcome-text">
           <strong class="bright">Spin</strong> is a privacy-first OSINT investigation toolkit.
           This is the <strong class="purple">web mini version</strong> &mdash; a lightweight,
-          client-side toolkit that runs entirely in your browser. No data leaves your machine.
-          All analysis happens locally using JavaScript.
+          client-side toolkit that runs entirely in your browser. By default, no data leaves
+          your machine. Optional live checks only run when you explicitly trigger them.
+          Core analysis happens locally using JavaScript.
         </p>
         <p class="welcome-text" style="margin-top:0.75rem">
           For the full experience &mdash; multi-identity browsing, AI agents, real-time entity sync,
@@ -126,55 +130,65 @@
       </div>
 
       <!-- Joke of the Investigation -->
-      <div class="card joke-card">
+      <div class="card joke-card" id="joke-card">
         <div class="card-header">
           <div class="card-title">
             <div class="card-icon green">?</div>
             <span>Joke of the Investigation</span>
           </div>
-          <button class="btn btn-sm btn-secondary" onclick="nextJoke()" title="Next joke">Next Case</button>
+          <div class="btn-group">
+            <button class="btn btn-sm joke-primary-btn" id="new-joke-btn" title="Load a new joke">New Joke</button>
+            <button class="btn btn-sm btn-secondary" id="reveal-punchline-btn" title="Reveal the punchline">Reveal Punchline</button>
+          </div>
         </div>
         <div class="joke-display">
           <p class="joke-text" id="joke-text">Loading classified humor...</p>
-          <p class="joke-punchline" id="joke-punchline"></p>
+          <p class="joke-punchline is-hidden" id="joke-punchline"></p>
         </div>
       </div>
 
       <!-- OSINT Tip Ticker -->
       <div class="tip-ticker">
         <span class="tip-label">INTEL BRIEF</span>
-        <div class="tip-scroll" id="tip-ticker">Loading field intelligence...</div>
+        <div class="tip-scroll-wrap">
+          <div class="tip-scroll" id="tip-ticker" aria-live="polite">Loading field intelligence...</div>
+        </div>
+        <div class="ticker-controls" role="group" aria-label="Intel brief controls">
+          <button class="copy-btn" id="tip-prev-btn" aria-label="Previous tip">Prev</button>
+          <button class="copy-btn" id="tip-pause-btn" aria-label="Pause ticker">Pause</button>
+          <button class="copy-btn" id="tip-next-btn" aria-label="Next tip">Next</button>
+        </div>
       </div>
 
       <!-- Quick Tools -->
       <h3 class="section-title">Quick Tools</h3>
       <div class="tools-grid">
-        <div class="tool-card" onclick="switchPanel('phone-tool')">
+        <div class="tool-card" data-open-panel="phone-tool" tabindex="0" role="button" aria-label="Open Phone Intelligence tool">
           <div class="tool-icon green-glow">&#9742;</div>
           <h3>Phone Intelligence</h3>
           <p>Analyze phone numbers &mdash; country detection, carrier info, format conversion, and search links.</p>
         </div>
-        <div class="tool-card" onclick="switchPanel('email-tool')">
+        <div class="tool-card" data-open-panel="email-tool" tabindex="0" role="button" aria-label="Open Email Analysis tool">
           <div class="tool-icon blue-glow">&#9993;</div>
           <h3>Email Analysis</h3>
           <p>Analyze email addresses &mdash; provider detection, disposable check, pattern analysis.</p>
         </div>
-        <div class="tool-card" onclick="switchPanel('username-tool')">
+        <div class="tool-card" data-open-panel="username-tool" tabindex="0" role="button" aria-label="Open Username Recon tool">
           <div class="tool-icon purple-glow">&#9731;</div>
           <h3>Username Recon</h3>
           <p>Search usernames across 16+ platforms &mdash; social media, code, and gaming.</p>
         </div>
-        <div class="tool-card" onclick="switchPanel('domain-tool')">
+        <div class="tool-card" data-open-panel="domain-tool" tabindex="0" role="button" aria-label="Open Domain Recon tool">
           <div class="tool-icon orange-glow">&#9729;</div>
           <h3>Domain Recon</h3>
           <p>Domain intelligence &mdash; WHOIS, DNS, SSL certs, historical data, and more.</p>
         </div>
-        <div class="tool-card" onclick="switchPanel('extractor')">
+        <div class="tool-card" data-open-panel="extractor" tabindex="0" role="button" aria-label="Open Entity Extractor tool">
           <div class="tool-icon red-glow">&#10002;</div>
           <h3>Entity Extractor</h3>
           <p>Paste any text to automatically extract emails, phones, IPs, domains, crypto addresses.</p>
         </div>
-        <div class="tool-card" onclick="switchPanel('hivemind')">
+        <div class="tool-card" data-open-panel="hivemind" tabindex="0" role="button" aria-label="Open Hivemind tool">
           <div class="tool-icon green-glow">&#9733;</div>
           <h3>Hivemind</h3>
           <p>View, search, filter, and export all collected entities from your investigations.</p>
@@ -203,7 +217,7 @@
           </div>
           <div class="status-row">
             <span class="status-label">Data Transmission</span>
-            <span class="status-value status-green">ZERO &mdash; All local</span>
+            <span class="status-value status-green">ZERO &mdash; Local by default</span>
           </div>
           <div class="status-row">
             <span class="status-label">Session</span>
@@ -214,7 +228,7 @@
     </section>
 
     <!-- Phone Intelligence -->
-    <section id="phone-tool" class="panel">
+    <section id="phone-tool" class="panel" role="tabpanel" aria-labelledby="tab-phone-tool" tabindex="0">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
@@ -227,15 +241,17 @@
           <label>Phone Number</label>
           <div class="input-row">
             <input type="text" id="phone-input" placeholder="e.g. +1 (555) 123-4567 or 442071234567" autocomplete="off">
-            <button class="btn" onclick="analyzePhone()">Analyze</button>
+            <button class="btn" id="phone-analyze-btn" aria-label="Analyze phone number">Analyze</button>
+            <button class="btn btn-secondary" id="phone-reset-btn" aria-label="Reset phone input and results">Reset</button>
           </div>
+          <p class="input-hint" id="phone-hint" aria-live="polite"></p>
         </div>
         <div class="results" id="phone-results"></div>
       </div>
     </section>
 
     <!-- Email Analysis -->
-    <section id="email-tool" class="panel">
+    <section id="email-tool" class="panel" role="tabpanel" aria-labelledby="tab-email-tool" tabindex="0">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
@@ -248,15 +264,17 @@
           <label>Email Address</label>
           <div class="input-row">
             <input type="email" id="email-input" placeholder="e.g. user@example.com" autocomplete="off">
-            <button class="btn" onclick="analyzeEmail()">Analyze</button>
+            <button class="btn" id="email-analyze-btn" aria-label="Analyze email address">Analyze</button>
+            <button class="btn btn-secondary" id="email-reset-btn" aria-label="Reset email input and results">Reset</button>
           </div>
+          <p class="input-hint" id="email-hint" aria-live="polite"></p>
         </div>
         <div class="results" id="email-results"></div>
       </div>
     </section>
 
     <!-- Username Recon -->
-    <section id="username-tool" class="panel">
+    <section id="username-tool" class="panel" role="tabpanel" aria-labelledby="tab-username-tool" tabindex="0">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
@@ -269,15 +287,17 @@
           <label>Username</label>
           <div class="input-row">
             <input type="text" id="username-input" placeholder="e.g. johndoe42" autocomplete="off">
-            <button class="btn" onclick="analyzeUsername()">Search</button>
+            <button class="btn" id="username-analyze-btn" aria-label="Analyze username">Search</button>
+            <button class="btn btn-secondary" id="username-reset-btn" aria-label="Reset username input and results">Reset</button>
           </div>
+          <p class="input-hint" id="username-hint" aria-live="polite"></p>
         </div>
         <div class="results" id="username-results"></div>
       </div>
     </section>
 
     <!-- Domain Recon -->
-    <section id="domain-tool" class="panel">
+    <section id="domain-tool" class="panel" role="tabpanel" aria-labelledby="tab-domain-tool" tabindex="0">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
@@ -290,15 +310,17 @@
           <label>Domain</label>
           <div class="input-row">
             <input type="text" id="domain-input" placeholder="e.g. example.com or subdomain.example.com" autocomplete="off">
-            <button class="btn" onclick="analyzeDomain()">Analyze</button>
+            <button class="btn" id="domain-analyze-btn" aria-label="Analyze domain">Analyze</button>
+            <button class="btn btn-secondary" id="domain-reset-btn" aria-label="Reset domain input and results">Reset</button>
           </div>
+          <p class="input-hint" id="domain-hint" aria-live="polite"></p>
         </div>
         <div class="results" id="domain-results"></div>
       </div>
     </section>
 
     <!-- Entity Extractor -->
-    <section id="extractor" class="panel">
+    <section id="extractor" class="panel" role="tabpanel" aria-labelledby="tab-extractor" tabindex="0">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
@@ -314,13 +336,16 @@
           <label>Text to Analyze</label>
           <textarea id="extract-input" placeholder="Paste any text here... emails, phone numbers, URLs, crypto addresses, and more will be automatically detected."></textarea>
         </div>
-        <button class="btn" onclick="extractEntities()">Extract Entities</button>
+        <div class="btn-group">
+          <button class="btn" id="extract-btn" aria-label="Extract entities">Extract Entities</button>
+          <button class="btn btn-secondary" id="extract-reset-btn" aria-label="Reset extractor text and results">Reset</button>
+        </div>
         <div class="results" id="extract-results"></div>
       </div>
     </section>
 
     <!-- Hivemind -->
-    <section id="hivemind" class="panel">
+    <section id="hivemind" class="panel" role="tabpanel" aria-labelledby="tab-hivemind" tabindex="0">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
@@ -328,16 +353,17 @@
             Hivemind &mdash; Entity Database
           </div>
           <div class="btn-group">
-            <button class="btn btn-sm btn-secondary" onclick="importEntities()">Import</button>
-            <button class="btn btn-sm btn-secondary" onclick="exportEntities()">Export JSON</button>
-            <button class="btn btn-sm btn-secondary btn-danger" onclick="clearEntities()">Clear All</button>
+            <button class="btn btn-sm btn-secondary" id="entity-import-btn">Import</button>
+            <button class="btn btn-sm btn-secondary" id="entity-export-json-btn">Export JSON</button>
+            <button class="btn btn-sm btn-secondary" id="entity-export-csv-btn">Export CSV</button>
+            <button class="btn btn-sm btn-secondary btn-danger" id="entity-clear-btn">Clear All</button>
           </div>
         </div>
         <p class="tool-desc">
           All discovered entities are collected here. Filter, search, export, or import entity databases.
           Data is stored locally in your browser (localStorage).
         </p>
-        <div class="filter-row">
+        <div class="filter-row multi-filter">
           <select id="entity-filter">
             <option value="all">All Types</option>
             <option value="email">Email</option>
@@ -350,7 +376,16 @@
             <option value="ethereum">Ethereum</option>
             <option value="hashtag">Hashtag</option>
           </select>
-          <input type="text" id="entity-search" placeholder="Search entities..." autocomplete="off">
+          <input type="text" id="entity-search" placeholder="Search value/type..." autocomplete="off">
+          <input type="text" id="entity-source-filter" placeholder="Filter by source..." autocomplete="off">
+          <select id="entity-sort">
+            <option value="date-desc">Date Added (Newest)</option>
+            <option value="date-asc">Date Added (Oldest)</option>
+            <option value="alpha-asc">Alphabetical (A-Z)</option>
+            <option value="alpha-desc">Alphabetical (Z-A)</option>
+            <option value="type-asc">Type (A-Z)</option>
+            <option value="type-desc">Type (Z-A)</option>
+          </select>
         </div>
         <div class="table-wrap">
           <table class="entity-table">
@@ -360,6 +395,7 @@
                 <th>Value</th>
                 <th>Source</th>
                 <th>Count</th>
+                <th>Date Added</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -370,7 +406,7 @@
     </section>
 
     <!-- OSINT Bookmarks -->
-    <section id="bookmarks" class="panel">
+    <section id="bookmarks" class="panel" role="tabpanel" aria-labelledby="tab-bookmarks" tabindex="0">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
@@ -449,7 +485,7 @@
       <p class="footer-brand">
         <strong>Spin Web</strong> v12.0.3 "Jessica Jones" &mdash; OSINT Mini Toolkit
       </p>
-      <p class="footer-privacy">All analysis runs locally in your browser. No data is sent to any server. Ever.</p>
+      <p class="footer-privacy">Local by default. Optional live checks send data only when you explicitly request them.</p>
       <p class="footer-links">
         <a href="https://github.com/thumpersecure/Spin">GitHub</a> &middot;
         <a href="https://github.com/thumpersecure/Spin/releases">Desktop Downloads</a> &middot;
@@ -485,6 +521,6 @@
     <div class="install-banner-steps" id="install-steps"></div>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.min.js"></script>
 </body>
 </html>

@@ -1,9 +1,5 @@
-/* ════════════════════════════════════════════════════════
-   Spin Web - OSINT Mini Toolkit
-   Client-side JavaScript - All analysis runs locally
-   ════════════════════════════════════════════════════════ */
+/* Spin Web - OSINT Mini Toolkit (client-side only) */
 
-/* ─── OSINT Detective Jokes ────────────────────────────── */
 const JOKES = [
   {
     setup: "Why did the OSINT analyst break up with Google?",
@@ -15,11 +11,7 @@ const JOKES = [
   },
   {
     setup: "My therapist says I need to stop investigating people online.",
-    punchline: "Interesting... Tell me more about your background, Dr. Williams. I see you graduated from Ohio State in 2003."
-  },
-  {
-    setup: "What does an OSINT analyst say on a first date?",
-    punchline: "\"Tell me something about yourself that isn't on your Facebook, Instagram, LinkedIn, voter registration, or property records.\""
+    punchline: "Interesting... Tell me more about your background, Dr. Williams."
   },
   {
     setup: "Why do OSINT analysts make terrible poker players?",
@@ -27,1048 +19,1586 @@ const JOKES = [
   },
   {
     setup: "How many OSINT analysts does it take to change a lightbulb?",
-    punchline: "None. They already found the manufacturer's internal maintenance schedule on an exposed S3 bucket."
-  },
-  {
-    setup: "My OPSEC is so good...",
-    punchline: "Even I can't find myself on the internet. Wait, that's not OPSEC. That's just loneliness."
-  },
-  {
-    setup: "What's an OSINT investigator's favorite pickup line?",
-    punchline: "\"I'd ask for your number, but I already pulled it from the data breach.\""
-  },
-  {
-    setup: "Why did Jessica Jones switch to digital investigations?",
-    punchline: "Because you can drink whiskey while doing WHOIS lookups and nobody judges you."
-  },
-  {
-    setup: "An OSINT analyst, a pentester, and a social engineer walk into a bar.",
-    punchline: "The OSINT analyst already knew about the bar from the bartender's Instagram. The pentester found the back door was unlocked. The social engineer convinced everyone it was a company event."
-  },
-  {
-    setup: "What's the scariest thing an OSINT investigator can say?",
-    punchline: "\"I found your old MySpace page.\""
-  },
-  {
-    setup: "Why did the detective use Shodan instead of Google?",
-    punchline: "Because Google finds websites, but Shodan finds the guy who forgot to put a password on his security camera."
-  },
-  {
-    setup: "OSINT Rule #1: Everything is findable. OSINT Rule #2:",
-    punchline: "You probably shouldn't have posted that."
+    punchline: "None. They found the maintenance schedule in an exposed bucket."
   },
   {
     setup: "What did the metadata say to the photo?",
-    punchline: "\"You might look anonymous, but I know exactly where and when you were taken.\""
-  },
-  {
-    setup: "How does an OSINT analyst introduce themselves at parties?",
-    punchline: "\"Oh we've already met. I just read your guest list, LinkedIn, and the host's public Venmo transactions.\""
+    punchline: "\"You look anonymous, but I know exactly where and when you were taken.\""
   },
   {
     setup: "Why do OSINT investigators love the Wayback Machine?",
-    punchline: "Because the internet never forgets... even when you desperately want it to."
+    punchline: "Because the internet never forgets."
   },
   {
-    setup: "Roses are red, violets are blue,",
-    punchline: "Your EXIF data told me the GPS coordinates of you."
+    setup: "What's the OSINT analyst's bedtime story?",
+    punchline: "\"Once upon a time, someone reused the same username everywhere. The end.\""
   },
   {
-    setup: "What's the OSINT analyst's version of a bedtime story?",
-    punchline: "\"Once upon a time, someone used the same username everywhere. The end.\""
+    setup: "What's the scariest thing an investigator can say?",
+    punchline: "\"I found your old MySpace page.\""
   },
   {
-    setup: "A detective asked me: \"What's your alibi?\"",
-    punchline: "I said: \"My alibi is an investigation. My alias is an identity.\" He said: \"Sir this is a Wendy's.\""
+    setup: "OSINT Rule #1: Everything is findable. Rule #2:",
+    punchline: "You probably should not have posted that."
   },
   {
-    setup: "Why did the OSINT analyst get kicked out of the library?",
-    punchline: "They kept trying to do a WHOIS lookup on the librarian."
+    setup: "Why did Jessica Jones switch to digital investigations?",
+    punchline: "Because you can drink whiskey during WHOIS lookups and nobody judges."
   },
   {
-    setup: "What do you call an OSINT analyst on vacation?",
-    punchline: "A person who just happens to be analyzing everyone's Wi-Fi networks at the resort. For fun."
-  },
-  {
-    setup: "The OSINT analyst's motto:",
-    punchline: "\"I'm not paranoid. I'm just well-informed about how much of your data is publicly available.\""
-  },
-  {
-    setup: "How did the OSINT analyst catch the suspect?",
-    punchline: "The suspect's operational security was perfect. Except for the dog's Instagram account. The dog has 400 followers."
-  },
-  {
-    setup: "What's worse than finding out your data was in a breach?",
-    punchline: "Finding out your password was literally 'password123' and even the hackers were disappointed in you."
+    setup: "What's worse than getting breached?",
+    punchline: "Finding out your password was \"password123\"."
   }
 ];
 
-/* ─── OSINT Tips & Field Notes ─────────────────────────── */
 const TIPS = [
   "Google dorking is not an insult. Try: site:target.com filetype:pdf",
   "The Wayback Machine never forgets, even if they deleted it.",
-  "92% of all OSINT investigations start with 'Let me just check one more thing...'",
-  "EXIF data: Because your photos are snitches.",
-  "Always check if the username is the same across platforms. People are creatures of habit.",
-  "Pro tip: The best OSINT tool is patience and a search engine.",
-  "Reverse image search isn't just for catfishing. It's for justice.",
-  "A disposable email address is nature's way of saying 'I have something to hide.'",
-  "crt.sh reveals all SSL certificates ever issued. Subdomains love to gossip.",
-  "When in doubt, check the DNS. It knows things.",
-  "LinkedIn is basically voluntary corporate surveillance.",
-  "Shodan: The search engine that makes IoT manufacturers nervous.",
-  "Fun fact: Metadata is the digital equivalent of accidentally leaving your name tag on.",
-  "Public records are public. That's not a bug, that's a feature.",
-  "The average person has 100+ online accounts. That's 100+ OSINT opportunities.",
-  "Browser fingerprinting: Because cookies were too obvious.",
-  "If their profile picture is the same everywhere, reverse image search is your friend.",
-  "Remember: OSINT is about finding what's already public, not making things public.",
-  "Cached pages: Because someone always forgets about Google's memory.",
-  "The best investigators know when to stop. Just kidding, we never stop."
+  "EXIF data: because your photos are snitches.",
+  "Reuse of usernames is one of the fastest pivots in OSINT.",
+  "Reverse image search is often the shortest path to identity correlation.",
+  "Public records are public. Treat findings responsibly and lawfully.",
+  "crt.sh can reveal overlooked subdomains via certificate history.",
+  "DNS records are often more honest than marketing pages.",
+  "OSINT is about discovering what is already public, not exposing private data.",
+  "Track your pivots. Investigations fail when context gets lost.",
+  "Use multiple search engines. Indexes differ.",
+  "Confidence scoring beats guesswork in long investigations."
 ];
 
 const TAGLINES = [
   "Investigating the internet, one query at a time...",
-  "All your OSINT are belong to us.",
   "Privacy is a feature, not a bug.",
-  "Jessica Jones would approve of this toolkit.",
-  "Who needs a magnifying glass when you have Google dorks?",
-  "Making metadata nervous since 2024.",
-  "Your friendly neighborhood OSINT toolkit.",
-  "We find things. It's kind of our whole deal.",
   "Powered by curiosity and too much caffeine.",
-  "The internet remembers. We help you search it.",
   "Open source intelligence, closed source paranoia.",
-  "Because every investigation starts with a question.",
+  "Because every investigation starts with a question."
 ];
 
 const FOOTER_JOKES = [
   "Remember: It's not stalking if it's public data.",
   "No EXIF data was harmed in the making of this toolkit.",
-  "This page is being monitored. Just kidding. Or are we?",
-  "Fun fact: You're the 1,337th visitor. Trust us.",
-  "Disclaimer: Spin is not responsible for what you find about yourself.",
-  "Side effects may include: paranoia about your own digital footprint.",
-  "Powered by JavaScript, caffeine, and a healthy distrust of metadata.",
-  "Jessica Jones says: \"The truth is always out there. Usually on page 2 of Google.\"",
-  "If you can read this, your OPSEC needs work. We know your screen resolution.",
-  "No servers were contacted during this session. Pinky promise.",
+  "This app has trust issues. Correctly.",
+  "No servers were contacted unless you explicitly asked for it.",
+  "Operational security is a mindset, not a toggle."
 ];
 
 const LOADING_MESSAGES = [
   "Booting surveillance systems...",
   "Calibrating search algorithms...",
-  "Establishing secure connection...",
-  "Loading OSINT databases...",
   "Warming up regex engines...",
-  "Polishing magnifying glass...",
-  "Checking the Wayback Machine... for fun...",
-  "Systems nominal. Coffee levels: critical.",
+  "Loading field notes...",
+  "Preparing secure local workspace..."
 ];
 
-/* ─── State ────────────────────────────────────────────── */
-let currentJokeIndex = -1;
-let tipPopupTimer = null;
-
-/* ─── Navigation ───────────────────────────────────────── */
-function switchPanel(panelId) {
-  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
-  document.querySelectorAll('.nav-tab').forEach(function(t) { t.classList.remove('active'); });
-
-  var panel = document.getElementById(panelId);
-  var tab = document.querySelector('[data-panel="' + panelId + '"]');
-
-  if (panel) panel.classList.add('active');
-  if (tab) tab.classList.add('active');
-
-  // Render hivemind table when switching to it
-  if (panelId === 'hivemind') {
-    renderEntityTable();
-  }
-}
-
-/* ─── Toast Notification ─────────────────────────────────  */
-var _toastTimer = null;
-function showToast(message) {
-  var toast = document.getElementById('toast');
-  if (!toast) return;
-  if (_toastTimer) clearTimeout(_toastTimer);
-  toast.textContent = message;
-  toast.classList.add('show');
-  _toastTimer = setTimeout(function() {
-    toast.classList.remove('show');
-    _toastTimer = null;
-  }, 3000);
-}
-
-/* ─── Clipboard ──────────────────────────────────────────  */
-function copyToClipboard(text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() {
-      showToast('Copied to clipboard');
-    }).catch(function() {
-      fallbackCopy(text);
-    });
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.left = '-9999px';
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); } catch (e) { /* ignore */ }
-  document.body.removeChild(ta);
-  showToast('Copied to clipboard');
-}
-
-/* ─── Entity Storage (localStorage) ──────────────────── */
-var STORAGE_KEY = 'spin_entities';
-
-function getEntities() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  } catch (e) {
-    return [];
-  }
-}
-
-function saveEntity(type, value, source) {
-  var entities = getEntities();
-  var existing = null;
-  for (var i = 0; i < entities.length; i++) {
-    if (entities[i].type === type && entities[i].value === value) {
-      existing = entities[i];
-      break;
-    }
-  }
-
-  if (existing) {
-    existing.count = (existing.count || 1) + 1;
-    existing.lastSeen = new Date().toISOString();
-    if (source && existing.sources.indexOf(source) === -1) {
-      existing.sources.push(source);
-    }
-  } else {
-    entities.push({
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      type: type,
-      value: value,
-      sources: source ? [source] : [],
-      count: 1,
-      firstSeen: new Date().toISOString(),
-      lastSeen: new Date().toISOString()
-    });
-  }
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entities));
-  updateEntityCount();
-  return entities;
-}
-
-function clearEntities() {
-  if (confirm('Clear all saved entities? This cannot be undone.')) {
-    localStorage.removeItem(STORAGE_KEY);
-    renderEntityTable();
-    updateEntityCount();
-    showToast('All entities cleared. Fresh start, detective.');
-  }
-}
-
-function deleteEntity(id) {
-  var entities = getEntities().filter(function(e) { return e.id !== id; });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entities));
-  renderEntityTable();
-  updateEntityCount();
-}
-
-function updateEntityCount() {
-  var entities = getEntities();
-  var countEl = document.getElementById('entity-count');
-  if (countEl) countEl.textContent = entities.length;
-
-  var types = {};
-  entities.forEach(function(e) {
-    types[e.type] = (types[e.type] || 0) + 1;
-  });
-  var typeEl = document.getElementById('entity-types-count');
-  if (typeEl) typeEl.textContent = Object.keys(types).length;
-}
-
-/* ─── Joke System ────────────────────────────────────────  */
-function nextJoke() {
-  currentJokeIndex = (currentJokeIndex + 1) % JOKES.length;
-  displayJoke(JOKES[currentJokeIndex]);
-}
-
-function randomJoke() {
-  var idx = Math.floor(Math.random() * JOKES.length);
-  // Avoid repeating the same joke
-  while (idx === currentJokeIndex && JOKES.length > 1) {
-    idx = Math.floor(Math.random() * JOKES.length);
-  }
-  currentJokeIndex = idx;
-  displayJoke(JOKES[idx]);
-}
-
-function displayJoke(joke) {
-  var textEl = document.getElementById('joke-text');
-  var punchEl = document.getElementById('joke-punchline');
-  if (!textEl || !punchEl) return;
-
-  textEl.textContent = joke.setup;
-  punchEl.textContent = '';
-  punchEl.style.opacity = '0';
-
-  // Reveal punchline after a beat
-  setTimeout(function() {
-    punchEl.textContent = joke.punchline;
-    punchEl.style.opacity = '1';
-    punchEl.style.transition = 'opacity 0.4s ease';
-  }, 1500);
-}
-
-/* ─── Tip System ─────────────────────────────────────────  */
-function showRandomTip() {
-  var popup = document.getElementById('tip-popup');
-  var textEl = document.getElementById('tip-popup-text');
-  if (!popup || !textEl) return;
-
-  var tip = TIPS[Math.floor(Math.random() * TIPS.length)];
-  textEl.textContent = tip;
-  popup.classList.add('show');
-
-  // Auto-dismiss after 8 seconds
-  if (tipPopupTimer) clearTimeout(tipPopupTimer);
-  tipPopupTimer = setTimeout(function() {
-    closeTipPopup();
-  }, 8000);
-}
-
-function closeTipPopup() {
-  var popup = document.getElementById('tip-popup');
-  if (popup) popup.classList.remove('show');
-  if (tipPopupTimer) {
-    clearTimeout(tipPopupTimer);
-    tipPopupTimer = null;
-  }
-}
-
-/* ─── Ticker ─────────────────────────────────────────────  */
-function initTicker() {
-  var tickerEl = document.getElementById('tip-ticker');
-  if (!tickerEl) return;
-
-  // Build a long string of tips separated by bullets
-  var shuffled = TIPS.slice().sort(function() { return Math.random() - 0.5; });
-  var tickerText = shuffled.join('  \u2022  ');
-  // Duplicate for seamless loop
-  tickerEl.textContent = tickerText + '  \u2022  ' + tickerText;
-}
-
-/* ─── Header Tagline Rotation ────────────────────────────  */
-function rotateTagline() {
-  var el = document.getElementById('header-tagline');
-  if (!el) return;
-  var tagline = TAGLINES[Math.floor(Math.random() * TAGLINES.length)];
-  el.style.opacity = '0';
-  setTimeout(function() {
-    el.textContent = tagline;
-    el.style.opacity = '1';
-    el.style.transition = 'opacity 0.5s ease';
-  }, 300);
-}
-
-/* ─── Footer Joke Rotation ───────────────────────────────  */
-function rotateFooterJoke() {
-  var el = document.getElementById('footer-joke');
-  if (!el) return;
-  var joke = FOOTER_JOKES[Math.floor(Math.random() * FOOTER_JOKES.length)];
-  el.textContent = joke;
-}
-
-/* ─── Case Number Generator ──────────────────────────────  */
-function generateCaseNumber() {
-  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  var caseNum = 'CASE #';
-  for (var i = 0; i < 6; i++) {
-    caseNum += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  var el = document.getElementById('case-number');
-  if (el) el.textContent = caseNum;
-}
-
-/* ─── Session ID ─────────────────────────────────────────  */
-function generateSessionId() {
-  var id = 'SPN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
-  var el = document.getElementById('session-id');
-  if (el) el.textContent = id;
-}
-
-/* ─── Phone Intelligence ─────────────────────────────────  */
-function analyzePhone() {
-  var input = document.getElementById('phone-input').value.trim();
-  if (!input) {
-    showToast('Enter a phone number first, detective.');
-    return;
-  }
-
-  var results = document.getElementById('phone-results');
-  var cleaned = input.replace(/[\s\-\.\(\)]/g, '');
-
-  var countryCode = '';
-  var national = cleaned;
-  var country = 'Unknown';
-
-  var countryCodes = {
-    '1': { name: 'United States/Canada', format: '(XXX) XXX-XXXX' },
-    '44': { name: 'United Kingdom', format: '0XXXX XXXXXX' },
-    '33': { name: 'France', format: '0X XX XX XX XX' },
-    '49': { name: 'Germany', format: '0XXX XXXXXXXX' },
-    '61': { name: 'Australia', format: '0X XXXX XXXX' },
-    '81': { name: 'Japan', format: '0XX-XXXX-XXXX' },
-    '86': { name: 'China', format: '0XXX-XXXX-XXXX' },
-    '91': { name: 'India', format: '0XXXXX XXXXX' },
-    '7': { name: 'Russia', format: '8 (XXX) XXX-XX-XX' },
-    '55': { name: 'Brazil', format: '(XX) XXXXX-XXXX' },
-    '52': { name: 'Mexico', format: 'XX XXXX XXXX' },
-    '34': { name: 'Spain', format: 'XXX XX XX XX' },
-    '39': { name: 'Italy', format: 'XXX XXX XXXX' }
-  };
-
-  var phoneDigits = cleaned.replace(/^\+/, '');
-
-  // Sort by code length descending for correct matching
-  var codes = Object.keys(countryCodes).sort(function(a, b) { return b.length - a.length; });
-  for (var i = 0; i < codes.length; i++) {
-    var code = codes[i];
-    if (phoneDigits.indexOf(code) === 0) {
-      countryCode = '+' + code;
-      national = phoneDigits.slice(code.length);
-      country = countryCodes[code].name;
-      break;
-    }
-  }
-
-  var e164 = countryCode ? (countryCode + national) : ('+' + phoneDigits);
-
-  // Line type detection
-  var carrier = 'Unknown';
-  if (countryCode === '+1' && national.length === 10) {
-    var npa = national.slice(0, 3);
-    var tollFree = { '800':1, '888':1, '877':1, '866':1, '855':1, '844':1, '833':1 };
-    if (tollFree[npa]) carrier = 'Toll-Free';
-    else if (npa === '900') carrier = 'Premium Rate';
-    else carrier = 'Standard Line';
-  }
-
-  var searchQueries = [
-    { name: 'Google', url: 'https://www.google.com/search?q="' + encodeURIComponent(input) + '"' },
-    { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q="' + encodeURIComponent(input) + '"' },
-    { name: 'TrueCaller', url: 'https://www.truecaller.com/search/' + encodeURIComponent(cleaned) },
-    { name: 'NumLookup', url: 'https://www.numlookup.com/search?phone=' + encodeURIComponent(cleaned) }
-  ];
-
-  var html = '' +
-    '<div class="result-item"><span class="result-label">Input</span><span class="result-value">' + escapeHtml(input) + '</span></div>' +
-    '<div class="result-item"><span class="result-label">E.164 Format</span><span class="result-value">' + escapeHtml(e164) + ' <button class="copy-btn" onclick="copyToClipboard(\'' + escapeJs(e164) + '\')">copy</button></span></div>' +
-    '<div class="result-item"><span class="result-label">Country</span><span class="result-value">' + escapeHtml(country) + '</span></div>' +
-    '<div class="result-item"><span class="result-label">Country Code</span><span class="result-value">' + escapeHtml(countryCode || 'Not detected') + '</span></div>' +
-    '<div class="result-item"><span class="result-label">National #</span><span class="result-value">' + escapeHtml(national) + '</span></div>' +
-    '<div class="result-item"><span class="result-label">Digits</span><span class="result-value">' + national.length + '</span></div>' +
-    '<div class="result-item"><span class="result-label">Line Type</span><span class="result-value">' + escapeHtml(carrier) + '</span></div>' +
-    '<div class="result-item"><span class="result-label">Search Links</span><span class="result-value">' +
-      searchQueries.map(function(q) { return '<a href="' + q.url + '" target="_blank" rel="noopener">' + q.name + '</a>'; }).join(' &middot; ') +
-    '</span></div>';
-
-  results.innerHTML = html;
-  saveEntity('phone', input, 'Phone Analysis');
-  showToast('Phone analyzed & saved to Hivemind');
-}
-
-/* ─── Email Intelligence ─────────────────────────────────  */
-function analyzeEmail() {
-  var input = document.getElementById('email-input').value.trim();
-  if (!input) {
-    showToast('Enter an email address first.');
-    return;
-  }
-
-  var results = document.getElementById('email-results');
-  var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (!emailRegex.test(input)) {
-    results.innerHTML = '<div class="result-item"><span class="result-value" style="color:var(--spin-red)">Invalid email format. Even Jessica Jones knows that\'s not an email.</span></div>';
-    return;
-  }
-
-  var parts = input.split('@');
-  var localPart = parts[0];
-  var domain = parts[1];
-  var tld = domain.split('.').pop().toLowerCase();
-
-  var providers = {
-    'gmail.com': { name: 'Google Gmail', type: 'Free', disposable: false },
-    'googlemail.com': { name: 'Google Gmail', type: 'Free', disposable: false },
-    'yahoo.com': { name: 'Yahoo Mail', type: 'Free', disposable: false },
-    'outlook.com': { name: 'Microsoft Outlook', type: 'Free', disposable: false },
-    'hotmail.com': { name: 'Microsoft Hotmail', type: 'Free', disposable: false },
-    'live.com': { name: 'Microsoft Live', type: 'Free', disposable: false },
-    'protonmail.com': { name: 'ProtonMail', type: 'Encrypted', disposable: false },
-    'proton.me': { name: 'ProtonMail', type: 'Encrypted', disposable: false },
-    'tutanota.com': { name: 'Tutanota', type: 'Encrypted', disposable: false },
-    'icloud.com': { name: 'Apple iCloud', type: 'Free', disposable: false },
-    'me.com': { name: 'Apple', type: 'Free', disposable: false },
-    'aol.com': { name: 'AOL', type: 'Free', disposable: false },
-    'mail.com': { name: 'Mail.com', type: 'Free', disposable: false },
-    'yandex.com': { name: 'Yandex', type: 'Free (Russian)', disposable: false },
-    'tempmail.com': { name: 'TempMail', type: 'Disposable', disposable: true },
-    'guerrillamail.com': { name: 'Guerrilla Mail', type: 'Disposable', disposable: true },
-    'mailinator.com': { name: 'Mailinator', type: 'Disposable', disposable: true },
-    'throwaway.email': { name: 'Throwaway', type: 'Disposable', disposable: true },
-    'temp-mail.org': { name: 'Temp-Mail', type: 'Disposable', disposable: true },
-    'sharklasers.com': { name: 'Guerrilla (alt)', type: 'Disposable', disposable: true },
-    '10minutemail.com': { name: '10 Minute Mail', type: 'Disposable', disposable: true }
-  };
-
-  var provider = providers[domain.toLowerCase()] || { name: 'Custom/Business', type: 'Business/Unknown', disposable: false };
-
-  var patterns = [];
-  if (/^\d+$/.test(localPart)) patterns.push('Numeric only');
-  if (/^[a-z]+\.[a-z]+$/i.test(localPart)) patterns.push('First.Last format');
-  if (/^[a-z]+[._][a-z]+\d*$/i.test(localPart)) patterns.push('Name+separator pattern');
-  if (localPart.length < 4) patterns.push('Very short local part');
-  if (localPart.length > 30) patterns.push('Unusually long local part');
-  if (/\+/.test(localPart)) patterns.push('Uses + alias (Gmail trick)');
-  if (/^[a-z]{1,3}\d{4,}$/i.test(localPart)) patterns.push('Possibly auto-generated');
-
-  var searchQueries = [
-    { name: 'Google', url: 'https://www.google.com/search?q="' + encodeURIComponent(input) + '"' },
-    { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q="' + encodeURIComponent(input) + '"' },
-    { name: 'Have I Been Pwned', url: 'https://haveibeenpwned.com/account/' + encodeURIComponent(input) },
-    { name: 'Epieos', url: 'https://epieos.com/?q=' + encodeURIComponent(input) }
-  ];
-
-  var html = '' +
-    '<div class="result-item"><span class="result-label">Email</span><span class="result-value">' + escapeHtml(input) + ' <button class="copy-btn" onclick="copyToClipboard(\'' + escapeJs(input) + '\')">copy</button></span></div>' +
-    '<div class="result-item"><span class="result-label">Local Part</span><span class="result-value">' + escapeHtml(localPart) + '</span></div>' +
-    '<div class="result-item"><span class="result-label">Domain</span><span class="result-value">' + escapeHtml(domain) + '</span></div>' +
-    '<div class="result-item"><span class="result-label">TLD</span><span class="result-value">.' + escapeHtml(tld) + '</span></div>' +
-    '<div class="result-item"><span class="result-label">Provider</span><span class="result-value">' + escapeHtml(provider.name) + ' <span class="tag ' + (provider.disposable ? 'red' : 'green') + '">' + provider.type + '</span></span></div>' +
-    '<div class="result-item"><span class="result-label">Disposable?</span><span class="result-value">' + (provider.disposable ? '<span class="tag red">YES - Likely disposable</span>' : '<span class="tag green">No</span>') + '</span></div>' +
-    '<div class="result-item"><span class="result-label">Patterns</span><span class="result-value">' + (patterns.length ? patterns.map(function(p) { return '<span class="tag blue">' + p + '</span>'; }).join(' ') : 'No notable patterns') + '</span></div>' +
-    '<div class="result-item"><span class="result-label">Search Links</span><span class="result-value">' +
-      searchQueries.map(function(q) { return '<a href="' + q.url + '" target="_blank" rel="noopener">' + q.name + '</a>'; }).join(' &middot; ') +
-    '</span></div>';
-
-  results.innerHTML = html;
-  saveEntity('email', input, 'Email Analysis');
-  showToast('Email analyzed & saved to Hivemind');
-}
-
-/* ─── Username Reconnaissance ────────────────────────────  */
-function analyzeUsername() {
-  var input = document.getElementById('username-input').value.trim();
-  if (!input) {
-    showToast('Enter a username to investigate.');
-    return;
-  }
-
-  var results = document.getElementById('username-results');
-  var encoded = encodeURIComponent(input);
-
-  var platforms = [
-    { name: 'GitHub', url: 'https://github.com/' + encoded, icon: 'GH' },
-    { name: 'Twitter/X', url: 'https://x.com/' + encoded, icon: 'X' },
-    { name: 'Instagram', url: 'https://instagram.com/' + encoded, icon: 'IG' },
-    { name: 'Reddit', url: 'https://reddit.com/user/' + encoded, icon: 'RD' },
-    { name: 'LinkedIn', url: 'https://linkedin.com/in/' + encoded, icon: 'LI' },
-    { name: 'Facebook', url: 'https://facebook.com/' + encoded, icon: 'FB' },
-    { name: 'TikTok', url: 'https://tiktok.com/@' + encoded, icon: 'TT' },
-    { name: 'YouTube', url: 'https://youtube.com/@' + encoded, icon: 'YT' },
-    { name: 'Pinterest', url: 'https://pinterest.com/' + encoded, icon: 'PN' },
-    { name: 'Twitch', url: 'https://twitch.tv/' + encoded, icon: 'TW' },
-    { name: 'Steam', url: 'https://steamcommunity.com/id/' + encoded, icon: 'ST' },
-    { name: 'Keybase', url: 'https://keybase.io/' + encoded, icon: 'KB' },
-    { name: 'HackerOne', url: 'https://hackerone.com/' + encoded, icon: 'H1' },
-    { name: 'Medium', url: 'https://medium.com/@' + encoded, icon: 'MD' },
-    { name: 'Mastodon', url: 'https://mastodon.social/@' + encoded, icon: 'MA' },
-    { name: 'Telegram', url: 'https://t.me/' + encoded, icon: 'TG' }
-  ];
-
-  var analysis = [];
-  if (input.length < 4) analysis.push('Very short username');
-  if (input.length > 20) analysis.push('Long username');
-  if (/^\d+$/.test(input)) analysis.push('Numeric only');
-  if (/^[a-z]+$/i.test(input)) analysis.push('Letters only');
-  if (/[._\-]/.test(input)) analysis.push('Contains separators');
-  if (/\d{4}$/.test(input)) analysis.push('Ends with year-like number');
-  if (/^[a-z]+\d{1,3}$/i.test(input)) analysis.push('Name+number pattern');
-
-  var html = '' +
-    '<div class="result-item"><span class="result-label">Username</span><span class="result-value">' + escapeHtml(input) + ' <button class="copy-btn" onclick="copyToClipboard(\'' + escapeJs(input) + '\')">copy</button></span></div>' +
-    '<div class="result-item"><span class="result-label">Length</span><span class="result-value">' + input.length + ' characters</span></div>' +
-    '<div class="result-item"><span class="result-label">Patterns</span><span class="result-value">' + (analysis.length ? analysis.map(function(a) { return '<span class="tag blue">' + a + '</span>'; }).join(' ') : 'Standard format') + '</span></div>' +
-    '<div class="result-item"><span class="result-label">Search</span><span class="result-value">' +
-      '<a href="https://www.google.com/search?q=%22' + encoded + '%22" target="_blank" rel="noopener">Google</a> &middot; ' +
-      '<a href="https://duckduckgo.com/?q=%22' + encoded + '%22" target="_blank" rel="noopener">DDG</a>' +
-    '</span></div>';
-
-  html += '<div style="margin-top:1rem"><strong style="font-size:0.85rem;color:var(--text-bright)">Check Platforms:</strong></div>';
-  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;margin-top:8px">';
-  platforms.forEach(function(p) {
-    html += '<a href="' + p.url + '" target="_blank" rel="noopener" class="bookmark-item" style="text-decoration:none">' +
-      '<span style="font-weight:600;color:var(--spin-blue)">' + p.icon + '</span>' +
-      '<span style="margin-left:6px;color:var(--text)">' + p.name + '</span>' +
-    '</a>';
-  });
-  html += '</div>';
-
-  results.innerHTML = html;
-  saveEntity('username', input, 'Username Recon');
-  showToast('Username analyzed & saved to Hivemind');
-}
-
-/* ─── Domain Reconnaissance ──────────────────────────────  */
-function analyzeDomain() {
-  var raw = document.getElementById('domain-input').value.trim();
-  var input = raw.replace(/^https?:\/\//, '').split('/')[0];
-  if (!input) {
-    showToast('Enter a domain to investigate.');
-    return;
-  }
-
-  var results = document.getElementById('domain-results');
-  var encoded = encodeURIComponent(input);
-
-  var parts = input.split('.');
-  var tld = parts[parts.length - 1];
-  var sld = parts.length >= 2 ? parts[parts.length - 2] : '';
-  var subdomain = parts.length > 2 ? parts.slice(0, -2).join('.') : '';
-
-  var tldInfo = {
-    'com': 'Commercial', 'org': 'Organization', 'net': 'Network', 'edu': 'Education',
-    'gov': 'Government', 'mil': 'Military', 'io': 'Tech (Indian Ocean)', 'co': 'Colombia/Commercial',
-    'ai': 'Anguilla/AI', 'dev': 'Developer', 'app': 'Application', 'me': 'Montenegro/Personal',
-    'info': 'Information', 'biz': 'Business', 'xyz': 'Generic', 'tech': 'Technology',
-    'online': 'Generic', 'ru': 'Russia', 'cn': 'China', 'uk': 'United Kingdom',
-    'de': 'Germany', 'fr': 'France', 'jp': 'Japan', 'br': 'Brazil', 'in': 'India',
-    'onion': 'Tor Hidden Service', 'i2p': 'I2P Network'
-  };
-
-  var reconLinks = [
-    { name: 'WHOIS (who.is)', url: 'https://who.is/whois/' + encoded },
-    { name: 'DNS Records', url: 'https://dnsdumpster.com/' },
-    { name: 'Shodan', url: 'https://www.shodan.io/search?query=' + encoded },
-    { name: 'Censys', url: 'https://search.censys.io/hosts?q=' + encoded },
-    { name: 'crt.sh (SSL Certs)', url: 'https://crt.sh/?q=%25.' + encoded },
-    { name: 'Wayback Machine', url: 'https://web.archive.org/web/*/' + encoded },
-    { name: 'VirusTotal', url: 'https://www.virustotal.com/gui/domain/' + encoded },
-    { name: 'SecurityTrails', url: 'https://securitytrails.com/domain/' + encoded + '/dns' },
-    { name: 'BuiltWith', url: 'https://builtwith.com/' + encoded },
-    { name: 'Netcraft', url: 'https://sitereport.netcraft.com/?url=' + encoded },
-    { name: 'Google Dorks', url: 'https://www.google.com/search?q=site:' + encoded },
-    { name: 'Subdomains', url: 'https://www.google.com/search?q=site:*.' + encoded + '+-www' }
-  ];
-
-  var html = '' +
-    '<div class="result-item"><span class="result-label">Domain</span><span class="result-value">' + escapeHtml(input) + ' <button class="copy-btn" onclick="copyToClipboard(\'' + escapeJs(input) + '\')">copy</button></span></div>' +
-    (subdomain ? '<div class="result-item"><span class="result-label">Subdomain</span><span class="result-value">' + escapeHtml(subdomain) + '</span></div>' : '') +
-    '<div class="result-item"><span class="result-label">SLD</span><span class="result-value">' + escapeHtml(sld) + '</span></div>' +
-    '<div class="result-item"><span class="result-label">TLD</span><span class="result-value">.' + escapeHtml(tld) + ' <span class="tag">' + (tldInfo[tld.toLowerCase()] || 'Unknown') + '</span></span></div>' +
-    '<div class="result-item"><span class="result-label">Visit</span><span class="result-value"><a href="https://' + escapeAttr(input) + '" target="_blank" rel="noopener">https://' + escapeHtml(input) + '</a></span></div>';
-
-  html += '<div style="margin-top:1rem"><strong style="font-size:0.85rem;color:var(--text-bright)">Reconnaissance Tools:</strong></div>';
-  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin-top:8px">';
-  reconLinks.forEach(function(link) {
-    html += '<a href="' + link.url + '" target="_blank" rel="noopener" class="bookmark-item" style="text-decoration:none">' +
-      '<span style="color:var(--spin-blue)">' + link.name + '</span>' +
-    '</a>';
-  });
-  html += '</div>';
-
-  results.innerHTML = html;
-  saveEntity('domain', input, 'Domain Recon');
-  showToast('Domain analyzed & saved to Hivemind');
-}
-
-/* ─── Entity Extractor ───────────────────────────────────  */
-function extractEntities() {
-  var text = document.getElementById('extract-input').value;
-  if (!text.trim()) {
-    showToast('Paste some text to extract entities from.');
-    return;
-  }
-
-  var results = document.getElementById('extract-results');
-  var found = [];
-
-  // Email regex
-  var emails = text.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g) || [];
-  emails.forEach(function(e) { found.push({ type: 'email', value: e }); });
-
-  // Phone regex
-  var phones = text.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g) || [];
-  phones.forEach(function(p) { found.push({ type: 'phone', value: p.trim() }); });
-
-  // IPv4
-  var ipv4s = text.match(/\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b/g) || [];
-  ipv4s.forEach(function(ip) { found.push({ type: 'ipv4', value: ip }); });
-
-  // Domains (excluding email domains)
-  var domains = text.match(/\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+(?:com|org|net|edu|gov|mil|io|co|ai|dev|app|me|info|biz|xyz|tech|online|site|uk|de|fr|ru|cn|jp|br|in|ca|au|nl|es|it|pl|se|no|fi|ch|at|be|kr|mx|za|nz|pt|cz|id|ph|sg|hk|tw|onion)\b/g) || [];
-  var emailDomains = {};
-  emails.forEach(function(e) { emailDomains[e.split('@')[1]] = true; });
-  domains.forEach(function(d) {
-    if (!emailDomains[d]) found.push({ type: 'domain', value: d });
-  });
-
-  // URLs
-  var urls = text.match(/https?:\/\/[^\s<>"{}|\\^`\[\]]+/g) || [];
-  urls.forEach(function(u) { found.push({ type: 'url', value: u }); });
-
-  // Bitcoin addresses (legacy + SegWit/Bech32)
-  var btc = text.match(/\b(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-zA-HJ-NP-Z0-9]{25,39})\b/g) || [];
-  btc.forEach(function(b) { found.push({ type: 'bitcoin', value: b }); });
-
-  // Ethereum addresses
-  var eth = text.match(/\b0x[a-fA-F0-9]{40}\b/g) || [];
-  eth.forEach(function(e) { found.push({ type: 'ethereum', value: e }); });
-
-  // Hashtags
-  var hashtags = text.match(/#[a-zA-Z]\w{1,50}/g) || [];
-  hashtags.forEach(function(h) { found.push({ type: 'hashtag', value: h }); });
-
-  // @mentions
-  var mentions = text.match(/@[a-zA-Z]\w{1,30}/g) || [];
-  mentions.forEach(function(m) { found.push({ type: 'username', value: m.slice(1) }); });
-
-  // Deduplicate
-  var unique = [];
-  var seen = {};
-  found.forEach(function(item) {
-    var key = item.type + ':' + item.value;
-    if (!seen[key]) {
-      seen[key] = true;
-      unique.push(item);
-    }
-  });
-
-  if (unique.length === 0) {
-    results.innerHTML = '<div class="empty-state"><p>No entities found in the provided text. Try pasting text with emails, phone numbers, or URLs.</p></div>';
-    return;
-  }
-
-  var typeColors = {
-    email: '', phone: 'green', ipv4: 'orange', domain: 'blue',
-    url: 'blue', bitcoin: 'yellow', ethereum: 'yellow', hashtag: '',
-    username: 'green'
-  };
-
-  var html = '<p style="margin-bottom:8px;color:var(--text-dim);font-size:0.85rem">Found <strong style="color:var(--spin-green)">' + unique.length + '</strong> entities:</p>';
-  html += '<div class="extracted-list">';
-  unique.forEach(function(item) {
-    html += '<div class="extracted-item">' +
-      '<span class="tag ' + (typeColors[item.type] || '') + '">' + item.type + '</span>' +
-      '<span class="result-value" style="flex:1">' + escapeHtml(item.value) + '</span>' +
-      '<button class="copy-btn" onclick="copyToClipboard(\'' + escapeJs(item.value) + '\')">copy</button>' +
-      '<button class="btn btn-sm btn-green" onclick="saveEntity(\'' + escapeJs(item.type) + '\',\'' + escapeJs(item.value) + '\',\'Text Extract\');renderEntityTable();showToast(\'Saved to Hivemind\')">save</button>' +
-    '</div>';
-  });
-  html += '</div>';
-
-  results.innerHTML = html;
-  showToast('Extracted ' + unique.length + ' entities. Nice work, detective.');
-}
-
-/* ─── Hivemind Entity Table ──────────────────────────────  */
-function renderEntityTable() {
-  var container = document.getElementById('entity-table-body');
-  if (!container) return;
-
-  var entities = getEntities();
-  var filterEl = document.getElementById('entity-filter');
-  var searchEl = document.getElementById('entity-search');
-  var filter = filterEl ? filterEl.value : 'all';
-  var search = searchEl ? searchEl.value.toLowerCase() : '';
-
-  var filtered = entities;
-  if (filter !== 'all') {
-    filtered = filtered.filter(function(e) { return e.type === filter; });
-  }
-  if (search) {
-    filtered = filtered.filter(function(e) {
-      return e.value.toLowerCase().indexOf(search) !== -1 || e.type.toLowerCase().indexOf(search) !== -1;
-    });
-  }
-
-  if (filtered.length === 0) {
-    var msg = entities.length === 0
-      ? 'No entities yet. Use the OSINT tools to discover and save entities.'
-      : 'No matching entities for this filter.';
-    container.innerHTML = '<tr><td colspan="5" class="empty-state" style="padding:2rem"><p>' + msg + '</p></td></tr>';
-    return;
-  }
-
-  var typeColors = {
-    email: '', phone: 'green', ipv4: 'orange', domain: 'blue',
-    url: 'blue', bitcoin: 'yellow', ethereum: 'yellow', hashtag: '',
-    username: 'green'
-  };
-
-  container.innerHTML = filtered.map(function(e) {
-    return '<tr>' +
-      '<td><span class="tag ' + (typeColors[e.type] || '') + '">' + escapeHtml(e.type) + '</span></td>' +
-      '<td class="mono">' + escapeHtml(e.value) + '</td>' +
-      '<td>' + (e.sources ? e.sources.map(escapeHtml).join(', ') : '-') + '</td>' +
-      '<td>' + (e.count || 1) + '</td>' +
-      '<td>' +
-        '<button class="copy-btn" onclick="copyToClipboard(\'' + escapeJs(e.value) + '\')">copy</button> ' +
-        '<button class="copy-btn" onclick="deleteEntity(\'' + escapeJs(e.id) + '\')" style="color:var(--spin-red);border-color:var(--spin-red)">del</button>' +
-      '</td>' +
-    '</tr>';
-  }).join('');
-}
-
-function exportEntities() {
-  var entities = getEntities();
-  if (entities.length === 0) {
-    showToast('No entities to export. Go find some evidence first.');
-    return;
-  }
-
-  var data = JSON.stringify(entities, null, 2);
-  var blob = new Blob([data], { type: 'application/json' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'spin-entities-' + new Date().toISOString().slice(0, 10) + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Entities exported. Guard that file with your life.');
-}
-
-function importEntities() {
-  var input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json';
-  input.onchange = function(e) {
-    var file = e.target.files[0];
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-      try {
-        var imported = JSON.parse(ev.target.result);
-        if (!Array.isArray(imported)) throw new Error('Invalid format');
-        var existing = getEntities();
-        var merged = existing.slice();
-        var added = 0;
-        imported.forEach(function(item) {
-          if (item.type && item.value) {
-            var exists = false;
-            for (var i = 0; i < merged.length; i++) {
-              if (merged[i].type === item.type && merged[i].value === item.value) {
-                exists = true;
-                break;
-              }
-            }
-            if (!exists) {
-              merged.push({
-                id: item.id || Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-                type: item.type,
-                value: item.value,
-                sources: item.sources || [],
-                count: item.count || 1,
-                firstSeen: item.firstSeen || new Date().toISOString(),
-                lastSeen: item.lastSeen || new Date().toISOString()
-              });
-              added++;
-            }
-          }
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-        renderEntityTable();
-        updateEntityCount();
-        showToast('Imported ' + added + ' new entities. Case files updated.');
-      } catch (err) {
-        showToast('Invalid file format. Are you sure that\'s a Spin export?');
-      }
-    };
-    reader.readAsText(file);
-  };
-  input.click();
-}
-
-/* ─── OSINT Bookmarks ────────────────────────────────────  */
-var BOOKMARKS = {
-  'Search Engines': [
-    { name: 'Google', url: 'https://google.com', desc: 'Web search with advanced operators' },
-    { name: 'DuckDuckGo', url: 'https://duckduckgo.com', desc: 'Privacy-focused search' },
-    { name: 'Bing', url: 'https://bing.com', desc: 'Microsoft search engine' },
-    { name: 'Yandex', url: 'https://yandex.com', desc: 'Russian search engine, good for reverse image' },
-    { name: 'Baidu', url: 'https://baidu.com', desc: 'Chinese search engine' }
+const STORAGE_KEYS = {
+  entities: "spin_entities",
+  activePanel: "spin_active_panel",
+  theme: "spin_theme",
+  installDismissed: "spin_install_dismissed"
+};
+
+const BOOKMARKS = {
+  "Search Engines": [
+    { name: "Google", url: "https://google.com", desc: "Web search with advanced operators" },
+    { name: "DuckDuckGo", url: "https://duckduckgo.com", desc: "Privacy-focused search" },
+    { name: "Bing", url: "https://bing.com", desc: "Microsoft search engine" },
+    { name: "Yandex", url: "https://yandex.com", desc: "Useful for reverse image searches" }
   ],
-  'People Search': [
-    { name: 'Pipl', url: 'https://pipl.com', desc: 'People search engine' },
-    { name: 'Spokeo', url: 'https://spokeo.com', desc: 'People search aggregator' },
-    { name: 'ThatsThem', url: 'https://thatsthem.com', desc: 'Free people search' },
-    { name: 'WhitePages', url: 'https://whitepages.com', desc: 'Phone & address lookup' },
-    { name: 'TruePeopleSearch', url: 'https://truepeoplesearch.com', desc: 'Free people search' }
+  "People Search": [
+    { name: "Pipl", url: "https://pipl.com", desc: "People search engine" },
+    { name: "WhitePages", url: "https://whitepages.com", desc: "Phone and address lookup" },
+    { name: "TruePeopleSearch", url: "https://truepeoplesearch.com", desc: "Free people search" }
   ],
-  'Social Media': [
-    { name: 'Social Searcher', url: 'https://social-searcher.com', desc: 'Social media search engine' },
-    { name: 'Namechk', url: 'https://namechk.com', desc: 'Username availability checker' },
-    { name: 'KnowEm', url: 'https://knowem.com', desc: 'Username search across 500+ sites' },
-    { name: 'Social Blade', url: 'https://socialblade.com', desc: 'Social media analytics' }
+  "Social Media": [
+    { name: "Namechk", url: "https://namechk.com", desc: "Username availability checker" },
+    { name: "KnowEm", url: "https://knowem.com", desc: "Username search across many sites" },
+    { name: "Social Blade", url: "https://socialblade.com", desc: "Social media analytics" }
   ],
-  'Domain & IP': [
-    { name: 'Shodan', url: 'https://shodan.io', desc: 'Search engine for Internet-connected devices' },
-    { name: 'Censys', url: 'https://censys.io', desc: 'Internet-wide scanning' },
-    { name: 'VirusTotal', url: 'https://virustotal.com', desc: 'File/URL/IP analysis' },
-    { name: 'SecurityTrails', url: 'https://securitytrails.com', desc: 'DNS & domain intelligence' },
-    { name: 'crt.sh', url: 'https://crt.sh', desc: 'Certificate transparency search' },
-    { name: 'DNSDumpster', url: 'https://dnsdumpster.com', desc: 'DNS recon & research' },
-    { name: 'Wayback Machine', url: 'https://web.archive.org', desc: 'Historical website snapshots' }
+  "Domain & IP": [
+    { name: "Shodan", url: "https://shodan.io", desc: "Internet-connected device search" },
+    { name: "Censys", url: "https://search.censys.io", desc: "Internet scanning intelligence" },
+    { name: "VirusTotal", url: "https://virustotal.com", desc: "File, URL, IP analysis" },
+    { name: "crt.sh", url: "https://crt.sh", desc: "Certificate transparency search" },
+    { name: "Wayback Machine", url: "https://web.archive.org", desc: "Historical web snapshots" }
   ],
-  'Image & Media': [
-    { name: 'TinEye', url: 'https://tineye.com', desc: 'Reverse image search' },
-    { name: 'Google Images', url: 'https://images.google.com', desc: 'Image search & reverse search' },
-    { name: 'FotoForensics', url: 'https://fotoforensics.com', desc: 'Image forensics & EXIF analysis' },
-    { name: 'ExifTool Online', url: 'https://exif.tools', desc: 'Extract EXIF metadata from images' }
+  "Image & Media": [
+    { name: "TinEye", url: "https://tineye.com", desc: "Reverse image search" },
+    { name: "Google Images", url: "https://images.google.com", desc: "Image search and reverse lookup" },
+    { name: "FotoForensics", url: "https://fotoforensics.com", desc: "Image forensics and metadata" }
   ],
-  'Email & Phone': [
-    { name: 'Hunter.io', url: 'https://hunter.io', desc: 'Email finder & verifier' },
-    { name: 'Have I Been Pwned', url: 'https://haveibeenpwned.com', desc: 'Check email breach status' },
-    { name: 'Epieos', url: 'https://epieos.com', desc: 'Email OSINT tool' },
-    { name: 'PhoneInfoga', url: 'https://github.com/sundowndev/phoneinfoga', desc: 'Phone number OSINT tool' },
-    { name: 'NumLookup', url: 'https://numlookup.com', desc: 'Free phone number lookup' }
+  "Email & Phone": [
+    { name: "Have I Been Pwned", url: "https://haveibeenpwned.com", desc: "Breach exposure checks" },
+    { name: "Epieos", url: "https://epieos.com", desc: "Email OSINT helper" },
+    { name: "NumLookup", url: "https://numlookup.com", desc: "Phone lookup utility" }
   ],
-  'Geolocation': [
-    { name: 'Google Maps', url: 'https://maps.google.com', desc: 'Maps & Street View' },
-    { name: 'GeoGuessr', url: 'https://geoguessr.com', desc: 'Geolocation challenge game' },
-    { name: 'SunCalc', url: 'https://suncalc.org', desc: 'Sun position & shadow analysis' },
-    { name: 'Wikimapia', url: 'https://wikimapia.org', desc: 'Collaborative mapping' },
-    { name: 'Mapillary', url: 'https://mapillary.com', desc: 'Street-level imagery' }
-  ],
-  'Frameworks & Guides': [
-    { name: 'OSINT Framework', url: 'https://osintframework.com', desc: 'Collection of OSINT tools organized by category' },
-    { name: 'IntelTechniques', url: 'https://inteltechniques.com/tools/', desc: 'Michael Bazzell OSINT tools' },
-    { name: 'Awesome OSINT', url: 'https://github.com/jivoi/awesome-osint', desc: 'Curated list of OSINT tools' },
-    { name: 'OSINT Dojo', url: 'https://www.yourdigitalshadow.com/', desc: 'OSINT training resources' }
+  Geolocation: [
+    { name: "Google Maps", url: "https://maps.google.com", desc: "Maps and Street View" },
+    { name: "SunCalc", url: "https://suncalc.org", desc: "Sun position and shadow analysis" },
+    { name: "Wikimapia", url: "https://wikimapia.org", desc: "Collaborative mapping" }
   ]
 };
 
-function renderBookmarks() {
-  var container = document.getElementById('bookmarks-container');
-  if (!container) return;
-
-  var searchEl = document.getElementById('bookmark-search');
-  var search = searchEl ? searchEl.value.toLowerCase() : '';
-
-  var html = '';
-  var categories = Object.keys(BOOKMARKS);
-  for (var c = 0; c < categories.length; c++) {
-    var category = categories[c];
-    var links = BOOKMARKS[category];
-    var filtered = search
-      ? links.filter(function(l) {
-          return l.name.toLowerCase().indexOf(search) !== -1 ||
-                 l.desc.toLowerCase().indexOf(search) !== -1 ||
-                 category.toLowerCase().indexOf(search) !== -1;
-        })
-      : links;
-
-    if (filtered.length === 0) continue;
-
-    html += '<div class="bookmark-category">' + escapeHtml(category) + '</div>';
-    html += '<div class="bookmark-grid">';
-    filtered.forEach(function(link) {
-      html += '<div class="bookmark-item">' +
-        '<a href="' + link.url + '" target="_blank" rel="noopener">' + escapeHtml(link.name) + '</a>' +
-        '<div class="bookmark-desc">' + escapeHtml(link.desc) + '</div>' +
-      '</div>';
-    });
-    html += '</div>';
+const USERNAME_PLATFORMS = [
+  {
+    key: "github",
+    name: "GitHub",
+    icon: "GH",
+    profileUrl: (u) => `https://github.com/${encodeURIComponent(u)}`,
+    check: async (username) => {
+      const response = await fetchWithTimeout(
+        `https://api.github.com/users/${encodeURIComponent(username)}`,
+        {},
+        8000
+      );
+      if (response.status === 200) return { status: "exists", message: "Profile found" };
+      if (response.status === 404) return { status: "missing", message: "Profile not found" };
+      return { status: "error", message: `HTTP ${response.status}` };
+    }
+  },
+  {
+    key: "gitlab",
+    name: "GitLab",
+    icon: "GL",
+    profileUrl: (u) => `https://gitlab.com/${encodeURIComponent(u)}`,
+    check: async (username) => {
+      const response = await fetchWithTimeout(
+        `https://gitlab.com/api/v4/users?username=${encodeURIComponent(username)}`,
+        {},
+        8000
+      );
+      if (!response.ok) return { status: "error", message: `HTTP ${response.status}` };
+      const data = await response.json();
+      return Array.isArray(data) && data.length
+        ? { status: "exists", message: "Profile found" }
+        : { status: "missing", message: "Profile not found" };
+    }
+  },
+  {
+    key: "reddit",
+    name: "Reddit",
+    icon: "RD",
+    profileUrl: (u) => `https://reddit.com/user/${encodeURIComponent(u)}`,
+    check: async (username) => {
+      const response = await fetchWithTimeout(
+        `https://www.reddit.com/user/${encodeURIComponent(username)}/about.json`,
+        { headers: { Accept: "application/json" } },
+        9000
+      );
+      if (response.status === 200) return { status: "exists", message: "Profile found" };
+      if (response.status === 404) return { status: "missing", message: "Profile not found" };
+      return { status: "error", message: `HTTP ${response.status}` };
+    }
+  },
+  {
+    key: "keybase",
+    name: "Keybase",
+    icon: "KB",
+    profileUrl: (u) => `https://keybase.io/${encodeURIComponent(u)}`,
+    check: async (username) => {
+      const response = await fetchWithTimeout(
+        `https://keybase.io/_/api/1.0/user/lookup.json?usernames=${encodeURIComponent(username)}`,
+        {},
+        9000
+      );
+      if (!response.ok) return { status: "error", message: `HTTP ${response.status}` };
+      const data = await response.json();
+      const users = data?.them || [];
+      return users.length
+        ? { status: "exists", message: "Profile found" }
+        : { status: "missing", message: "Profile not found" };
+    }
+  },
+  {
+    key: "devto",
+    name: "Dev.to",
+    icon: "DV",
+    profileUrl: (u) => `https://dev.to/${encodeURIComponent(u)}`,
+    check: async (username) => {
+      const response = await fetchWithTimeout(
+        `https://dev.to/api/users/by_username?url=${encodeURIComponent(username)}`,
+        {},
+        9000
+      );
+      if (response.status === 200) return { status: "exists", message: "Profile found" };
+      if (response.status === 404) return { status: "missing", message: "Profile not found" };
+      return { status: "error", message: `HTTP ${response.status}` };
+    }
+  },
+  {
+    key: "docker",
+    name: "Docker Hub",
+    icon: "DK",
+    profileUrl: (u) => `https://hub.docker.com/u/${encodeURIComponent(u)}`,
+    check: async (username) => {
+      const response = await fetchWithTimeout(
+        `https://hub.docker.com/v2/users/${encodeURIComponent(username)}`,
+        {},
+        9000
+      );
+      if (response.status === 200) return { status: "exists", message: "Profile found" };
+      if (response.status === 404) return { status: "missing", message: "Profile not found" };
+      return { status: "error", message: `HTTP ${response.status}` };
+    }
+  },
+  {
+    key: "x",
+    name: "Twitter/X",
+    icon: "X",
+    profileUrl: (u) => `https://x.com/${encodeURIComponent(u)}`
+  },
+  {
+    key: "instagram",
+    name: "Instagram",
+    icon: "IG",
+    profileUrl: (u) => `https://instagram.com/${encodeURIComponent(u)}`
+  },
+  {
+    key: "linkedin",
+    name: "LinkedIn",
+    icon: "LI",
+    profileUrl: (u) => `https://linkedin.com/in/${encodeURIComponent(u)}`
+  },
+  {
+    key: "tiktok",
+    name: "TikTok",
+    icon: "TT",
+    profileUrl: (u) => `https://www.tiktok.com/@${encodeURIComponent(u)}`
+  },
+  {
+    key: "youtube",
+    name: "YouTube",
+    icon: "YT",
+    profileUrl: (u) => `https://youtube.com/@${encodeURIComponent(u)}`
+  },
+  {
+    key: "telegram",
+    name: "Telegram",
+    icon: "TG",
+    profileUrl: (u) => `https://t.me/${encodeURIComponent(u)}`
   }
+];
+
+const COUNTRY_CODES = {
+  "1": { name: "United States/Canada", format: "(XXX) XXX-XXXX" },
+  "44": { name: "United Kingdom", format: "0XXXX XXXXXX" },
+  "33": { name: "France", format: "0X XX XX XX XX" },
+  "49": { name: "Germany", format: "0XXX XXXXXXXX" },
+  "61": { name: "Australia", format: "0X XXXX XXXX" },
+  "81": { name: "Japan", format: "0XX-XXXX-XXXX" },
+  "86": { name: "China", format: "0XXX-XXXX-XXXX" },
+  "91": { name: "India", format: "0XXXXX XXXXX" },
+  "7": { name: "Russia", format: "8 (XXX) XXX-XX-XX" },
+  "55": { name: "Brazil", format: "(XX) XXXXX-XXXX" },
+  "52": { name: "Mexico", format: "XX XXXX XXXX" },
+  "34": { name: "Spain", format: "XXX XX XX XX" },
+  "39": { name: "Italy", format: "XXX XXX XXXX" }
+};
+
+const appState = {
+  activePanel: "dashboard",
+  jokeOrder: [],
+  jokeCursor: -1,
+  currentJokeIndex: -1,
+  tipOrder: [],
+  tipCursor: -1,
+  tipPopupTimer: null,
+  tickerInterval: null,
+  tickerPaused: false,
+  deferredInstallPrompt: null,
+  sessionStart: Date.now(),
+  usernameChecksRunning: false,
+  externalRequests: 0,
+  robotsCache: new Map()
+};
+
+const byId = (id) => document.getElementById(id);
+const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+const shuffle = (items) => {
+  const arr = items.slice();
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const pad2 = (n) => (n < 10 ? `0${n}` : `${n}`);
+
+const safeJsonParse = (value, fallback) => {
+  try {
+    return JSON.parse(value);
+  } catch (_err) {
+    return fallback;
+  }
+};
+
+const escapeHtml = (value) => {
+  const div = document.createElement("div");
+  div.textContent = String(value);
+  return div.innerHTML;
+};
+
+const escapeAttr = (value) =>
+  escapeHtml(value).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+const debounce = (fn, wait = 200) => {
+  let timer = null;
+  return (...args) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), wait);
+  };
+};
+
+const formatDate = (isoString) => {
+  if (!isoString) return "-";
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return "-";
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+};
+
+const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+const markExternalRequest = () => {
+  appState.externalRequests += 1;
+  updateSecurityStatus();
+};
+
+let toastTimer = null;
+const showToast = (message, type = "success") => {
+  const toast = byId("toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.className = `toast show ${type}`;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.className = "toast";
+    toastTimer = null;
+  }, 3200);
+};
+
+const setHint = (id, message = "", type = "info") => {
+  const hint = byId(id);
+  if (!hint) return;
+  hint.textContent = message;
+  hint.className = `input-hint ${type}`.trim();
+};
+
+const renderLoading = (containerId, label = "Analyzing locally...") => {
+  const container = byId(containerId);
+  if (!container) return;
+  container.innerHTML = `
+    <div class="loading-skeleton">
+      <span class="inline-spinner" aria-hidden="true"></span>
+      <span>${escapeHtml(label)}</span>
+    </div>
+  `;
+};
+
+const copyToClipboard = async (value) => {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+    } else {
+      const area = document.createElement("textarea");
+      area.value = value;
+      area.style.position = "fixed";
+      area.style.left = "-9999px";
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+    showToast("Copied to clipboard.");
+  } catch (_err) {
+    showToast("Could not copy to clipboard.", "error");
+  }
+};
+
+const normalizeEntityValue = (type, value) => {
+  const text = String(value).trim();
+  switch (type) {
+    case "email":
+      return text.toLowerCase();
+    case "domain":
+      return text.toLowerCase().replace(/^https?:\/\//i, "").split("/")[0];
+    case "phone":
+      return text.replace(/[^\d+]/g, "");
+    default:
+      return text;
+  }
+};
+
+const getEntities = () => safeJsonParse(localStorage.getItem(STORAGE_KEYS.entities) || "[]", []);
+
+const setEntities = (entities) => {
+  localStorage.setItem(STORAGE_KEYS.entities, JSON.stringify(entities));
+};
+
+const updateEntityCount = () => {
+  const entities = getEntities();
+  const countEl = byId("entity-count");
+  const typeCountEl = byId("entity-types-count");
+  if (countEl) countEl.textContent = `${entities.length}`;
+  if (typeCountEl) {
+    const types = new Set(entities.map((entry) => entry.type));
+    typeCountEl.textContent = `${types.size}`;
+  }
+};
+
+const saveEntity = (type, value, source = "Manual") => {
+  const entities = getEntities();
+  const normalized = normalizeEntityValue(type, value);
+  const now = new Date().toISOString();
+  const existing = entities.find((entry) => entry.type === type && entry.value === normalized);
+
+  if (existing) {
+    existing.count = (existing.count || 1) + 1;
+    existing.lastSeen = now;
+    if (source && !existing.sources.includes(source)) existing.sources.push(source);
+  } else {
+    entities.push({
+      id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`,
+      type,
+      value: normalized,
+      sources: source ? [source] : [],
+      count: 1,
+      firstSeen: now,
+      lastSeen: now
+    });
+  }
+
+  setEntities(entities);
+  updateEntityCount();
+  if (appState.activePanel === "hivemind") renderEntityTable();
+};
+
+const deleteEntity = (id) => {
+  const entities = getEntities().filter((entry) => entry.id !== id);
+  setEntities(entities);
+  updateEntityCount();
+  renderEntityTable();
+  showToast("Entity deleted.");
+};
+
+const clearAllEntities = () => {
+  if (!window.confirm("Clear all saved entities? This cannot be undone.")) return;
+  localStorage.removeItem(STORAGE_KEYS.entities);
+  updateEntityCount();
+  renderEntityTable();
+  showToast("All entities cleared.");
+};
+
+const exportEntitiesJson = () => {
+  const entities = getEntities();
+  if (!entities.length) {
+    showToast("No entities to export.", "error");
+    return;
+  }
+  const blob = new Blob([JSON.stringify(entities, null, 2)], { type: "application/json" });
+  const anchor = document.createElement("a");
+  anchor.href = URL.createObjectURL(blob);
+  anchor.download = `spin-entities-${formatDate(new Date().toISOString())}.json`;
+  anchor.click();
+  URL.revokeObjectURL(anchor.href);
+  showToast("Exported JSON.");
+};
+
+const toCsvCell = (value) => {
+  const text = String(value ?? "");
+  if (/[,"\n]/.test(text)) return `"${text.replace(/"/g, '""')}"`;
+  return text;
+};
+
+const exportEntitiesCsv = () => {
+  const entities = getEntities();
+  if (!entities.length) {
+    showToast("No entities to export.", "error");
+    return;
+  }
+  const rows = [
+    ["type", "value", "sources", "count", "firstSeen", "lastSeen"],
+    ...entities.map((entry) => [
+      entry.type,
+      entry.value,
+      (entry.sources || []).join(" | "),
+      entry.count || 1,
+      entry.firstSeen || "",
+      entry.lastSeen || ""
+    ])
+  ];
+  const csv = rows.map((row) => row.map(toCsvCell).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const anchor = document.createElement("a");
+  anchor.href = URL.createObjectURL(blob);
+  anchor.download = `spin-entities-${formatDate(new Date().toISOString())}.csv`;
+  anchor.click();
+  URL.revokeObjectURL(anchor.href);
+  showToast("Exported CSV.");
+};
+
+const importEntities = () => {
+  const picker = document.createElement("input");
+  picker.type = "file";
+  picker.accept = ".json";
+  picker.addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imported = safeJsonParse(reader.result, null);
+      if (!Array.isArray(imported)) {
+        showToast("Invalid import file format.", "error");
+        return;
+      }
+      const current = getEntities();
+      let added = 0;
+      imported.forEach((item) => {
+        if (!item?.type || !item?.value) return;
+        const normalizedValue = normalizeEntityValue(item.type, item.value);
+        const exists = current.some(
+          (entry) => entry.type === item.type && entry.value === normalizedValue
+        );
+        if (exists) return;
+        current.push({
+          id: item.id || `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`,
+          type: item.type,
+          value: normalizedValue,
+          sources: Array.isArray(item.sources) ? item.sources : [],
+          count: Number(item.count) > 0 ? item.count : 1,
+          firstSeen: item.firstSeen || new Date().toISOString(),
+          lastSeen: item.lastSeen || new Date().toISOString()
+        });
+        added += 1;
+      });
+      setEntities(current);
+      updateEntityCount();
+      renderEntityTable();
+      showToast(`Imported ${added} new entities.`);
+    };
+    reader.readAsText(file);
+  });
+  picker.click();
+};
+
+const switchPanel = (panelId) => {
+  const panels = qsa(".panel");
+  const tabs = qsa(".nav-tab");
+  appState.activePanel = panelId;
+  localStorage.setItem(STORAGE_KEYS.activePanel, panelId);
+
+  panels.forEach((panel) => {
+    const isActive = panel.id === panelId;
+    panel.classList.toggle("active", isActive);
+    panel.setAttribute("aria-hidden", String(!isActive));
+    panel.toggleAttribute("hidden", !isActive);
+  });
+
+  tabs.forEach((tab) => {
+    const isActive = tab.dataset.panel === panelId;
+    tab.classList.toggle("active", isActive);
+    tab.setAttribute("aria-selected", String(isActive));
+    tab.setAttribute("tabindex", isActive ? "0" : "-1");
+  });
+
+  if (panelId === "hivemind") renderEntityTable();
+};
+
+const initNavigation = () => {
+  const tabs = qsa(".nav-tab");
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => switchPanel(tab.dataset.panel));
+    tab.addEventListener("keydown", (event) => {
+      const key = event.key;
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(key)) return;
+      event.preventDefault();
+      let nextIndex = index;
+      if (key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+      if (key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+      if (key === "Home") nextIndex = 0;
+      if (key === "End") nextIndex = tabs.length - 1;
+      tabs[nextIndex].focus();
+      switchPanel(tabs[nextIndex].dataset.panel);
+    });
+  });
+
+  qsa("[data-open-panel]").forEach((card) => {
+    const open = () => switchPanel(card.dataset.openPanel);
+    card.addEventListener("click", open);
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        open();
+      }
+    });
+  });
+
+  const storedPanel = localStorage.getItem(STORAGE_KEYS.activePanel);
+  if (storedPanel && byId(storedPanel)) switchPanel(storedPanel);
+  else switchPanel("dashboard");
+};
+
+const applyTheme = (theme) => {
+  const normalized = theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = normalized;
+  localStorage.setItem(STORAGE_KEYS.theme, normalized);
+  const toggle = byId("theme-toggle");
+  if (toggle) {
+    const nextMode = normalized === "dark" ? "light" : "dark";
+    toggle.innerHTML = `<span aria-hidden="true">${nextMode === "light" ? "Light" : "Dark"}</span>`;
+    toggle.setAttribute("aria-label", `Switch to ${nextMode} mode`);
+    toggle.title = `Switch to ${nextMode} mode`;
+  }
+};
+
+const initTheme = () => {
+  const stored = localStorage.getItem(STORAGE_KEYS.theme);
+  const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+  applyTheme(stored || (prefersLight ? "light" : "dark"));
+  byId("theme-toggle")?.addEventListener("click", () => {
+    const current = document.documentElement.dataset.theme === "light" ? "light" : "dark";
+    applyTheme(current === "dark" ? "light" : "dark");
+  });
+};
+
+const buildJokeOrder = (exclude = -1) => {
+  const next = shuffle(JOKES.map((_, index) => index));
+  if (next[0] === exclude && next.length > 1) [next[0], next[1]] = [next[1], next[0]];
+  appState.jokeOrder = next;
+  appState.jokeCursor = -1;
+};
+
+const getNextJokeIndex = () => {
+  if (!appState.jokeOrder.length || appState.jokeCursor >= appState.jokeOrder.length - 1) {
+    buildJokeOrder(appState.currentJokeIndex);
+  }
+  appState.jokeCursor += 1;
+  appState.currentJokeIndex = appState.jokeOrder[appState.jokeCursor];
+  return appState.currentJokeIndex;
+};
+
+const displayJoke = async ({ animate = true } = {}) => {
+  const card = byId("joke-card");
+  const text = byId("joke-text");
+  const punchline = byId("joke-punchline");
+  const reveal = byId("reveal-punchline-btn");
+  if (!card || !text || !punchline || !reveal) return;
+
+  if (animate) {
+    card.classList.remove("joke-transition-in");
+    card.classList.add("joke-transition-out");
+    await delay(120);
+  }
+
+  const joke = JOKES[getNextJokeIndex()];
+  text.textContent = joke.setup;
+  punchline.textContent = joke.punchline;
+  punchline.classList.add("is-hidden");
+  reveal.textContent = "Reveal Punchline";
+  reveal.setAttribute("aria-pressed", "false");
+
+  if (animate) {
+    card.classList.remove("joke-transition-out");
+    card.classList.add("joke-transition-in");
+    setTimeout(() => card.classList.remove("joke-transition-in"), 260);
+  }
+};
+
+const revealPunchline = () => {
+  const punchline = byId("joke-punchline");
+  const reveal = byId("reveal-punchline-btn");
+  if (!punchline || !reveal) return;
+  punchline.classList.remove("is-hidden");
+  reveal.textContent = "Punchline Revealed";
+  reveal.setAttribute("aria-pressed", "true");
+};
+
+const initJokes = () => {
+  byId("new-joke-btn")?.addEventListener("click", async (event) => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    await displayJoke({ animate: true });
+    button.disabled = false;
+  });
+  byId("reveal-punchline-btn")?.addEventListener("click", revealPunchline);
+  displayJoke({ animate: false });
+};
+
+const buildTipOrder = (exclude = -1) => {
+  const next = shuffle(TIPS.map((_, index) => index));
+  if (next[0] === exclude && next.length > 1) [next[0], next[1]] = [next[1], next[0]];
+  appState.tipOrder = next;
+  appState.tipCursor = -1;
+};
+
+const getNextTipIndex = () => {
+  if (!appState.tipOrder.length || appState.tipCursor >= appState.tipOrder.length - 1) {
+    const currentIndex = appState.tipOrder[appState.tipCursor] ?? -1;
+    buildTipOrder(currentIndex);
+  }
+  appState.tipCursor += 1;
+  return appState.tipOrder[appState.tipCursor];
+};
+
+const getPreviousTipIndex = () => {
+  if (!appState.tipOrder.length) {
+    buildTipOrder();
+    appState.tipCursor = 0;
+    return appState.tipOrder[0];
+  }
+  appState.tipCursor -= 1;
+  if (appState.tipCursor < 0) appState.tipCursor = appState.tipOrder.length - 1;
+  return appState.tipOrder[appState.tipCursor];
+};
+
+const displayTip = (tipText) => {
+  const ticker = byId("tip-ticker");
+  if (!ticker) return;
+  ticker.classList.add("tip-fade");
+  setTimeout(() => {
+    ticker.textContent = tipText;
+    ticker.classList.remove("tip-fade");
+  }, 120);
+};
+
+const nextTip = () => displayTip(TIPS[getNextTipIndex()]);
+const previousTip = () => displayTip(TIPS[getPreviousTipIndex()]);
+
+const setTickerPause = (paused) => {
+  appState.tickerPaused = paused;
+  const pauseButton = byId("tip-pause-btn");
+  if (pauseButton) pauseButton.textContent = paused ? "Resume" : "Pause";
+};
+
+const startTicker = () => {
+  if (appState.tickerInterval) clearInterval(appState.tickerInterval);
+  if (appState.tickerPaused) return;
+  appState.tickerInterval = setInterval(nextTip, 7000);
+};
+
+const initTicker = () => {
+  nextTip();
+  setTickerPause(false);
+  startTicker();
+
+  byId("tip-next-btn")?.addEventListener("click", () => {
+    nextTip();
+  });
+  byId("tip-prev-btn")?.addEventListener("click", () => {
+    previousTip();
+  });
+  byId("tip-pause-btn")?.addEventListener("click", () => {
+    const paused = !appState.tickerPaused;
+    setTickerPause(paused);
+    startTicker();
+  });
+};
+
+const showRandomTipPopup = () => {
+  const popup = byId("tip-popup");
+  const text = byId("tip-popup-text");
+  if (!popup || !text) return;
+  text.textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+  popup.classList.add("show");
+  if (appState.tipPopupTimer) clearTimeout(appState.tipPopupTimer);
+  appState.tipPopupTimer = setTimeout(() => popup.classList.remove("show"), 8000);
+};
+
+const closeTipPopup = () => {
+  byId("tip-popup")?.classList.remove("show");
+  if (appState.tipPopupTimer) {
+    clearTimeout(appState.tipPopupTimer);
+    appState.tipPopupTimer = null;
+  }
+};
+
+const validators = {
+  phone: (value) => {
+    const input = value.trim();
+    if (!input) return { valid: false, message: "Enter a phone number." };
+    if (!/^\+?[0-9().\-\s]+$/.test(input)) {
+      return { valid: false, message: "Use digits with optional +, spaces, (), -, or ." };
+    }
+    const digits = input.replace(/[^\d]/g, "");
+    if (digits.length < 7 || digits.length > 15) {
+      return { valid: false, message: "Phone numbers should contain 7 to 15 digits." };
+    }
+    return { valid: true, normalized: input.replace(/[\s().-]/g, "") };
+  },
+  email: (value) => {
+    const input = value.trim();
+    if (!input) return { valid: false, message: "Enter an email address." };
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regex.test(input)) return { valid: false, message: "Use format like user@example.com." };
+    return { valid: true, normalized: input.toLowerCase() };
+  },
+  username: (value) => {
+    const input = value.trim();
+    if (!input) return { valid: false, message: "Enter a username." };
+    if (!/^[a-zA-Z0-9._-]{3,30}$/.test(input)) {
+      return {
+        valid: false,
+        message: "Use 3-30 characters: letters, numbers, dot, underscore, or hyphen."
+      };
+    }
+    return { valid: true, normalized: input };
+  },
+  domain: (value) => {
+    const raw = value.trim().replace(/^https?:\/\//i, "").split("/")[0];
+    if (!raw) return { valid: false, message: "Enter a domain name." };
+    const regex =
+      /^(?=.{1,253}$)(?!-)(?:[a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,63}$/;
+    if (!regex.test(raw)) {
+      return { valid: false, message: "Use a valid domain like example.com." };
+    }
+    return { valid: true, normalized: raw.toLowerCase() };
+  }
+};
+
+const renderMessage = (message, type = "error") => `
+  <div class="result-item result-message ${type}">
+    <span class="result-value">${escapeHtml(message)}</span>
+  </div>
+`;
+
+const maybeRenderHivemind = () => {
+  if (appState.activePanel === "hivemind") renderEntityTable();
+};
+
+const analyzePhone = async () => {
+  const inputEl = byId("phone-input");
+  const results = byId("phone-results");
+  if (!inputEl || !results) return;
+  const validation = validators.phone(inputEl.value);
+  if (!validation.valid) {
+    setHint("phone-hint", validation.message, "error");
+    results.innerHTML = renderMessage(validation.message);
+    return;
+  }
+
+  setHint("phone-hint", "Valid phone format. Running local analysis...", "success");
+  renderLoading("phone-results", "Analyzing phone number locally...");
+  await delay(320);
+
+  const cleaned = validation.normalized;
+  const digitsOnly = cleaned.replace(/^\+/, "");
+  const codes = Object.keys(COUNTRY_CODES).sort((a, b) => b.length - a.length);
+  let countryCode = "";
+  let national = digitsOnly;
+  let country = "Unknown";
+
+  codes.some((code) => {
+    if (!digitsOnly.startsWith(code)) return false;
+    countryCode = `+${code}`;
+    national = digitsOnly.slice(code.length);
+    country = COUNTRY_CODES[code].name;
+    return true;
+  });
+
+  const e164 = `${countryCode || "+"}${national}`;
+  let lineType = "Unknown";
+  if (countryCode === "+1" && national.length === 10) {
+    const npa = national.slice(0, 3);
+    const tollFree = new Set(["800", "888", "877", "866", "855", "844", "833"]);
+    if (tollFree.has(npa)) lineType = "Toll-Free";
+    else if (npa === "900") lineType = "Premium";
+    else lineType = "Standard Line";
+  }
+
+  const links = [
+    { name: "Google", url: `https://www.google.com/search?q="${encodeURIComponent(inputEl.value)}"` },
+    { name: "DuckDuckGo", url: `https://duckduckgo.com/?q="${encodeURIComponent(inputEl.value)}"` },
+    { name: "Truecaller", url: `https://www.truecaller.com/search/${encodeURIComponent(cleaned)}` }
+  ];
+
+  results.innerHTML = `
+    <div class="result-item"><span class="result-label">Input</span><span class="result-value">${escapeHtml(inputEl.value.trim())}</span></div>
+    <div class="result-item"><span class="result-label">E.164</span><span class="result-value">${escapeHtml(e164)} <button class="copy-btn" data-copy="${escapeAttr(e164)}">copy</button></span></div>
+    <div class="result-item"><span class="result-label">Country</span><span class="result-value">${escapeHtml(country)}</span></div>
+    <div class="result-item"><span class="result-label">Country Code</span><span class="result-value">${escapeHtml(countryCode || "Not detected")}</span></div>
+    <div class="result-item"><span class="result-label">National</span><span class="result-value">${escapeHtml(national)}</span></div>
+    <div class="result-item"><span class="result-label">Line Type</span><span class="result-value">${escapeHtml(lineType)}</span></div>
+    <div class="result-item"><span class="result-label">Search</span><span class="result-value">${links
+      .map((link) => `<a href="${link.url}" target="_blank" rel="noopener">${link.name}</a>`)
+      .join(" &middot; ")}</span></div>
+  `;
+
+  saveEntity("phone", inputEl.value, "Phone Analysis");
+  maybeRenderHivemind();
+  showToast("Phone analyzed and saved to Hivemind.");
+};
+
+const analyzeEmail = async () => {
+  const inputEl = byId("email-input");
+  const results = byId("email-results");
+  if (!inputEl || !results) return;
+  const validation = validators.email(inputEl.value);
+  if (!validation.valid) {
+    setHint("email-hint", validation.message, "error");
+    results.innerHTML = renderMessage(validation.message);
+    return;
+  }
+
+  setHint("email-hint", "Valid email format. Running local analysis...", "success");
+  renderLoading("email-results", "Analyzing email locally...");
+  await delay(320);
+
+  const input = validation.normalized;
+  const [localPart, domain] = input.split("@");
+  const tld = domain.split(".").pop();
+  const providers = {
+    "gmail.com": { name: "Google Gmail", type: "Free", disposable: false },
+    "outlook.com": { name: "Microsoft Outlook", type: "Free", disposable: false },
+    "hotmail.com": { name: "Microsoft Hotmail", type: "Free", disposable: false },
+    "protonmail.com": { name: "ProtonMail", type: "Encrypted", disposable: false },
+    "proton.me": { name: "ProtonMail", type: "Encrypted", disposable: false },
+    "mailinator.com": { name: "Mailinator", type: "Disposable", disposable: true },
+    "guerrillamail.com": { name: "Guerrilla Mail", type: "Disposable", disposable: true },
+    "10minutemail.com": { name: "10 Minute Mail", type: "Disposable", disposable: true }
+  };
+  const provider = providers[domain] || {
+    name: "Custom/Business",
+    type: "Business/Unknown",
+    disposable: false
+  };
+
+  const patterns = [];
+  if (/^\d+$/.test(localPart)) patterns.push("Numeric local-part");
+  if (/^[a-z]+\.[a-z]+$/i.test(localPart)) patterns.push("First.Last format");
+  if (localPart.length < 4) patterns.push("Very short local-part");
+  if (localPart.includes("+")) patterns.push("Uses plus alias");
+
+  const links = [
+    { name: "Google", url: `https://www.google.com/search?q="${encodeURIComponent(input)}"` },
+    { name: "DuckDuckGo", url: `https://duckduckgo.com/?q="${encodeURIComponent(input)}"` },
+    { name: "Have I Been Pwned", url: `https://haveibeenpwned.com/account/${encodeURIComponent(input)}` }
+  ];
+
+  results.innerHTML = `
+    <div class="result-item"><span class="result-label">Email</span><span class="result-value">${escapeHtml(input)} <button class="copy-btn" data-copy="${escapeAttr(input)}">copy</button></span></div>
+    <div class="result-item"><span class="result-label">Local Part</span><span class="result-value">${escapeHtml(localPart)}</span></div>
+    <div class="result-item"><span class="result-label">Domain</span><span class="result-value">${escapeHtml(domain)}</span></div>
+    <div class="result-item"><span class="result-label">TLD</span><span class="result-value">.${escapeHtml(tld)}</span></div>
+    <div class="result-item"><span class="result-label">Provider</span><span class="result-value">${escapeHtml(provider.name)} <span class="tag ${provider.disposable ? "red" : "green"}">${escapeHtml(provider.type)}</span></span></div>
+    <div class="result-item"><span class="result-label">Disposable</span><span class="result-value">${provider.disposable ? '<span class="tag red">Likely disposable</span>' : '<span class="tag green">No</span>'}</span></div>
+    <div class="result-item"><span class="result-label">Patterns</span><span class="result-value">${patterns.length ? patterns.map((p) => `<span class="tag blue">${escapeHtml(p)}</span>`).join(" ") : "No notable patterns"}</span></div>
+    <div class="result-item"><span class="result-label">Search</span><span class="result-value">${links
+      .map((link) => `<a href="${link.url}" target="_blank" rel="noopener">${link.name}</a>`)
+      .join(" &middot; ")}</span></div>
+  `;
+
+  saveEntity("email", input, "Email Analysis");
+  maybeRenderHivemind();
+  showToast("Email analyzed and saved to Hivemind.");
+};
+
+const patternBadges = (input) => {
+  const notes = [];
+  if (/^\d+$/.test(input)) notes.push("Numeric only");
+  if (input.length < 4) notes.push("Short username");
+  if (input.length > 20) notes.push("Long username");
+  if (/[._-]/.test(input)) notes.push("Contains separators");
+  if (/\d{4}$/.test(input)) notes.push("Year-like suffix");
+  return notes;
+};
+
+const updatePlatformStatus = (key, status, message) => {
+  const badge = byId(`platform-status-${key}`);
+  if (!badge) return;
+  const icon = {
+    pending: "…",
+    exists: "✓",
+    missing: "✕",
+    error: "⚠"
+  }[status] || "";
+  badge.className = `platform-status ${status}`;
+  badge.textContent = `${icon} ${message}`.trim();
+};
+
+const parseRobots = (text) => {
+  const lines = text.split(/\r?\n/).map((line) => line.trim());
+  const rules = [];
+  let applies = false;
+  lines.forEach((line) => {
+    if (!line || line.startsWith("#")) return;
+    const [rawKey, ...rest] = line.split(":");
+    if (!rawKey || !rest.length) return;
+    const key = rawKey.trim().toLowerCase();
+    const value = rest.join(":").trim();
+    if (key === "user-agent") {
+      applies = value === "*" || value.toLowerCase().includes("spin");
+    } else if (key === "disallow" && applies) {
+      if (value) rules.push(value);
+    }
+  });
+  return rules;
+};
+
+const checkRobotsAllowed = async (url) => {
+  try {
+    const parsed = new URL(url);
+    if (appState.robotsCache.has(parsed.origin)) {
+      const cached = appState.robotsCache.get(parsed.origin);
+      if (!cached.available) return { allowed: true };
+      const blocked = cached.rules.some((rule) => parsed.pathname.startsWith(rule));
+      return blocked
+        ? { allowed: false, reason: "Blocked by robots.txt rules." }
+        : { allowed: true };
+    }
+
+    const robotsResponse = await fetchWithTimeout(`${parsed.origin}/robots.txt`, {}, 5000);
+    if (!robotsResponse.ok) {
+      appState.robotsCache.set(parsed.origin, { available: false, rules: [] });
+      return { allowed: true };
+    }
+    const text = await robotsResponse.text();
+    const rules = parseRobots(text);
+    appState.robotsCache.set(parsed.origin, { available: true, rules });
+    const blocked = rules.some((rule) => parsed.pathname.startsWith(rule));
+    return blocked ? { allowed: false, reason: "Blocked by robots.txt rules." } : { allowed: true };
+  } catch (_err) {
+    return { allowed: true };
+  }
+};
+
+const profileFetchCheck = async (url) => {
+  try {
+    const response = await fetchWithTimeout(url, { method: "GET" }, 9000);
+    if (response.status === 200) return { status: "exists", message: "Reachable (200)" };
+    if (response.status === 404) return { status: "missing", message: "Not found (404)" };
+    return { status: "error", message: `HTTP ${response.status}` };
+  } catch (_err) {
+    return {
+      status: "error",
+      message: "Unreachable from browser (CORS/network)"
+    };
+  }
+};
+
+const runUsernameChecks = async (username) => {
+  if (appState.usernameChecksRunning) return;
+  appState.usernameChecksRunning = true;
+  const button = byId("username-live-check-btn");
+  if (button) button.disabled = true;
+
+  showToast(
+    "Running live checks. This will send the username to selected public platforms.",
+    "warn"
+  );
+
+  for (const platform of USERNAME_PLATFORMS) {
+    updatePlatformStatus(platform.key, "pending", "Checking...");
+    await delay(450);
+
+    const profileUrl = platform.profileUrl(username);
+    const robots = await checkRobotsAllowed(profileUrl);
+    if (!robots.allowed) {
+      updatePlatformStatus(platform.key, "error", robots.reason);
+      continue;
+    }
+
+    try {
+      markExternalRequest();
+      const result = platform.check
+        ? await platform.check(username, profileUrl)
+        : await profileFetchCheck(profileUrl);
+      updatePlatformStatus(platform.key, result.status, result.message);
+    } catch (error) {
+      updatePlatformStatus(platform.key, "error", error?.message || "Check failed");
+    }
+  }
+
+  if (button) button.disabled = false;
+  appState.usernameChecksRunning = false;
+  showToast("Username checks completed.");
+};
+
+const analyzeUsername = async () => {
+  const inputEl = byId("username-input");
+  const results = byId("username-results");
+  if (!inputEl || !results) return;
+  const validation = validators.username(inputEl.value);
+  if (!validation.valid) {
+    setHint("username-hint", validation.message, "error");
+    results.innerHTML = renderMessage(validation.message);
+    return;
+  }
+
+  setHint("username-hint", "Username format looks good.", "success");
+  renderLoading("username-results", "Building platform matrix...");
+  await delay(280);
+
+  const username = validation.normalized;
+  const localPatterns = patternBadges(username);
+  const profileRows = USERNAME_PLATFORMS.map((platform) => {
+    const profileUrl = platform.profileUrl(username);
+    return `
+      <div class="platform-check-card" id="platform-${platform.key}">
+        <div class="platform-check-head">
+          <span class="platform-icon">${escapeHtml(platform.icon)}</span>
+          <span class="platform-name">${escapeHtml(platform.name)}</span>
+        </div>
+        <div class="platform-check-actions">
+          <span class="platform-status pending" id="platform-status-${platform.key}">Queued</span>
+          <a href="${profileUrl}" target="_blank" rel="noopener">Open</a>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  results.innerHTML = `
+    <div class="result-item"><span class="result-label">Username</span><span class="result-value">${escapeHtml(username)} <button class="copy-btn" data-copy="${escapeAttr(username)}">copy</button></span></div>
+    <div class="result-item"><span class="result-label">Length</span><span class="result-value">${username.length} characters</span></div>
+    <div class="result-item"><span class="result-label">Patterns</span><span class="result-value">${localPatterns.length ? localPatterns.map((item) => `<span class="tag blue">${escapeHtml(item)}</span>`).join(" ") : "Standard format"}</span></div>
+    <div class="result-item"><span class="result-label">Search</span><span class="result-value"><a href="https://www.google.com/search?q=%22${encodeURIComponent(username)}%22" target="_blank" rel="noopener">Google</a> &middot; <a href="https://duckduckgo.com/?q=%22${encodeURIComponent(username)}%22" target="_blank" rel="noopener">DuckDuckGo</a></span></div>
+    <div class="privacy-note">
+      Live checks are optional. No external requests are made until you click <strong>Run Live Checks</strong>.
+    </div>
+    <div class="btn-group" style="margin-bottom:0.75rem">
+      <button class="btn btn-sm" id="username-live-check-btn">Run Live Checks</button>
+    </div>
+    <div class="platform-check-grid">${profileRows}</div>
+  `;
+
+  byId("username-live-check-btn")?.addEventListener("click", () => runUsernameChecks(username));
+
+  saveEntity("username", username, "Username Recon");
+  maybeRenderHivemind();
+  showToast("Username analyzed locally and saved to Hivemind.");
+};
+
+const parseDomainParts = (domain) => {
+  const parts = domain.split(".");
+  return {
+    tld: parts[parts.length - 1] || "",
+    sld: parts.length >= 2 ? parts[parts.length - 2] : "",
+    subdomain: parts.length > 2 ? parts.slice(0, -2).join(".") : ""
+  };
+};
+
+const TLD_INFO = {
+  com: "Commercial",
+  org: "Organization",
+  net: "Network",
+  edu: "Education",
+  gov: "Government",
+  io: "Tech",
+  ai: "AI / Anguilla",
+  dev: "Developer",
+  app: "Application",
+  me: "Personal",
+  info: "Information",
+  xyz: "Generic",
+  uk: "United Kingdom",
+  de: "Germany",
+  fr: "France",
+  jp: "Japan",
+  in: "India",
+  onion: "Tor Hidden Service"
+};
+
+const runWhoisLookup = async (domain) => {
+  const container = byId("domain-whois-live");
+  if (!container) return;
+  renderLoading("domain-whois-live", "Querying RDAP WHOIS...");
+  try {
+    markExternalRequest();
+    const response = await fetchWithTimeout(`https://rdap.org/domain/${encodeURIComponent(domain)}`, {
+      headers: { Accept: "application/rdap+json, application/json" }
+    });
+    if (!response.ok) throw new Error(`WHOIS lookup failed (${response.status})`);
+    const data = await response.json();
+
+    const getEvent = (name) =>
+      data?.events?.find((item) => item.eventAction === name)?.eventDate || "-";
+    const registrarEntity = data?.entities?.find((entry) =>
+      Array.isArray(entry.roles) && entry.roles.includes("registrar")
+    );
+    const registrarName = registrarEntity?.vcardArray?.[1]?.find((v) => v[0] === "fn")?.[3] || "-";
+    const nameservers = (data?.nameservers || []).map((ns) => ns.ldhName).filter(Boolean);
+    const statusTags = (data?.status || []).slice(0, 6);
+
+    container.innerHTML = `
+      <div class="subresult-card">
+        <h4>WHOIS / RDAP</h4>
+        <div class="result-item"><span class="result-label">Handle</span><span class="result-value">${escapeHtml(data?.handle || "-")}</span></div>
+        <div class="result-item"><span class="result-label">Registrar</span><span class="result-value">${escapeHtml(registrarName)}</span></div>
+        <div class="result-item"><span class="result-label">Created</span><span class="result-value">${escapeHtml(getEvent("registration"))}</span></div>
+        <div class="result-item"><span class="result-label">Updated</span><span class="result-value">${escapeHtml(getEvent("last changed"))}</span></div>
+        <div class="result-item"><span class="result-label">Expires</span><span class="result-value">${escapeHtml(getEvent("expiration"))}</span></div>
+        <div class="result-item"><span class="result-label">Status</span><span class="result-value">${statusTags.length ? statusTags.map((s) => `<span class="tag">${escapeHtml(s)}</span>`).join(" ") : "-"}</span></div>
+        <div class="result-item"><span class="result-label">Nameservers</span><span class="result-value">${nameservers.length ? nameservers.map(escapeHtml).join(", ") : "-"}</span></div>
+      </div>
+    `;
+  } catch (error) {
+    container.innerHTML = renderMessage(error?.message || "WHOIS lookup failed.", "error");
+  }
+};
+
+const parseDnsAnswers = (answers = []) => {
+  if (!Array.isArray(answers) || !answers.length) return ["No records"];
+  return answers.map((record) => `${record?.name || ""} ${record?.TTL || ""} ${record?.data || ""}`.trim());
+};
+
+const runDnsLookup = async (domain) => {
+  const container = byId("domain-dns-live");
+  if (!container) return;
+  renderLoading("domain-dns-live", "Querying DNS records...");
+  const types = ["A", "AAAA", "MX", "NS", "TXT", "CNAME"];
+
+  try {
+    const lookups = await Promise.all(
+      types.map(async (type) => {
+        markExternalRequest();
+        const response = await fetchWithTimeout(
+          `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${encodeURIComponent(type)}`,
+          {},
+          10000
+        );
+        if (!response.ok) return { type, records: [`Lookup failed (${response.status})`] };
+        const data = await response.json();
+        return { type, records: parseDnsAnswers(data?.Answer || []) };
+      })
+    );
+
+    container.innerHTML = `
+      <div class="subresult-card">
+        <h4>DNS Records (Google DNS API)</h4>
+        ${lookups
+          .map(
+            (lookup) => `
+              <div class="result-item">
+                <span class="result-label">${lookup.type}</span>
+                <span class="result-value">${lookup.records.map((line) => `<div>${escapeHtml(line)}</div>`).join("")}</span>
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+    `;
+  } catch (error) {
+    container.innerHTML = renderMessage(error?.message || "DNS lookup failed.", "error");
+  }
+};
+
+const analyzeDomain = async () => {
+  const inputEl = byId("domain-input");
+  const results = byId("domain-results");
+  if (!inputEl || !results) return;
+  const validation = validators.domain(inputEl.value);
+  if (!validation.valid) {
+    setHint("domain-hint", validation.message, "error");
+    results.innerHTML = renderMessage(validation.message);
+    return;
+  }
+
+  setHint("domain-hint", "Domain format looks good.", "success");
+  renderLoading("domain-results", "Analyzing domain locally...");
+  await delay(320);
+
+  const domain = validation.normalized;
+  const parts = parseDomainParts(domain);
+  const reconLinks = [
+    { name: "WHOIS (who.is)", url: `https://who.is/whois/${encodeURIComponent(domain)}` },
+    { name: "crt.sh", url: `https://crt.sh/?q=%25.${encodeURIComponent(domain)}` },
+    { name: "Wayback", url: `https://web.archive.org/web/*/${encodeURIComponent(domain)}` },
+    { name: "Shodan", url: `https://www.shodan.io/search?query=${encodeURIComponent(domain)}` },
+    { name: "VirusTotal", url: `https://www.virustotal.com/gui/domain/${encodeURIComponent(domain)}` }
+  ];
+
+  results.innerHTML = `
+    <div class="result-item"><span class="result-label">Domain</span><span class="result-value">${escapeHtml(domain)} <button class="copy-btn" data-copy="${escapeAttr(domain)}">copy</button></span></div>
+    ${parts.subdomain ? `<div class="result-item"><span class="result-label">Subdomain</span><span class="result-value">${escapeHtml(parts.subdomain)}</span></div>` : ""}
+    <div class="result-item"><span class="result-label">SLD</span><span class="result-value">${escapeHtml(parts.sld || "-")}</span></div>
+    <div class="result-item"><span class="result-label">TLD</span><span class="result-value">.${escapeHtml(parts.tld)} <span class="tag">${escapeHtml(TLD_INFO[parts.tld] || "Unknown")}</span></span></div>
+    <div class="result-item"><span class="result-label">Visit</span><span class="result-value"><a href="https://${escapeAttr(domain)}" target="_blank" rel="noopener">https://${escapeHtml(domain)}</a></span></div>
+    <div class="result-item"><span class="result-label">Recon Links</span><span class="result-value">${reconLinks
+      .map((link) => `<a href="${link.url}" target="_blank" rel="noopener">${link.name}</a>`)
+      .join(" &middot; ")}</span></div>
+    <div class="privacy-note">
+      Local parsing completed. Live WHOIS/DNS lookups are optional and only run when you click below.
+    </div>
+    <div class="btn-group" style="margin-bottom:0.75rem">
+      <button class="btn btn-sm" id="domain-whois-btn">Load WHOIS (live)</button>
+      <button class="btn btn-sm" id="domain-dns-btn">Load DNS (live)</button>
+    </div>
+    <div id="domain-whois-live"></div>
+    <div id="domain-dns-live"></div>
+  `;
+
+  byId("domain-whois-btn")?.addEventListener("click", () => runWhoisLookup(domain));
+  byId("domain-dns-btn")?.addEventListener("click", () => runDnsLookup(domain));
+
+  saveEntity("domain", domain, "Domain Recon");
+  maybeRenderHivemind();
+  showToast("Domain analyzed locally and saved to Hivemind.");
+};
+
+const extractEntities = () => {
+  const input = byId("extract-input");
+  const results = byId("extract-results");
+  if (!input || !results) return;
+  const text = input.value;
+  if (!text.trim()) {
+    results.innerHTML = renderMessage("Paste text to extract entities.", "error");
+    return;
+  }
+
+  const found = [];
+  const pushMatches = (type, regex, transform = (value) => value) => {
+    const matches = text.match(regex) || [];
+    matches.forEach((match) => found.push({ type, value: transform(match) }));
+  };
+
+  pushMatches("email", /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g);
+  pushMatches("phone", /(?:\+?\d[\d\s().-]{6,}\d)/g, (v) => v.trim());
+  pushMatches(
+    "ipv4",
+    /\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b/g
+  );
+  pushMatches(
+    "domain",
+    /\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+(?:com|org|net|edu|gov|mil|io|co|ai|dev|app|me|info|biz|xyz|tech|online|uk|de|fr|ru|cn|jp|br|in|onion)\b/g
+  );
+  pushMatches("url", /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g);
+  pushMatches("bitcoin", /\b(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-zA-HJ-NP-Z0-9]{25,39})\b/g);
+  pushMatches("ethereum", /\b0x[a-fA-F0-9]{40}\b/g);
+  pushMatches("hashtag", /#[a-zA-Z]\w{1,50}/g);
+  pushMatches("username", /@[a-zA-Z]\w{1,30}/g, (v) => v.slice(1));
+
+  const uniqueMap = new Map();
+  found.forEach((entry) => {
+    const key = `${entry.type}:${entry.value}`;
+    if (!uniqueMap.has(key)) uniqueMap.set(key, entry);
+  });
+  const unique = Array.from(uniqueMap.values());
+
+  if (!unique.length) {
+    results.innerHTML = '<div class="empty-state"><p>No entities found in the provided text.</p></div>';
+    return;
+  }
+
+  const colors = {
+    email: "",
+    phone: "green",
+    ipv4: "orange",
+    domain: "blue",
+    url: "blue",
+    bitcoin: "yellow",
+    ethereum: "yellow",
+    hashtag: "",
+    username: "green"
+  };
+
+  results.innerHTML = `
+    <p style="margin-bottom:8px;color:var(--text-dim);font-size:0.85rem">
+      Found <strong style="color:var(--spin-green)">${unique.length}</strong> entities
+    </p>
+    <div class="extracted-list">
+      ${unique
+        .map(
+          (entry) => `
+            <div class="extracted-item">
+              <span class="tag ${colors[entry.type] || ""}">${escapeHtml(entry.type)}</span>
+              <span class="result-value" style="flex:1">${escapeHtml(entry.value)}</span>
+              <button class="copy-btn" data-copy="${escapeAttr(entry.value)}">copy</button>
+              <button class="btn btn-sm btn-green" data-save-type="${escapeAttr(entry.type)}" data-save-value="${escapeAttr(entry.value)}">save</button>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+  showToast(`Extracted ${unique.length} entities.`);
+};
+
+const sortEntities = (entities, sortBy) => {
+  const sorted = entities.slice();
+  const compareAlpha = (a, b) => a.localeCompare(b, undefined, { sensitivity: "base" });
+  switch (sortBy) {
+    case "alpha-asc":
+      return sorted.sort((a, b) => compareAlpha(a.value, b.value));
+    case "alpha-desc":
+      return sorted.sort((a, b) => compareAlpha(b.value, a.value));
+    case "type-asc":
+      return sorted.sort((a, b) => compareAlpha(a.type, b.type));
+    case "type-desc":
+      return sorted.sort((a, b) => compareAlpha(b.type, a.type));
+    case "date-asc":
+      return sorted.sort(
+        (a, b) => new Date(a.firstSeen || a.lastSeen || 0).getTime() - new Date(b.firstSeen || b.lastSeen || 0).getTime()
+      );
+    case "date-desc":
+    default:
+      return sorted.sort(
+        (a, b) => new Date(b.firstSeen || b.lastSeen || 0).getTime() - new Date(a.firstSeen || a.lastSeen || 0).getTime()
+      );
+  }
+};
+
+const renderEntityTable = () => {
+  const body = byId("entity-table-body");
+  if (!body) return;
+  const filterType = byId("entity-filter")?.value || "all";
+  const search = (byId("entity-search")?.value || "").toLowerCase().trim();
+  const sourceFilter = (byId("entity-source-filter")?.value || "").toLowerCase().trim();
+  const sortBy = byId("entity-sort")?.value || "date-desc";
+
+  let entities = getEntities();
+  if (filterType !== "all") entities = entities.filter((entry) => entry.type === filterType);
+  if (search) {
+    entities = entities.filter(
+      (entry) =>
+        entry.value.toLowerCase().includes(search) ||
+        entry.type.toLowerCase().includes(search) ||
+        (entry.sources || []).join(" ").toLowerCase().includes(search)
+    );
+  }
+  if (sourceFilter) {
+    entities = entities.filter((entry) =>
+      (entry.sources || []).join(" ").toLowerCase().includes(sourceFilter)
+    );
+  }
+
+  entities = sortEntities(entities, sortBy);
+
+  if (!entities.length) {
+    const total = getEntities().length;
+    body.innerHTML = `<tr><td colspan="6" class="empty-state" style="padding:2rem"><p>${
+      total ? "No matching entities for the selected filters." : "No entities yet. Use the tools to populate Hivemind."
+    }</p></td></tr>`;
+    return;
+  }
+
+  const colors = {
+    email: "",
+    phone: "green",
+    ipv4: "orange",
+    domain: "blue",
+    url: "blue",
+    bitcoin: "yellow",
+    ethereum: "yellow",
+    hashtag: "",
+    username: "green"
+  };
+
+  body.innerHTML = entities
+    .map(
+      (entry) => `
+        <tr>
+          <td><span class="tag ${colors[entry.type] || ""}">${escapeHtml(entry.type)}</span></td>
+          <td class="mono">${escapeHtml(entry.value)}</td>
+          <td>${escapeHtml((entry.sources || []).join(", ") || "-")}</td>
+          <td>${entry.count || 1}</td>
+          <td>${escapeHtml(formatDate(entry.firstSeen || entry.lastSeen))}</td>
+          <td>
+            <button class="copy-btn" data-copy="${escapeAttr(entry.value)}">copy</button>
+            <button class="copy-btn danger-btn" data-delete-entity="${escapeAttr(entry.id)}">del</button>
+          </td>
+        </tr>
+      `
+    )
+    .join("");
+};
+
+const renderBookmarks = () => {
+  const container = byId("bookmarks-container");
+  if (!container) return;
+  const search = (byId("bookmark-search")?.value || "").toLowerCase().trim();
+  let html = "";
+
+  Object.entries(BOOKMARKS).forEach(([category, links]) => {
+    const filtered = search
+      ? links.filter(
+          (link) =>
+            link.name.toLowerCase().includes(search) ||
+            link.desc.toLowerCase().includes(search) ||
+            category.toLowerCase().includes(search)
+        )
+      : links;
+    if (!filtered.length) return;
+    html += `<div class="bookmark-category">${escapeHtml(category)}</div><div class="bookmark-grid">`;
+    filtered.forEach((link) => {
+      html += `
+        <div class="bookmark-item">
+          <a href="${link.url}" target="_blank" rel="noopener">${escapeHtml(link.name)}</a>
+          <div class="bookmark-desc">${escapeHtml(link.desc)}</div>
+        </div>
+      `;
+    });
+    html += "</div>";
+  });
 
   container.innerHTML = html || '<div class="empty-state"><p>No matching bookmarks.</p></div>';
-}
+};
 
-/* ─── Utility Functions ──────────────────────────────────  */
-var _escDiv = document.createElement('div');
+const rotateTagline = () => {
+  const tagline = byId("header-tagline");
+  if (!tagline) return;
+  const next = TAGLINES[Math.floor(Math.random() * TAGLINES.length)];
+  tagline.style.opacity = "0";
+  setTimeout(() => {
+    tagline.textContent = next;
+    tagline.style.opacity = "1";
+  }, 220);
+};
 
-function escapeHtml(str) {
-  _escDiv.textContent = str;
-  return _escDiv.innerHTML;
-}
+const rotateFooterJoke = () => {
+  const footer = byId("footer-joke");
+  if (!footer) return;
+  footer.textContent = FOOTER_JOKES[Math.floor(Math.random() * FOOTER_JOKES.length)];
+};
 
-function escapeAttr(str) {
-  return escapeHtml(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+const generateCaseNumber = () => {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let out = "CASE #";
+  for (let i = 0; i < 6; i += 1) out += chars[Math.floor(Math.random() * chars.length)];
+  byId("case-number").textContent = out;
+};
 
-function escapeJs(str) {
-  return str
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t')
-    .replace(/</g, '\\x3c');
-}
+const generateSessionId = () => {
+  const id = `SPN-${Date.now().toString(36).toUpperCase()}-${Math.random()
+    .toString(36)
+    .slice(2, 6)
+    .toUpperCase()}`;
+  byId("session-id").textContent = id;
+};
 
-function debounce(fn, delay) {
-  var timer;
-  return function() {
-    clearTimeout(timer);
-    timer = setTimeout(fn, delay);
-  };
-}
-
-/* ─── Loading Screen ─────────────────────────────────────  */
-function runLoadingSequence() {
-  var statusEl = document.getElementById('loading-status');
-  var screen = document.getElementById('loading-screen');
-  if (!statusEl || !screen) return;
-
-  var messages = LOADING_MESSAGES.slice().sort(function() { return Math.random() - 0.5; });
-  var idx = 0;
-
-  var interval = setInterval(function() {
-    if (idx < messages.length) {
-      statusEl.textContent = messages[idx];
-      idx++;
-    }
-  }, 350);
-
-  setTimeout(function() {
+const runLoadingSequence = () => {
+  const status = byId("loading-status");
+  const screen = byId("loading-screen");
+  if (!status || !screen) return;
+  const messages = shuffle(LOADING_MESSAGES);
+  let index = 0;
+  const interval = setInterval(() => {
+    if (index >= messages.length) return;
+    status.textContent = messages[index];
+    index += 1;
+  }, 320);
+  setTimeout(() => {
     clearInterval(interval);
-    statusEl.textContent = 'Systems online. Welcome, detective.';
-    setTimeout(function() {
-      screen.classList.add('hidden');
-    }, 400);
-  }, 2200);
-}
+    status.textContent = "Systems online. Welcome, detective.";
+    setTimeout(() => screen.classList.add("hidden"), 380);
+  }, 2100);
+};
 
-/* ─── PWA: Service Worker Registration ───────────────────  */
-function registerServiceWorker() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').then(function(reg) {
-      // Check for updates periodically
-      setInterval(function() { reg.update(); }, 60 * 60 * 1000);
-    }).catch(function() {
-      // SW registration failed (e.g. not HTTPS, unsupported) - app works fine without it
-    });
-  }
-}
+const registerServiceWorker = () => {
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register("./sw.js").catch(() => {
+    /* no-op */
+  });
+};
 
-/* ─── PWA: Generate Apple Touch Icon via Canvas ──────────  */
-function canvasRoundRect(ctx, x, y, w, h, r) {
-  // Fallback for browsers without native roundRect (Safari < 16)
+const canvasRoundRect = (ctx, x, y, w, h, r) => {
   if (ctx.roundRect) {
     ctx.roundRect(x, y, w, h, r);
     return;
@@ -1083,361 +1613,332 @@ function canvasRoundRect(ctx, x, y, w, h, r) {
   ctx.lineTo(x, y + r);
   ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
-}
+};
 
-
-function generateAppleTouchIcon() {
+const generateAppleTouchIcon = () => {
   try {
-    var canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     canvas.width = 180;
     canvas.height = 180;
-    var ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    // Background
-    ctx.fillStyle = '#08080d';
+    ctx.fillStyle = "#08080d";
     ctx.beginPath();
     canvasRoundRect(ctx, 0, 0, 180, 180, 36);
     ctx.fill();
-
-    // Gradient overlay
-    var grad = ctx.createLinearGradient(0, 0, 180, 180);
-    grad.addColorStop(0, 'rgba(123, 31, 235, 0.2)');
-    grad.addColorStop(1, 'rgba(28, 223, 102, 0.2)');
+    const grad = ctx.createLinearGradient(0, 0, 180, 180);
+    grad.addColorStop(0, "rgba(123, 31, 235, 0.2)");
+    grad.addColorStop(1, "rgba(28, 223, 102, 0.2)");
     ctx.fillStyle = grad;
     ctx.beginPath();
     canvasRoundRect(ctx, 6, 6, 168, 168, 32);
     ctx.fill();
-
-    // Letter S
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '900 100px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('S', 90, 95);
-
-    // Green dot (surveillance indicator)
-    ctx.fillStyle = '#1cdf66';
-    ctx.beginPath();
-    ctx.arc(142, 142, 16, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#08080d';
-    ctx.beginPath();
-    ctx.arc(142, 142, 7, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#1cdf66';
-    ctx.beginPath();
-    ctx.arc(142, 142, 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Create link element for apple-touch-icon
-    var link = document.createElement('link');
-    link.rel = 'apple-touch-icon';
-    link.href = canvas.toDataURL('image/png');
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "900 100px system-ui, -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("S", 90, 95);
+    const link = document.createElement("link");
+    link.rel = "apple-touch-icon";
+    link.href = canvas.toDataURL("image/png");
     document.head.appendChild(link);
-  } catch (e) {
-    // Canvas rendering failed - icon fallback handled by browser
+  } catch (_err) {
+    /* no-op */
   }
-}
+};
 
-/* ─── PWA: Install Banner (iOS + Android) ────────────────  */
-var INSTALL_DISMISSED_KEY = 'spin_install_dismissed';
-var _deferredInstallPrompt = null;
+const isIOS = () =>
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const isStandalone = () =>
+  window.navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
+const isInstallDismissed = () => localStorage.getItem(STORAGE_KEYS.installDismissed) === "1";
 
-function isIOS() {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-}
+const setInstallBannerVisible = (visible) => {
+  const banner = byId("install-banner");
+  if (!banner) return;
+  banner.classList.toggle("show", visible);
+  document.body.classList.toggle("install-banner-visible", visible);
+};
 
-function isAndroid() {
-  return /Android/.test(navigator.userAgent);
-}
+const dismissInstallBanner = () => {
+  setInstallBannerVisible(false);
+  localStorage.setItem(STORAGE_KEYS.installDismissed, "1");
+};
 
+const triggerInstall = async () => {
+  if (!appState.deferredInstallPrompt) return;
+  appState.deferredInstallPrompt.prompt();
+  await appState.deferredInstallPrompt.userChoice;
+  appState.deferredInstallPrompt = null;
+};
 
-function isStandalone() {
-  return window.navigator.standalone === true ||
-    window.matchMedia('(display-mode: standalone)').matches;
-}
+const showInstallBannerIOS = () => {
+  if (!isIOS() || isStandalone() || isInstallDismissed()) return;
+  const steps = byId("install-steps");
+  if (!steps) return;
+  steps.innerHTML =
+    '<div class="step"><span class="step-num">1</span> Tap the share button in Safari</div>' +
+    '<div class="step"><span class="step-num">2</span> Tap <strong>Add to Home Screen</strong></div>' +
+    '<div class="step"><span class="step-num">3</span> Tap <strong>Add</strong></div>';
+  setTimeout(() => setInstallBannerVisible(true), 3500);
+};
 
-function wasDismissedRecently() {
-  try {
-    var dismissed = localStorage.getItem(INSTALL_DISMISSED_KEY);
-    if (dismissed) {
-      var dismissedAt = parseInt(dismissed, 10);
-      if (Date.now() - dismissedAt < 7 * 24 * 60 * 60 * 1000) return true;
+const initInstallBanner = () => {
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    appState.deferredInstallPrompt = event;
+    if (!isStandalone() && !isInstallDismissed()) {
+      byId("install-btn").style.display = "";
+      byId("install-steps").innerHTML =
+        '<div class="step"><span class="step-num">&#10003;</span> Tap <strong>Install</strong> for a standalone, offline-friendly app.</div>';
+      setTimeout(() => setInstallBannerVisible(true), 2000);
     }
-  } catch (e) { /* localStorage unavailable */ }
-  return false;
-}
-
-// Android: Capture the beforeinstallprompt event
-window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
-  _deferredInstallPrompt = e;
-  // Show the banner for Android users
-  if (!isStandalone() && !wasDismissedRecently()) {
-    showInstallBannerAndroid();
-  }
-});
-
-// Detect when app is installed
-window.addEventListener('appinstalled', function() {
-  _deferredInstallPrompt = null;
-  dismissInstallBanner();
-  showToast('Spin Web installed. Welcome to the team, detective.');
-});
-
-function showInstallBannerAndroid() {
-  var banner = document.getElementById('install-banner');
-  var steps = document.getElementById('install-steps');
-  var installBtn = document.getElementById('install-btn');
-  if (!banner || !steps) return;
-
-  // Show the one-tap install button for Android
-  if (installBtn) installBtn.style.display = '';
-  steps.innerHTML = '<div class="step"><span class="step-num">&#10003;</span> Tap <strong>"Install"</strong> for a native app experience with offline access</div>';
-
-  setTimeout(function() { banner.classList.add('show'); }, 2000);
-}
-
-function showInstallBannerIOS() {
-  if (!isIOS() || isStandalone() || wasDismissedRecently()) return;
-
-  var banner = document.getElementById('install-banner');
-  var steps = document.getElementById('install-steps');
-  if (!banner || !steps) return;
-
-  var isChrome = /CriOS/.test(navigator.userAgent);
-  var isFirefox = /FxiOS/.test(navigator.userAgent);
-
-  if (isChrome) {
-    steps.innerHTML =
-      '<div class="step"><span class="step-num">1</span> Open this page in <strong>Safari</strong> for the best experience</div>' +
-      '<div class="step"><span class="step-num">2</span> Tap the share button, then <strong>"Add to Home Screen"</strong></div>';
-  } else if (isFirefox) {
-    steps.innerHTML =
-      '<div class="step"><span class="step-num">1</span> Open this page in <strong>Safari</strong> for Home Screen support</div>';
-  } else {
-    steps.innerHTML =
-      '<div class="step"><span class="step-num">1</span> Tap the share button <span class="step-icon">&#xFEFF;&#x2B06;&#xFE0E;</span> at the bottom</div>' +
-      '<div class="step"><span class="step-num">2</span> Scroll down and tap <strong>"Add to Home Screen"</strong></div>' +
-      '<div class="step"><span class="step-num">3</span> Tap <strong>"Add"</strong> to install</div>';
-  }
-
-  setTimeout(function() { banner.classList.add('show'); }, 4000);
-}
-
-function triggerInstall() {
-  if (!_deferredInstallPrompt) return;
-  _deferredInstallPrompt.prompt();
-  _deferredInstallPrompt.userChoice.then(function(result) {
-    if (result.outcome === 'accepted') {
-      showToast('Installing Spin Web...');
-    }
-    _deferredInstallPrompt = null;
   });
-}
 
-function dismissInstallBanner() {
-  var banner = document.getElementById('install-banner');
-  if (banner) banner.classList.remove('show');
-  try {
-    localStorage.setItem(INSTALL_DISMISSED_KEY, Date.now().toString());
-  } catch (e) { /* ignore */ }
-}
+  window.addEventListener("appinstalled", () => {
+    appState.deferredInstallPrompt = null;
+    dismissInstallBanner();
+    showToast("Spin Web installed.");
+  });
 
-/* ─── Security Status Dashboard ──────────────────────────  */
-var _sessionStart = Date.now();
+  showInstallBannerIOS();
+};
 
-function initSecurityDashboard() {
-  updateSecurityStatus();
-  // Update uptime every second
-  setInterval(updateSessionUptime, 1000);
-}
+const updateSecurityStatus = () => {
+  const connection = byId("sec-connection");
+  const storage = byId("sec-storage");
+  const dnt = byId("sec-dnt");
+  const cookies = byId("sec-cookies");
+  const dataOut = byId("sec-data-out");
 
-function updateSecurityStatus() {
-  // Connection security
-  var connCell = document.getElementById('sec-connection');
-  if (connCell) {
-    var isSecure = location.protocol === 'https:';
-    var indicator = connCell.querySelector('.sec-cell-indicator');
-    var value = connCell.querySelector('.sec-cell-value');
-    if (isSecure) {
-      indicator.className = 'sec-cell-indicator green';
-      value.textContent = 'HTTPS';
-    } else {
-      indicator.className = 'sec-cell-indicator orange';
-      value.textContent = 'HTTP';
-    }
+  if (connection) {
+    const secure = location.protocol === "https:";
+    connection.querySelector(".sec-cell-indicator").className = `sec-cell-indicator ${
+      secure ? "green" : "orange"
+    }`;
+    connection.querySelector(".sec-cell-value").textContent = secure ? "HTTPS" : "HTTP";
   }
 
-  // Data sent (always zero - client-side only)
-  var dataCell = document.getElementById('sec-data-out');
-  if (dataCell) {
-    dataCell.querySelector('.sec-cell-indicator').className = 'sec-cell-indicator green';
-    dataCell.querySelector('.sec-cell-value').textContent = 'ZERO';
+  if (dataOut) {
+    const hasExternal = appState.externalRequests > 0;
+    dataOut.querySelector(".sec-cell-indicator").className = `sec-cell-indicator ${
+      hasExternal ? "orange" : "green"
+    }`;
+    dataOut.querySelector(".sec-cell-value").textContent = hasExternal
+      ? `OPT-IN (${appState.externalRequests})`
+      : "ZERO";
   }
 
-  // Storage usage
-  var storageCell = document.getElementById('sec-storage');
-  if (storageCell) {
-    var bytes = 0;
+  if (storage) {
+    let bytes = 0;
     try {
-      for (var key in localStorage) {
-        if (localStorage.hasOwnProperty(key)) {
-          bytes += localStorage.getItem(key).length * 2; // UTF-16
-        }
-      }
-    } catch (e) { /* ignore */ }
-    var indicator = storageCell.querySelector('.sec-cell-indicator');
-    var value = storageCell.querySelector('.sec-cell-value');
-    if (bytes < 1024) {
-      value.textContent = bytes + ' B';
-    } else if (bytes < 1048576) {
-      value.textContent = (bytes / 1024).toFixed(1) + ' KB';
-    } else {
-      value.textContent = (bytes / 1048576).toFixed(1) + ' MB';
+      Object.keys(localStorage).forEach((key) => {
+        bytes += (localStorage.getItem(key) || "").length * 2;
+      });
+    } catch (_err) {
+      bytes = 0;
     }
-    indicator.className = bytes > 4194304 ? 'sec-cell-indicator orange' : 'sec-cell-indicator green';
+    const formatted =
+      bytes < 1024 ? `${bytes} B` : bytes < 1048576 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1048576).toFixed(1)} MB`;
+    storage.querySelector(".sec-cell-value").textContent = formatted;
+    storage.querySelector(".sec-cell-indicator").className = `sec-cell-indicator ${
+      bytes > 4 * 1024 * 1024 ? "orange" : "green"
+    }`;
   }
 
-  // Do Not Track
-  var dntCell = document.getElementById('sec-dnt');
-  if (dntCell) {
-    var dnt = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
-    var dntOn = dnt === '1' || dnt === 'yes';
-    var indicator = dntCell.querySelector('.sec-cell-indicator');
-    var value = dntCell.querySelector('.sec-cell-value');
-    if (dntOn) {
-      indicator.className = 'sec-cell-indicator green';
-      value.textContent = 'ON';
-    } else {
-      indicator.className = 'sec-cell-indicator orange';
-      value.textContent = 'OFF';
-    }
+  if (dnt) {
+    const dntValue = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+    const enabled = dntValue === "1" || dntValue === "yes";
+    dnt.querySelector(".sec-cell-indicator").className = `sec-cell-indicator ${
+      enabled ? "green" : "orange"
+    }`;
+    dnt.querySelector(".sec-cell-value").textContent = enabled ? "ON" : "OFF";
   }
 
-  // Cookies
-  var cookieCell = document.getElementById('sec-cookies');
-  if (cookieCell) {
-    var indicator = cookieCell.querySelector('.sec-cell-indicator');
-    var value = cookieCell.querySelector('.sec-cell-value');
-    if (navigator.cookieEnabled) {
-      indicator.className = 'sec-cell-indicator orange';
-      value.textContent = 'ENABLED';
-    } else {
-      indicator.className = 'sec-cell-indicator green';
-      value.textContent = 'BLOCKED';
-    }
+  if (cookies) {
+    const enabled = navigator.cookieEnabled;
+    cookies.querySelector(".sec-cell-indicator").className = `sec-cell-indicator ${
+      enabled ? "orange" : "green"
+    }`;
+    cookies.querySelector(".sec-cell-value").textContent = enabled ? "ENABLED" : "BLOCKED";
   }
-}
+};
 
-function updateSessionUptime() {
-  var uptimeCell = document.getElementById('sec-uptime');
-  if (!uptimeCell) return;
+const updateSessionUptime = () => {
+  const uptime = byId("sec-uptime");
+  if (!uptime) return;
+  const elapsed = Math.floor((Date.now() - appState.sessionStart) / 1000);
+  const hours = Math.floor(elapsed / 3600);
+  const minutes = Math.floor((elapsed % 3600) / 60);
+  const seconds = elapsed % 60;
+  uptime.querySelector(".sec-cell-value").textContent =
+    hours > 0 ? `${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}` : `${pad2(minutes)}:${pad2(seconds)}`;
+};
 
-  var elapsed = Math.floor((Date.now() - _sessionStart) / 1000);
-  var hrs = Math.floor(elapsed / 3600);
-  var mins = Math.floor((elapsed % 3600) / 60);
-  var secs = elapsed % 60;
+const initSecurityDashboard = () => {
+  updateSecurityStatus();
+  updateSessionUptime();
+  setInterval(updateSessionUptime, 1000);
+  setInterval(updateSecurityStatus, 30000);
+};
 
-  var value = uptimeCell.querySelector('.sec-cell-value');
-  if (value) {
-    if (hrs > 0) {
-      value.textContent = pad2(hrs) + ':' + pad2(mins) + ':' + pad2(secs);
-    } else {
-      value.textContent = pad2(mins) + ':' + pad2(secs);
+const resetInputAndOutput = (inputId, resultId, hintId) => {
+  const input = byId(inputId);
+  const output = byId(resultId);
+  if (input) input.value = "";
+  if (output) output.innerHTML = "";
+  if (hintId) setHint(hintId, "", "info");
+  input?.focus();
+};
+
+const bindToolActions = () => {
+  byId("phone-analyze-btn")?.addEventListener("click", analyzePhone);
+  byId("email-analyze-btn")?.addEventListener("click", analyzeEmail);
+  byId("username-analyze-btn")?.addEventListener("click", analyzeUsername);
+  byId("domain-analyze-btn")?.addEventListener("click", analyzeDomain);
+  byId("extract-btn")?.addEventListener("click", extractEntities);
+
+  byId("phone-reset-btn")?.addEventListener("click", () =>
+    resetInputAndOutput("phone-input", "phone-results", "phone-hint")
+  );
+  byId("email-reset-btn")?.addEventListener("click", () =>
+    resetInputAndOutput("email-input", "email-results", "email-hint")
+  );
+  byId("username-reset-btn")?.addEventListener("click", () =>
+    resetInputAndOutput("username-input", "username-results", "username-hint")
+  );
+  byId("domain-reset-btn")?.addEventListener("click", () =>
+    resetInputAndOutput("domain-input", "domain-results", "domain-hint")
+  );
+  byId("extract-reset-btn")?.addEventListener("click", () =>
+    resetInputAndOutput("extract-input", "extract-results")
+  );
+
+  const enterHandlers = [
+    { id: "phone-input", fn: analyzePhone },
+    { id: "email-input", fn: analyzeEmail },
+    { id: "username-input", fn: analyzeUsername },
+    { id: "domain-input", fn: analyzeDomain }
+  ];
+  enterHandlers.forEach(({ id, fn }) => {
+    byId(id)?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") fn();
+    });
+  });
+
+  byId("phone-input")?.addEventListener("input", () => {
+    const value = byId("phone-input").value.trim();
+    if (!value) return setHint("phone-hint", "Tip: include country code for best results.", "info");
+    const validation = validators.phone(value);
+    setHint("phone-hint", validation.message || "Looks good.", validation.valid ? "success" : "error");
+  });
+  byId("email-input")?.addEventListener("input", () => {
+    const value = byId("email-input").value.trim();
+    if (!value) return setHint("email-hint", "Tip: use a full address like user@example.com.", "info");
+    const validation = validators.email(value);
+    setHint("email-hint", validation.message || "Looks good.", validation.valid ? "success" : "error");
+  });
+  byId("username-input")?.addEventListener("input", () => {
+    const value = byId("username-input").value.trim();
+    if (!value) return setHint("username-hint", "Tip: 3-30 characters, letters/numbers/._-", "info");
+    const validation = validators.username(value);
+    setHint("username-hint", validation.message || "Looks good.", validation.valid ? "success" : "error");
+  });
+  byId("domain-input")?.addEventListener("input", () => {
+    const value = byId("domain-input").value.trim();
+    if (!value) return setHint("domain-hint", "Tip: use a domain like example.com.", "info");
+    const validation = validators.domain(value);
+    setHint("domain-hint", validation.message || "Looks good.", validation.valid ? "success" : "error");
+  });
+};
+
+const bindHivemindActions = () => {
+  byId("entity-import-btn")?.addEventListener("click", importEntities);
+  byId("entity-export-json-btn")?.addEventListener("click", exportEntitiesJson);
+  byId("entity-export-csv-btn")?.addEventListener("click", exportEntitiesCsv);
+  byId("entity-clear-btn")?.addEventListener("click", clearAllEntities);
+
+  const rerender = debounce(renderEntityTable, 120);
+  ["entity-filter", "entity-sort"].forEach((id) =>
+    byId(id)?.addEventListener("change", renderEntityTable)
+  );
+  ["entity-search", "entity-source-filter"].forEach((id) =>
+    byId(id)?.addEventListener("input", rerender)
+  );
+};
+
+const bindBookmarkSearch = () => {
+  byId("bookmark-search")?.addEventListener("input", debounce(renderBookmarks, 150));
+};
+
+const bindDelegatedActions = () => {
+  document.addEventListener("click", (event) => {
+    const copyButton = event.target.closest("[data-copy]");
+    if (copyButton) {
+      copyToClipboard(copyButton.getAttribute("data-copy"));
+      return;
     }
-  }
-}
 
-function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+    const saveButton = event.target.closest("[data-save-type][data-save-value]");
+    if (saveButton) {
+      saveEntity(
+        saveButton.getAttribute("data-save-type"),
+        saveButton.getAttribute("data-save-value"),
+        "Text Extract"
+      );
+      maybeRenderHivemind();
+      showToast("Saved to Hivemind.");
+      return;
+    }
 
+    const deleteButton = event.target.closest("[data-delete-entity]");
+    if (deleteButton) {
+      deleteEntity(deleteButton.getAttribute("data-delete-entity"));
+    }
+  });
+};
 
-/* ─── Initialize ─────────────────────────────────────────  */
-document.addEventListener('DOMContentLoaded', function() {
-  // Run loading screen
+const initRuntimeTimers = () => {
+  rotateTagline();
+  rotateFooterJoke();
+  setInterval(rotateTagline, 10000);
+  setInterval(rotateFooterJoke, 15000);
+  setTimeout(() => {
+    showRandomTipPopup();
+    setInterval(showRandomTipPopup, 45000);
+  }, 20000);
+};
+
+const initApp = () => {
   runLoadingSequence();
-
-  // Register service worker for offline/PWA
   registerServiceWorker();
-
-  // Generate apple-touch-icon dynamically
   generateAppleTouchIcon();
 
-  // Security dashboard
+  initTheme();
+  initNavigation();
+  initJokes();
+  initTicker();
+  initInstallBanner();
   initSecurityDashboard();
+  initRuntimeTimers();
 
+  bindToolActions();
+  bindHivemindActions();
+  bindBookmarkSearch();
+  bindDelegatedActions();
 
-  // Update entity counts
-  updateEntityCount();
-
-  // Render bookmarks
   renderBookmarks();
-
-  // Generate case number and session ID
+  renderEntityTable();
+  updateEntityCount();
   generateCaseNumber();
   generateSessionId();
+};
 
-  // Show first joke
-  randomJoke();
+window.closeTipPopup = closeTipPopup;
+window.dismissInstallBanner = dismissInstallBanner;
+window.triggerInstall = triggerInstall;
+window.nextJoke = () => displayJoke({ animate: true });
+window.switchPanel = switchPanel;
 
-  // Initialize ticker
-  initTicker();
-
-  // Set initial tagline
-  rotateTagline();
-
-  // Set initial footer joke
-  rotateFooterJoke();
-
-  // Set up entity filter/search listeners
-  var filter = document.getElementById('entity-filter');
-  var search = document.getElementById('entity-search');
-  var debouncedEntityRender = debounce(renderEntityTable, 200);
-  if (filter) filter.addEventListener('change', renderEntityTable);
-  if (search) search.addEventListener('input', debouncedEntityRender);
-
-  // Set up bookmark search
-  var bmSearch = document.getElementById('bookmark-search');
-  var debouncedBookmarkRender = debounce(renderBookmarks, 200);
-  if (bmSearch) bmSearch.addEventListener('input', debouncedBookmarkRender);
-
-  // Enter key handlers for inputs
-  var inputHandlers = [
-    { id: 'phone-input', fn: analyzePhone },
-    { id: 'email-input', fn: analyzeEmail },
-    { id: 'username-input', fn: analyzeUsername },
-    { id: 'domain-input', fn: analyzeDomain }
-  ];
-
-  inputHandlers.forEach(function(handler) {
-    var el = document.getElementById(handler.id);
-    if (el) {
-      el.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') handler.fn();
-      });
-    }
-  });
-
-  // Render initial entity table
-  renderEntityTable();
-
-  // Rotate tagline every 10 seconds
-  setInterval(rotateTagline, 10000);
-
-  // Rotate footer joke every 15 seconds
-  setInterval(rotateFooterJoke, 15000);
-
-  // Refresh security storage stats every 30s
-  setInterval(updateSecurityStatus, 30000);
-
-  // Show random tip popup every 45 seconds (first one after 20s)
-  setTimeout(function() {
-    showRandomTip();
-    setInterval(showRandomTip, 45000);
-  }, 20000);
-
-  // Show install banner (iOS manual instructions, Android via beforeinstallprompt)
-  setTimeout(showInstallBannerIOS, 3500);
-});
+document.addEventListener("DOMContentLoaded", initApp);
