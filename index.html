@@ -2,15 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Spin Web - OSINT Mini Toolkit</title>
   <meta name="description" content="Spin Web - A privacy-first OSINT investigation toolkit. Analyze phones, emails, usernames, and domains. 100% client-side.">
   <meta name="theme-color" content="#7b1feb">
   <meta property="og:title" content="Spin Web - OSINT Mini Toolkit">
   <meta property="og:description" content="Privacy-first OSINT investigation toolkit. All analysis runs locally in your browser.">
   <meta property="og:type" content="website">
+  <!-- PWA / iOS Home Screen -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Spin Web">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%237b1feb'/><text x='50' y='72' font-family='system-ui' font-size='60' font-weight='900' fill='white' text-anchor='middle'>S</text></svg>" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%237b1feb'/><text x='50' y='72' font-family='system-ui' font-size='60' font-weight='900' fill='white' text-anchor='middle'>S</text></svg>">
 </head>
 <body>
 
@@ -408,6 +415,19 @@
       <button onclick="closeTipPopup()" class="tip-close">&times;</button>
     </div>
     <p id="tip-popup-text"></p>
+  </div>
+
+  <!-- iOS Install Banner -->
+  <div id="install-banner" class="install-banner">
+    <div class="install-banner-content">
+      <div class="install-banner-icon">S</div>
+      <div class="install-banner-text">
+        <strong>Install Spin Web</strong>
+        <span>Add to Home Screen for the full app experience &mdash; offline access, no browser UI, instant launch.</span>
+      </div>
+      <button class="install-banner-close" onclick="dismissInstallBanner()" aria-label="Dismiss">&times;</button>
+    </div>
+    <div class="install-banner-steps" id="install-steps"></div>
   </div>
 
   <script src="app.js"></script>

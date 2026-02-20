@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7b1feb"/>
+      <stop offset="100%" stop-color="#1cdf66"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9b4ff0"/>
+      <stop offset="100%" stop-color="#1cdf66"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="#08080d"/>
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="url(#bg)" opacity="0.15"/>
+  <rect x="24" y="24" width="464" height="464" rx="92" fill="none" stroke="url(#ring)" stroke-width="3" opacity="0.4"/>
+  <text x="256" y="340" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="280" font-weight="900" fill="white" text-anchor="middle">S</text>
+  <circle cx="400" cy="400" r="48" fill="#1cdf66"/>
+  <circle cx="400" cy="400" r="20" fill="#08080d"/>
+  <circle cx="400" cy="400" r="8" fill="#1cdf66"/>
+</svg>
